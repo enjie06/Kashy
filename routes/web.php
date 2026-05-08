@@ -11,6 +11,10 @@ Route::get('/katalog', function () {
     return view('pelanggan.katalog');
 })->name('katalog');
 
+Route::get('/daftarproduk', function () {
+    return view('pelanggan.daftarproduk');
+})->name('daftar-produk');
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');

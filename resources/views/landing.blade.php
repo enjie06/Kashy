@@ -26,7 +26,7 @@
 
         {{-- Background Image --}}
         <img
-            src="{{ asset('images/baju.jpeg') }}"
+            src="{{ asset('images/bajuuu.jpg') }}"
             alt="SND Store"
             class="absolute inset-0 w-full h-full object-cover"
         >
