@@ -41,13 +41,13 @@
 </head>
 <body class="bg-bg min-h-screen flex flex-col">
 
-<!-- TOPBAR -->
+<!-- ════ TOPBAR ════ -->
 <nav class="sticky top-0 z-50 bg-gray-900 px-5 py-3.5 flex items-center justify-center shadow-md">
-  <a href="javascript:history.back()" class="absolute left-5 flex items-center gap-1.5 text-xs text-gray-400 hover:text-white transition">
+  <a href="javascript:history.back()"  class="absolute left-5 flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors no-underline">
     <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5m7-7-7 7 7 7"/></svg>
     Kembali
   </a>
-  <span class="font-display text-xl font-bold text-white tracking-widest italic">SND STORE</span>
+  <span class="font-sans text-xl font-bold text-white tracking-normal">SND STORE</span>
 </nav>
 
 <!-- KONTEN UTAMA -->

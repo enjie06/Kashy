@@ -28,7 +28,6 @@
 
     {{-- Navbar --}}
     <nav class="w-full flex items-center justify-center py-4 px-6 bg-[#1c1c1c] z-10">
-        <span class="font-display text-white text-2xl font-bold tracking-widest italic">Kashy</span>
     </nav>
 
     {{-- Hero Section --}}
@@ -45,13 +44,13 @@
         {{-- Dark Overlay --}}
         <div class="absolute inset-0 bg-black/50"></div>
 
-        {{-- Hero Content --}}
-        <div class="relative z-10 flex flex-col items-center justify-end h-full w-full px-6 pb-12 md:pb-16 text-center"
+        {{-- Hero Content (DI TENGAH) --}}
+        <div class="relative z-10 flex flex-col items-center justify-center h-full w-full px-6 text-center"
              style="min-height: 80vh;">
 
             {{-- Store Name & Tagline --}}
             <div class="mb-8 md:mb-10">
-                <h1 class="font-display text-white text-5xl md:text-6xl lg:text-7xl font-bold tracking-widest mb-3 italic">
+                <h1 class="font-sans text-white text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-normal mb-3 uppercase">
                     SND STORE
                 </h1>
                 <p class="text-white/70 text-base md:text-lg italic font-light tracking-wide">

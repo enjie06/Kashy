@@ -59,11 +59,11 @@
 
 <!-- ════ TOPBAR ════ -->
 <nav class="sticky top-0 z-50 bg-gray-900 px-5 py-3.5 flex items-center justify-center shadow-md">
-  <a href="#" class="absolute left-5 flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors no-underline">
+  <a href="javascript:history.back()"  class="absolute left-5 flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors no-underline">
     <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5m7-7-7 7 7 7"/></svg>
     Kembali
   </a>
-  <span class="font-display text-xl font-bold text-white tracking-widest italic">SND STORE</span>
+  <span class="font-sans text-xl font-bold text-white tracking-normal">SND STORE</span>
 </nav>
 
 <!-- ════ HERO ════ -->
@@ -159,6 +159,121 @@
   <div class="inline-flex gap-3 px-3.5 min-w-full" id="diskonRow"></div>
 </div>
 
+<!-- ════ FOOTER HUBUNGI KAMI ════ -->
+<div class="mt-5 bg-gray-900 px-5 pt-8 pb-24">
+
+  <!-- Judul -->
+  <div class="mb-5">
+  <span class="font-sans text-3xl font-bold text-white tracking-normal">Hubungi Kami</span>
+  <div class="w-8 h-0.5 bg-terra mt-1 mb-2"></div>
+</div>
+
+  <!-- Kontak Cards -->
+  <div class="flex flex-col sm:flex-row gap-3 mb-5">
+
+    <!-- WhatsApp -->
+    <a href="https://wa.me/6285261246660" target="_blank"
+       class="flex items-center gap-3 bg-white/5 hover:bg-terra/20 border border-white/10 hover:border-terra/40 rounded-xl p-4 transition-all duration-200 group flex-1">
+      <div class="w-10 h-10 bg-terra rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
+        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+        </svg>
+      </div>
+      <div class="min-w-0">
+        <p class="text-xs text-gray-500 uppercase tracking-widest mb-0.5">WhatsApp</p>
+        <p class="text-terra text-sm font-bold group-hover:text-terra-l transition-colors">0852-6124-6660</p>
+      </div>
+      <svg class="w-4 h-4 text-gray-600 group-hover:text-terra transition-colors ml-auto flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+    </a>
+
+    <!-- Instagram -->
+    <a href="https://www.instagram.com/snd_store___?igsh=cmloaGdna3ptbnp5" target="_blank"
+       class="flex items-center gap-3 bg-white/5 hover:bg-terra/20 border border-white/10 hover:border-terra/40 rounded-xl p-4 transition-all duration-200 group flex-1">
+      <div class="w-10 h-10 bg-terra rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
+        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/>
+        </svg>
+      </div>
+      <div class="min-w-0">
+        <p class="text-xs text-gray-500 uppercase tracking-widest mb-0.5">Instagram</p>
+        <p class="text-white text-sm font-medium group-hover:text-terra transition-colors">@snd_store___</p>
+      </div>
+      <svg class="w-4 h-4 text-gray-600 group-hover:text-terra transition-colors ml-auto flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+    </a>
+
+  </div>
+
+  <!-- Lokasi & Map -->
+  <div class="bg-white/5 border border-white/10 rounded-xl overflow-hidden mb-5">
+    <div class="px-4 py-3 flex items-center gap-3 border-b border-white/10">
+      <div class="w-8 h-8 bg-terra/20 rounded-lg flex items-center justify-center flex-shrink-0">
+        <svg class="w-4 h-4 text-terra" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+      </div>
+      <div>
+        <p class="text-xs text-gray-500 uppercase tracking-widest">Lokasi Toko</p>
+        <p class="text-white text-sm font-medium">Jl. Bromo No.171 C, Binjai, Kec. Medan Denai,</p>
+        <p class="text-white text-sm font-medium">Kota Medan, Sumatera Utara 20227</p>
+      </div>
+      <a href="https://maps.app.goo.gl/AwT71cgeBkxNmFse9" target="_blank"
+         class="ml-auto text-xs text-terra hover:text-terra-l transition-colors font-medium flex-shrink-0 whitespace-nowrap">
+        Buka Maps →
+      </a>
+    </div>
+    <!-- Embed Google Maps -->
+    <div class="w-full h-52">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3982.0!2d98.6892!3d3.5952!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMy41OTUyLDk4LjY4OTI!5e0!3m2!1sid!2sid!4v1620000000000!5m2!1sid!2sid"
+        width="100%" height="100%"
+        style="border:0; filter: grayscale(30%) contrast(1.1);"
+        allowfullscreen="" loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade">
+      </iframe>
+    </div>
+  </div>
+
+  <!-- Footer Brand -->
+  <div class="relative bg-gray-950 rounded-xl overflow-hidden px-6 py-8 mb-5">
+    <!-- Decorative leaves kiri -->
+    <div class="absolute left-0 top-0 bottom-0 w-20 opacity-20">
+      <svg viewBox="0 0 80 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-full">
+        <path d="M10 180 Q30 140 20 100 Q10 60 30 20" stroke="#C8966C" stroke-width="1.5" fill="none"/>
+        <path d="M20 160 Q50 130 35 90" stroke="#C8966C" stroke-width="1" fill="none"/>
+        <path d="M15 140 Q-10 110 10 80" stroke="#C8966C" stroke-width="1" fill="none"/>
+        <path d="M25 120 Q55 100 40 70" stroke="#C8966C" stroke-width="1" fill="none"/>
+        <path d="M10 100 Q-15 75 5 50" stroke="#C8966C" stroke-width="1" fill="none"/>
+      </svg>
+    </div>
+    <!-- Decorative leaves kanan -->
+    <div class="absolute right-0 top-0 bottom-0 w-20 opacity-20">
+      <svg viewBox="0 0 80 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-full">
+        <path d="M70 180 Q50 140 60 100 Q70 60 50 20" stroke="#C8966C" stroke-width="1.5" fill="none"/>
+        <path d="M60 160 Q30 130 45 90" stroke="#C8966C" stroke-width="1" fill="none"/>
+        <path d="M65 140 Q90 110 70 80" stroke="#C8966C" stroke-width="1" fill="none"/>
+        <path d="M55 120 Q25 100 40 70" stroke="#C8966C" stroke-width="1" fill="none"/>
+        <path d="M70 100 Q95 75 75 50" stroke="#C8966C" stroke-width="1" fill="none"/>
+      </svg>
+    </div>
+
+    <!-- Content -->
+    <div class="relative z-10 text-center">
+      <div class="font-sans text-3xl font-bold text-white text-white tracking-normal mb-3">SND STORE</div>
+      <div class="w-12 h-0.5 bg-terra mx-auto mb-4"></div>
+      <p class="text-gray-400 text-xs leading-relaxed max-w-xs mx-auto mb-6">
+        SND Store adalah Toko Thrift terbaik untuk Anda. Kami menghadirkan beragam pilihan kategori pakaian yang selalu up to date dengan tren fashion masa kini. Setiap produk di SND Store telah melalui proses seleksi ketat sehingga tetap dalam kondisi terbaik, layaknya baru.
+      </p>
+      <!-- Heart icon -->
+      <svg class="w-5 h-5 text-terra mx-auto mb-4" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/>
+      </svg>
+      <p class="text-gray-600 text-xs">© 2026 SND Store. All rights reserved.</p>
+    </div>
+  </div>
+
+</div>
+
 <!-- BOTTOM NAV -->
 <nav class="sticky bottom-0 z-50 bg-white border-t border-border flex justify-around py-2.5 pb-4 shadow-[0_-2px_12px_rgba(28,28,28,0.06)]">
   <button class="bn-item active flex flex-col items-center gap-1 flex-1 border-0 bg-transparent cursor-pointer font-body p-0">
@@ -233,7 +348,7 @@ function render() {
       <div class="p-2.5 pb-3">
         <div class="text-xs font-semibold text-gray-900 mb-1 leading-tight line-clamp-2">${p.name}</div>
         <div class="flex items-baseline gap-1.5 flex-wrap">
-          <span class="text-sm font-bold text-gray-900">${p.price}</span>
+          <span class="text-sm font-bold text-terra">${p.price}</span>
           ${p.old ? `<span class="text-xs text-muted line-through">${p.old}</span>` : ''}
         </div>
       </div>

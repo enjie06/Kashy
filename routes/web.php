@@ -5,11 +5,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('landing');
-});
+})->name('landing');
 
 Route::get('/owner/dashboard', function () {
     return view('owner.dashboard');
-})->middleware('auth');
+});
 
 Route::get('/kasir/dashboard', function () {
     return view('kasir.dashboard');
@@ -17,7 +17,11 @@ Route::get('/kasir/dashboard', function () {
 
 Route::get('/karyawan/dashboard', function () {
     return view('karyawan.dashboard');
-})->middleware('auth');
+})->name('dashboard-karyawan');
+
+Route::get('/absensi', function () {
+    return view('karyawan.absensi');
+})->name('absensi');
 
 Route::get('/katalog', function () {
     return view('pelanggan.katalog');

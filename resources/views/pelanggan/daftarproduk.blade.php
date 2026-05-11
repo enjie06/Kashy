@@ -47,13 +47,13 @@
 </head>
 <body class="bg-bg min-h-screen flex flex-col">
 
-<!-- TOPBAR -->
+<!-- ════ TOPBAR ════ -->
 <nav class="sticky top-0 z-50 bg-gray-900 px-5 py-3.5 flex items-center justify-center shadow-md">
-  <a href="javascript:history.back()" class="absolute left-5 flex items-center gap-1.5 text-xs text-gray-400 hover:text-white transition">
+  <a href="javascript:history.back()"  class="absolute left-5 flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors no-underline">
     <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5m7-7-7 7 7 7"/></svg>
     Kembali
   </a>
-  <span class="font-display text-xl font-bold text-white tracking-widest italic">SND STORE</span>
+  <span class="font-sans text-xl font-bold text-white tracking-normal">SND STORE</span>
 </nav>
 
 <!-- SEARCH -->
@@ -91,7 +91,6 @@
 <!-- PAGINATION -->
 <div class="flex flex-col items-center gap-2.5 px-4 py-4 pb-5">
   <div class="flex items-center justify-center gap-2 text-xs text-muted">
-    <div class="text-xs text-muted text-center" id="resultCount"></div>
     <span>Produk Per halaman:</span>
     <div class="relative">
       <select id="perPageSelect" onchange="onPerPageChange()"
@@ -222,7 +221,6 @@ function render() {
 
   document.getElementById('pageTitle').textContent = CAT_LABELS[currentCat] || 'Semua Produk';
   document.getElementById('pageSub').textContent = `Menampilkan ${total} produk${currentSearch ? ` untuk "${currentSearch}"` : ''}`;
-  document.getElementById('resultCount').textContent = total ? `${start+1}–${Math.min(start+perPage,total)} dari ${total} produk` : '';
 
   const grid = document.getElementById('productGrid');
   if (!paged.length) {
@@ -253,7 +251,7 @@ function render() {
       <div class="p-2.5 pb-3">
         <div class="text-xs font-semibold text-gray-900 mb-1 leading-tight line-clamp-2">${p.name}</div>
         <div class="flex items-baseline gap-1.5 flex-wrap">
-          <span class="text-sm font-bold text-gray-900">${p.price}</span>
+          <span class="text-sm font-bold text-terra">${p.price}</span>
           ${p.old ? `<span class="text-xs text-muted line-through">${p.old}</span>` : ''}
         </div>
       </div>
