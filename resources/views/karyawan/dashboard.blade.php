@@ -59,14 +59,53 @@
 
 <!-- TOPBAR -->
 <nav class="sticky top-0 z-20 bg-gray-900 px-5 py-3 flex items-center justify-between shadow-md">
+  
   <div class="w-8"></div>
-  <span class="font-display text-xl font-bold text-white tracking-widest">Kashy</span>
-  <button class="relative w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9C8B7E" stroke-width="2">
-      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-    </svg>
-    <span class="absolute top-1 right-1 w-2 h-2 bg-terra rounded-full border border-gray-900"></span>
-  </button>
+
+  <span class="font-display text-xl font-bold text-white tracking-widest">
+    Kashy
+  </span>
+
+  <!-- Right Actions -->
+  <div class="flex items-center gap-2">
+
+    <!-- Notification -->
+    <button class="relative w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9C8B7E" stroke-width="2">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+      </svg>
+      <span class="absolute top-1 right-1 w-2 h-2 bg-terra rounded-full border border-gray-900"></span>
+    </button>
+
+    <!-- Logout -->
+    <form method="POST" action="{{ route('logout') }}">
+      @csrf
+
+      <button 
+        type="submit"
+        class="w-8 h-8 flex items-center justify-center rounded-full 
+               bg-terra-xs border border-terra-ll 
+               hover:bg-terra transition-all duration-300 group"
+      >
+        <svg 
+          width="16" 
+          height="16" 
+          viewBox="0 0 24 24" 
+          fill="none" 
+          stroke="#C8966C" 
+          stroke-width="2.2"
+          class="group-hover:stroke-white transition"
+        >
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+          <polyline points="10 17 15 12 10 7"/>
+          <line x1="15" y1="12" x2="3" y2="12"/>
+        </svg>
+      </button>
+    </form>
+
+  </div>
+
 </nav>
 
 <main class="flex-1 overflow-y-auto px-4 pt-5 pb-28 max-w-2xl mx-auto w-full">
