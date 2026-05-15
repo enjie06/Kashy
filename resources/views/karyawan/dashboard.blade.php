@@ -259,7 +259,7 @@
     <div class="bn-icon w-10 h-10 rounded-xl flex items-center justify-center transition"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9C8B7E" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m9 16 2 2 4-4"/></svg></div>
     <span class="bn-label text-[10px] font-medium text-muted">Absensi</span>
   </button>
-  <button class="bn-item flex flex-col items-center gap-1 flex-1" onclick="window.location.href='/karyawan/stok-produk'">
+  <button class="bn-item flex flex-col items-center gap-1 flex-1" onclick="window.location.href='/karyawan/stok-produk'"> 
     <div class="bn-icon w-10 h-10 rounded-xl flex items-center justify-center transition"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9C8B7E" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div>
     <span class="bn-label text-[10px] font-medium text-muted">Stok Produk</span>
   </button>
