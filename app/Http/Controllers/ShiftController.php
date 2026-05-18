@@ -20,12 +20,11 @@ class ShiftController extends Controller
                                 ->first();
         
         if (!$attendance) {
-            // Buat baru dengan shift_status = aktif, status = 'hadir'
+            // Buat baru dengan shift_status = aktif
             Attendance::create([
                 'user_id' => $user->id,
                 'check_in' => null,
                 'check_out' => null,
-                'status' => 'hadir',     // WAJIB DIISI karena enum tidak boleh NULL
                 'shift_status' => 'aktif'
             ]);
         } else {
@@ -69,8 +68,7 @@ class ShiftController extends Controller
         if (!$attendance->check_in) {
             // MULAI BEKERJA
             $attendance->update([
-                'check_in' => now(),
-                'status' => 'hadir'
+                'check_in' => now()
             ]);
             
             return response()->json([
@@ -128,7 +126,7 @@ class ShiftController extends Controller
         ]);
     }
     
-    // Ambil history absensi karyawan (TAMBAHKAN METHOD INI)
+    // Ambil history absensi karyawan
     public function getHistory()
     {
         $user = Auth::user();
@@ -146,7 +144,6 @@ class ShiftController extends Controller
                 'date' => $history->created_at->translatedFormat('d M Y'),
                 'check_in' => $history->check_in ? date('H:i', strtotime($history->check_in)) : '--',
                 'check_out' => $history->check_out ? date('H:i', strtotime($history->check_out)) : '--',
-                'status' => $history->status ?? 'hadir'
             ];
         }
         
