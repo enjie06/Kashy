@@ -16,7 +16,7 @@ return new class extends Migration
         $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
         $table->datetime('check_in');
         $table->datetime('check_out')->nullable();
-        $table->enum('status', ['hadir', 'izin', 'sakit']);
+        // $table->enum('status', ['hadir', 'izin', 'sakit']); // HAPUS ATAU KOMENTAR
         $table->timestamps();
     });
 }
