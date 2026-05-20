@@ -29,6 +29,10 @@ Route::get('/kasir/laporantransaksi', function () {
     return view('kasir.laporantransaksi');
 })->middleware('auth')->name('kasir.laporantransaksi');
 
+Route::get('/kasir/profil', function () {
+    return view('kasir.profil');
+})->middleware('auth')->name('kasir.profil');
+
 // karyawan
 Route::get('/karyawan/dashboard', function () {
     return view('karyawan.dashboard');
