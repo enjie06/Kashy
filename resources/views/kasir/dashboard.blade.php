@@ -61,7 +61,6 @@
 </style>
 </head>
 @include('kasir.components.navbar')
-
 <body class="bg-bg min-h-screen flex flex-col">
 
 <!-- TOPBAR -->
@@ -93,7 +92,7 @@
   <!-- ACTION BUTTONS (Transaksi & Shift) -->
   <div class="grid grid-cols-2 gap-3 mb-6 fade-up delay-2">
     <!-- Transaksi Baru (disable saat shift tutup) -->
-    <button id="transaksiBtn" onclick="goTransaksi()"
+    <button id="transaksiBtn" onclick="window.location.href='{{ route('kasir.transaksi') }}'"
       class="bg-gray-900 hover:bg-gray-800 text-white rounded-xl px-4 py-4 flex items-center gap-3 shadow-md transition-all card-hover">
       <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
         <svg width="18" height="18" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
@@ -117,7 +116,7 @@
     </button>
   </div>
 
-  <!-- SHIFT CARD (dinamis) -->
+  <!-- SHIFT CARD (tanpa timeline) -->
   <div class="bg-white rounded-2xl shadow-sm border border-border overflow-hidden mb-6 fade-up delay-3">
     <div class="shimmer-bar h-1 w-full"></div>
     <div class="p-5">
@@ -142,7 +141,7 @@
         </div>
       </div>
 
-      <!-- Waktu Mulai dan Berakhir (selalu ditampilkan) -->
+      <!-- Waktu Mulai dan Berakhir -->
       <div class="grid grid-cols-2 gap-4 mb-4">
         <div>
           <p class="text-[10px] text-muted uppercase tracking-wide">Mulai</p>
@@ -154,20 +153,7 @@
         </div>
       </div>
 
-      <!-- Timeline (hanya muncul saat shift aktif) -->
-      <div id="shiftTimeline" class="mb-4 hidden">
-        <div class="flex justify-between text-[10px] text-muted mb-1">
-          <span id="timelineStart">08:00</span>
-          <span class="text-terra font-semibold" id="currentTimeLabel">--:--</span>
-          <span id="timelineEnd">16:00</span>
-        </div>
-        <div class="h-1.5 bg-stone-100 rounded-full overflow-hidden">
-          <div id="shiftProgressBar" class="h-full bg-terra rounded-full" style="width:0%"></div>
-        </div>
-        <p class="text-[10px] text-muted mt-1 text-right" id="durasiLabel">Durasi: --j --m</p>
-      </div>
-
-      <!-- Informasi Kasir & Posisi (selalu ditampilkan) -->
+      <!-- Informasi Kasir & Posisi -->
       <div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 text-xs text-muted border-t border-border pt-4">
         <div class="flex items-center gap-1.5">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -187,7 +173,7 @@
     </div>
   </div>
 
-  <!-- PENJUALAN CARD (dinamis -> 0 jika shift belum buka) -->
+  <!-- PENJUALAN CARD -->
   <div class="bg-white rounded-2xl shadow-sm border border-border overflow-hidden mb-6 fade-up delay-3">
     <div class="p-5">
       <div class="flex items-center gap-2.5 mb-3">
@@ -203,15 +189,40 @@
         </div>
         <span id="penjualanPercent" class="text-[10px] text-muted">0% dari target</span>
       </div>
+
+      <!-- Ikon metode pembayaran (sesuai halaman pembayaran) -->
       <div class="flex gap-2 mt-4 flex-wrap">
-        <span class="text-[10px] font-medium px-2.5 py-1 rounded-full bg-terra-xs text-terra">💵 Tunai: Rp 0</span>
-        <span class="text-[10px] font-medium px-2.5 py-1 rounded-full bg-terra-xs text-terra">📱 QRIS: Rp 0</span>
-        <span class="text-[10px] font-medium px-2.5 py-1 rounded-full bg-terra-xs text-terra">💳 Debit: Rp 0</span>
+        <!-- Tunai -->
+        <span class="flex items-center gap-1.5 text-[10px] font-medium px-2.5 py-1 rounded-full bg-terra-xs text-terra">
+          <svg class="w-3.5 h-3.5 text-terra" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+            <rect x="2" y="6" width="20" height="12" rx="2"/>
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M6 12h.01M18 12h.01"/>
+          </svg>
+          Tunai: Rp <span id="tunaiNominal">0</span>
+        </span>
+
+        <!-- QRIS -->
+        <span class="flex items-center gap-1.5 text-[10px] font-medium px-2.5 py-1 rounded-full bg-terra-xs text-terra">
+          <svg class="w-3.5 h-3.5 text-terra" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M3 3h7v7H3V3zm1 1v5h5V4H4zm1 1h3v3H5V5zM14 3h7v7h-7V3zm1 1v5h5V4h-5zm1 1h3v3h-3V5zM3 14h7v7H3v-7zm1 1v5h5v-5H4zm1 1h3v3H5v-3zM14 14h2v2h-2v-2zm3 0h2v2h-2v-2zm-3 3h2v2h-2v-2zm3 0h2v2h-2v-2z"/>
+          </svg>
+          QRIS: Rp <span id="qrisNominal">0</span>
+        </span>
+
+        <!-- Debit -->
+        <span class="flex items-center gap-1.5 text-[10px] font-medium px-2.5 py-1 rounded-full bg-terra-xs text-terra">
+          <svg class="w-3.5 h-3.5 text-terra" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+            <rect x="2" y="5" width="20" height="14" rx="2"/>
+            <line x1="2" y1="10" x2="22" y2="10"/>
+          </svg>
+          Debit: Rp <span id="debitNominal">0</span>
+        </span>
       </div>
     </div>
   </div>
 
-  <!-- STATS ROW (Transaksi + Item Terjual) tanpa perbandingan -->
+  <!-- STATS ROW (Transaksi + Item Terjual) -->
   <div class="grid grid-cols-2 gap-3 mb-6 fade-up delay-3">
     <div class="bg-white rounded-2xl px-4 py-3 shadow-sm border border-border card-hover">
       <div class="flex items-center justify-between">
@@ -313,27 +324,14 @@
 </div>
 
 <script>
-  // ========== AMBIL STATUS SHIFT DARI LOCALSTORAGE ==========
-  // Key yang sama dengan halaman buka/tutup shift
+  // ========== SHIFT STORAGE ==========
   const SHIFT_STORAGE_KEY = 'kashy_shift';
-  const SHIFT_DURATION_MIN = 480; // 8 jam
+  const SHIFT_DURATION_MIN = 480;
   const DEFAULT_START = "08:00";
   const DEFAULT_END = "16:00";
 
   let shiftOpen = false;
   let shiftStartTime = null;
-  let initialBalance = 0;
-
-  // Data penjualan demo (akan diupdate saat shift aktif)
-  let salesData = {
-    total: 0,
-    tunai: 0,
-    qris: 0,
-    debit: 0,
-    target: 15000000,
-    transaksiCount: 0,
-    itemCount: 0
-  };
 
   // DOM elements
   const transaksiBtn = document.getElementById('transaksiBtn');
@@ -341,12 +339,6 @@
   const shiftBadge = document.getElementById('shiftBadge');
   const badgeDot = document.getElementById('badgeDot');
   const badgeText = document.getElementById('badgeText');
-  const shiftTimeline = document.getElementById('shiftTimeline');
-  const shiftProgressBar = document.getElementById('shiftProgressBar');
-  const currentTimeLabel = document.getElementById('currentTimeLabel');
-  const durasiLabelSpan = document.getElementById('durasiLabel');
-  const timelineStart = document.getElementById('timelineStart');
-  const timelineEnd = document.getElementById('timelineEnd');
   const shiftMulaiElem = document.getElementById('shiftMulai');
   const shiftBerakhirElem = document.getElementById('shiftBerakhir');
   const shiftHariTanggal = document.getElementById('shiftHariTanggal');
@@ -355,15 +347,14 @@
   const penjualanValue = document.getElementById('penjualanValue');
   const penjualanProgress = document.getElementById('penjualanProgress');
   const penjualanPercent = document.getElementById('penjualanPercent');
-  const tunaiSpan = document.querySelector('.flex.gap-2.mt-4.flex-wrap span:first-child');
-  const qrisSpan = document.querySelector('.flex.gap-2.mt-4.flex-wrap span:nth-child(2)');
-  const debitSpan = document.querySelector('.flex.gap-2.mt-4.flex-wrap span:last-child');
+  const tunaiNominal = document.getElementById('tunaiNominal');
+  const qrisNominal = document.getElementById('qrisNominal');
+  const debitNominal = document.getElementById('debitNominal');
   const transaksiCountSpan = document.getElementById('transaksiCount');
   const itemCountSpan = document.getElementById('itemCount');
 
   // Set hari/tanggal
-  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  shiftHariTanggal.innerText = new Date().toLocaleDateString('id-ID', options);
+  shiftHariTanggal.innerText = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
   function updateGreeting() {
     const h = new Date().getHours();
@@ -371,31 +362,25 @@
     if (h >= 11 && h < 15) greet = 'Selamat Siang';
     else if (h >= 15 && h < 18) greet = 'Selamat Sore';
     else if (h >= 18) greet = 'Selamat Malam';
-    const greetElem = document.querySelector('#greetTime');
-    if (greetElem) greetElem.innerText = greet;
     const heading = document.querySelector('h1');
     if(heading) heading.innerHTML = `${greet}, <span class="text-terra">Dewi Pratiwi</span>`;
   }
   updateGreeting();
 
-  // Load status shift dari localStorage
   function loadShiftFromStorage() {
     const saved = localStorage.getItem(SHIFT_STORAGE_KEY);
     if (saved) {
       try {
         const data = JSON.parse(saved);
         shiftOpen = data.active || false;
-        initialBalance = data.initialBalance || 0;
         if (data.startTime) {
           shiftStartTime = new Date(data.startTime);
-          // Jika shift sudah melebihi 8 jam, anggap selesai
           if (shiftOpen && shiftStartTime) {
             const now = new Date();
             const diffMinutes = (now - shiftStartTime) / 60000;
             if (diffMinutes >= SHIFT_DURATION_MIN) {
               shiftOpen = false;
               shiftStartTime = null;
-              initialBalance = 0;
               localStorage.removeItem(SHIFT_STORAGE_KEY);
             }
           }
@@ -406,71 +391,45 @@
     } else {
       shiftOpen = false;
       shiftStartTime = null;
-      initialBalance = 0;
     }
     updateUI();
   }
 
-  // Update tampilan penjualan (demo)
   function updateSalesUI() {
     if (shiftOpen && shiftStartTime) {
-      // Demo data: setelah shift dibuka, tampilkan angka contoh
-      salesData.total = 12450000;
-      salesData.tunai = 7200000;
-      salesData.qris = 3800000;
-      salesData.debit = 1450000;
-      salesData.transaksiCount = 48;
-      salesData.itemCount = 123;
+      // Demo data
+      const total = 12450000;
+      const tunai = 7200000;
+      const qris = 3800000;
+      const debit = 1450000;
+      const transCount = 48;
+      const itemCountVal = 123;
       
-      penjualanValue.innerText = `Rp ${salesData.total.toLocaleString('id-ID')}`;
-      const percent = Math.round((salesData.total / salesData.target) * 100);
+      penjualanValue.innerText = `Rp ${total.toLocaleString('id-ID')}`;
+      const percent = Math.round((total / 15000000) * 100);
       penjualanProgress.style.width = `${percent}%`;
       penjualanPercent.innerText = `${percent}% dari target`;
-      if (tunaiSpan) tunaiSpan.innerHTML = `💵 Tunai: Rp ${(salesData.tunai/1000000).toFixed(1)}jt`;
-      if (qrisSpan) qrisSpan.innerHTML = `📱 QRIS: Rp ${(salesData.qris/1000000).toFixed(1)}jt`;
-      if (debitSpan) debitSpan.innerHTML = `💳 Debit: Rp ${(salesData.debit/1000000).toFixed(1)}jt`;
-      transaksiCountSpan.innerText = salesData.transaksiCount;
-      itemCountSpan.innerText = salesData.itemCount;
-    } else {
-      salesData.total = 0;
-      salesData.tunai = 0;
-      salesData.qris = 0;
-      salesData.debit = 0;
-      salesData.transaksiCount = 0;
-      salesData.itemCount = 0;
       
+      tunaiNominal.innerText = tunai.toLocaleString('id-ID');
+      qrisNominal.innerText = qris.toLocaleString('id-ID');
+      debitNominal.innerText = debit.toLocaleString('id-ID');
+      
+      transaksiCountSpan.innerText = transCount;
+      itemCountSpan.innerText = itemCountVal;
+    } else {
       penjualanValue.innerText = "Rp 0";
       penjualanProgress.style.width = "0%";
       penjualanPercent.innerText = "0% dari target";
-      if (tunaiSpan) tunaiSpan.innerHTML = `💵 Tunai: Rp 0`;
-      if (qrisSpan) qrisSpan.innerHTML = `📱 QRIS: Rp 0`;
-      if (debitSpan) debitSpan.innerHTML = `💳 Debit: Rp 0`;
+      tunaiNominal.innerText = "0";
+      qrisNominal.innerText = "0";
+      debitNominal.innerText = "0";
       transaksiCountSpan.innerText = "0";
       itemCountSpan.innerText = "0";
     }
   }
 
-  // Update progress durasi shift
-  function updateShiftProgress() {
-    if (!shiftOpen || !shiftStartTime) return;
-    const now = new Date();
-    const elapsedMinutes = Math.floor((now - shiftStartTime) / 60000);
-    const hours = Math.floor(elapsedMinutes / 60);
-    const mins = elapsedMinutes % 60;
-    durasiLabelSpan.innerText = `Durasi: ${hours}j ${mins}m`;
-    let percent = (elapsedMinutes / SHIFT_DURATION_MIN) * 100;
-    percent = Math.min(100, Math.max(0, percent));
-    shiftProgressBar.style.width = `${percent}%`;
-    
-    const currentHours = now.getHours().toString().padStart(2,'0');
-    const currentMins = now.getMinutes().toString().padStart(2,'0');
-    if(currentTimeLabel) currentTimeLabel.innerText = `${currentHours}:${currentMins}`;
-  }
-
-  // Update seluruh UI shift
   function updateUI() {
     if (shiftOpen && shiftStartTime) {
-      // Shift AKTIF
       badgeDot.className = "w-2 h-2 rounded-full bg-green-500 pulse-dot";
       badgeText.innerText = "Aktif";
       shiftBadge.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-green-300 bg-green-100";
@@ -483,44 +442,29 @@
       
       shiftMulaiElem.innerText = `${startH}:${startM}`;
       shiftBerakhirElem.innerText = `${endH}:${endM}`;
-      timelineStart.innerText = `${startH}:${startM}`;
-      timelineEnd.innerText = `${endH}:${endM}`;
-      
-      shiftTimeline.classList.remove('hidden');
-      updateShiftProgress();
       
       shiftBtnLabel.innerText = "Tutup Shift";
       transaksiBtn.classList.remove('transaksi-disabled');
       transaksiBtn.disabled = false;
-      
-      updateSalesUI();
     } else {
-      // Shift TIDAK AKTIF
       badgeDot.className = "w-2 h-2 rounded-full bg-red-500";
       badgeText.innerText = "Tidak Aktif";
       shiftBadge.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-red-300 bg-red-100";
       
       shiftMulaiElem.innerText = DEFAULT_START;
       shiftBerakhirElem.innerText = DEFAULT_END;
-      timelineStart.innerText = DEFAULT_START;
-      timelineEnd.innerText = DEFAULT_END;
-      
-      shiftTimeline.classList.add('hidden');
-      durasiLabelSpan.innerText = "Durasi: --j --m";
-      shiftProgressBar.style.width = "0%";
       
       shiftBtnLabel.innerText = "Buka Shift";
       transaksiBtn.classList.add('transaksi-disabled');
       transaksiBtn.disabled = true;
-      
-      updateSalesUI();
     }
+    updateSalesUI();
   }
 
-  // Fungsi navigasi & toast
   function goTransaksi() {
     if (!shiftOpen) { showToast('Silakan buka shift terlebih dahulu!'); return; }
     showToast('Membuka halaman transaksi baru...');
+    // window.location.href = '/transaksi';
   }
   function goRiwayat() { showToast('Membuka riwayat transaksi...'); }
 
@@ -535,35 +479,9 @@
     }, 2600);
   }
 
-  function setNav(el) {
-    document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('active'));
-    el.classList.add('active');
-  }
-
-  // Interval untuk update progress (hanya saat shift aktif)
-  let progressInterval = null;
-  function startProgressInterval() {
-    if (progressInterval) clearInterval(progressInterval);
-    progressInterval = setInterval(() => {
-      if (shiftOpen && shiftStartTime) {
-        updateShiftProgress();
-      } else if (progressInterval) {
-        clearInterval(progressInterval);
-        progressInterval = null;
-      }
-    }, 60000);
-  }
-
-  // Inisialisasi: baca storage, lalu update UI dan jalankan interval
   loadShiftFromStorage();
-  startProgressInterval();
-
-  // Jika ada perubahan storage dari tab lain (misal dari halaman shift), update otomatis
   window.addEventListener('storage', (event) => {
-    if (event.key === SHIFT_STORAGE_KEY) {
-      loadShiftFromStorage();
-      startProgressInterval();
-    }
+    if (event.key === SHIFT_STORAGE_KEY) loadShiftFromStorage();
   });
 </script>
 </body>

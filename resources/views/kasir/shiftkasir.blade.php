@@ -41,16 +41,12 @@
   @keyframes pulse { 0%,100%{ opacity:1; transform:scale(1); } 50%{ opacity:0.7; transform:scale(1.2); } }
   input[type="text"]::-webkit-outer-spin-button,
   input[type="text"]::-webkit-inner-spin-button { -webkit-appearance: none; margin:0; }
-  .bn-item.active .bn-icon { background:#F0D7C7; }
-  .bn-item.active .bn-icon svg { stroke:#C8966C; }
-  .bn-item.active .bn-label { color:#C8966C; font-weight:600; }
 </style>
 </head>
 @include('kasir.components.navbar')
-
 <body class="bg-bg min-h-screen flex flex-col">
 
-<!-- TOPBAR -->
+<!-- TOPBAR (sama dengan dashboard) -->
 <nav class="sticky top-0 z-20 bg-gray-900 px-5 py-3 flex items-center justify-between shadow-md">
   <div class="w-8"></div>
   <span class="font-display text-xl font-bold text-white tracking-widest">Kashy</span>
@@ -65,6 +61,7 @@
   </div>
 </nav>
 
+<!-- MAIN CONTENT - ukuran dan padding disamakan dengan dashboard -->
 <main class="flex-1 max-w-2xl mx-auto w-full px-4 pt-6 pb-28">
   
   <!-- ======================= BUKA SHIFT SECTION ======================= -->
@@ -112,17 +109,17 @@
       </div>
     </div>
 
-    <!-- Ringkasan Transaksi -->
+    <!-- Ringkasan Transaksi dengan ikon dari halaman pembayaran -->
     <div class="bg-white rounded-2xl shadow-sm border border-border overflow-hidden mb-6">
       <div class="p-5 space-y-3">
+        <!-- Cash (Tunai) - menggunakan ikon Tunai dari pembayaran -->
         <div class="flex justify-between items-center p-3 bg-terra-xs rounded-xl">
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C8966C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2" y="6" width="20" height="12" rx="2" />
-                <path d="M6 12h12" />
-                <path d="M12 6v12" />
-                <circle cx="12" cy="12" r="2" />
+              <svg width="20" height="20" fill="none" stroke="#C8966C" stroke-width="1.8" viewBox="0 0 24 24">
+                <rect x="2" y="6" width="20" height="12" rx="2"/>
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M6 12h.01M18 12h.01"/>
               </svg>
             </div>
             <div>
@@ -132,14 +129,14 @@
           </div>
           <span class="font-extrabold text-gray-900 text-base" id="totalCash">Rp4.250.000</span>
         </div>
+
+        <!-- Non-Cash - menggunakan ikon Debit dari pembayaran (mewakili non-tunai) -->
         <div class="flex justify-between items-center p-3 bg-terra-xs rounded-xl">
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C8966C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2" y="5" width="20" height="14" rx="2" />
-                <path d="M2 10h20" />
-                <circle cx="8.5" cy="15.5" r="1.5" fill="#C8966C" />
-                <circle cx="8.5" cy="15.5" r="1.5" fill="none" />
+              <svg width="20" height="20" fill="none" stroke="#C8966C" stroke-width="1.8" viewBox="0 0 24 24">
+                <rect x="2" y="5" width="20" height="14" rx="2"/>
+                <line x1="2" y1="10" x2="22" y2="10"/>
               </svg>
             </div>
             <div>
@@ -170,13 +167,13 @@
     </div>
 
     <!-- Tombol Tutup -->
-<button onclick="showTutupShiftModal()" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-md transition-all card-hover">
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-  </svg>
-  Tutup Shift
-</button>
+    <button onclick="showTutupShiftModal()" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-md transition-all card-hover">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+      </svg>
+      Tutup Shift
+    </button>
   </div>
 </main>
 
@@ -226,9 +223,7 @@
         <h3 class="text-lg font-bold text-gray-900">Konfirmasi Tutup Shift</h3>
       </div>
       <p class="text-sm text-muted mb-4">Periksa kembali data verifikasi tunai berikut:</p>
-      <div id="verifikasiDetail" class="bg-gray-50 rounded-xl p-4 mb-5 space-y-2 text-sm">
-        <!-- detail akan diisi js -->
-      </div>
+      <div id="verifikasiDetail" class="bg-gray-50 rounded-xl p-4 mb-5 space-y-2 text-sm"></div>
       <div class="flex gap-3">
         <button onclick="closeTutupModal()" class="flex-1 py-2.5 rounded-xl border border-border bg-white text-gray-700 text-sm font-semibold hover:bg-gray-100 transition">Batal</button>
         <button id="confirmTutupBtn" class="flex-1 py-2.5 rounded-xl text-white text-sm font-semibold transition">Ya, Tutup Shift</button>
@@ -368,7 +363,7 @@
     showToast('✅ Shift berhasil dibuka! Selamat bekerja.');
   }
 
-  // ---------- MODAL KONFIRMASI TUTUP SHIFT (dengan warna tombol dinamis) ----------
+  // ---------- MODAL KONFIRMASI TUTUP SHIFT ----------
   const tutupModal = document.getElementById('confirmTutupModal');
   const verifikasiDetail = document.getElementById('verifikasiDetail');
   const confirmTutupBtn = document.getElementById('confirmTutupBtn');
@@ -387,7 +382,6 @@
     expectedCash = initialBalance + totalCash;
     selisih = finalCashValue - expectedCash;
 
-    // Bangun detail verifikasi
     let detailHtml = `
       <div class="flex justify-between text-sm">
         <span class="text-muted">Saldo awal kas:</span>
@@ -423,7 +417,6 @@
     }
     verifikasiDetail.innerHTML = detailHtml;
 
-    // Atur warna tombol berdasarkan selisih
     if (selisih >= 0) {
       confirmTutupBtn.className = "flex-1 py-2.5 rounded-xl bg-green-500 text-white text-sm font-semibold hover:bg-green-600 transition";
       confirmTutupBtn.innerText = "Ya, Tutup Shift";
@@ -442,7 +435,6 @@
   }
 
   function confirmTutupShift() {
-    // Proses tutup shift
     shiftActive = false;
     initialBalance = 0;
     shiftStartTime = null;
@@ -452,40 +444,7 @@
     showToast('✅ Shift berhasil ditutup! Terima kasih.');
   }
 
-  // Pasang event listener untuk tombol konfirmasi di modal tutup
   confirmTutupBtn.onclick = confirmTutupShift;
-
-  // ---------- FUNGSI TUTUP SHIFT LAMA (digantikan modal, tapi kita pertahankan untuk referensi) ----------
-  // Tidak digunakan lagi karena sudah pakai modal
-
-  // ---------- NAVIGASI ----------
-  function setNav(el) {
-    document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('active'));
-    el.classList.add('active');
-    const label = el.querySelector('.bn-label');
-    if (label) {
-      label.classList.add('text-terra');
-      label.classList.remove('text-muted');
-      const svg = el.querySelector('svg');
-      if (svg) svg.setAttribute('stroke', '#C8966C');
-    }
-    document.querySelectorAll('.bn-item:not(.active)').forEach(b => {
-      const lbl = b.querySelector('.bn-label');
-      if (lbl) lbl.classList.remove('text-terra');
-      const svg = b.querySelector('svg');
-      if (svg) svg.setAttribute('stroke', '#9C8B7E');
-    });
-  }
-
-  function goToPage(page) {
-    if (page === 'beranda') {
-      window.location.href = 'dashboard.html';
-    } else if (page === 'shift') {
-      showToast('Anda sudah di halaman Shift');
-    } else {
-      showToast(`Fitur ${page} sedang dalam pengembangan`);
-    }
-  }
 
   function showToast(msg) {
     const toast = document.getElementById('toast');
@@ -498,21 +457,7 @@
     }, 2600);
   }
 
-  // Inisialisasi
   loadShiftState();
-
-  // Set active nav ke Shift
-  document.querySelectorAll('.bn-item').forEach((item, idx) => {
-    if (idx === 3) {
-      item.classList.add('active');
-      const lbl = item.querySelector('.bn-label');
-      if (lbl) lbl.classList.add('text-terra');
-      const svg = item.querySelector('svg');
-      if (svg) svg.setAttribute('stroke', '#C8966C');
-    } else {
-      item.classList.remove('active');
-    }
-  });
 </script>
 </body>
 </html>
