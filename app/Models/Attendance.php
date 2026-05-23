@@ -13,14 +13,13 @@ class Attendance extends Model
         'user_id',
         'check_in',
         'check_out',
-        'status',
         'shift_status'
     ];
     
-   protected $casts = [
-    'check_in' => 'datetime',
-    'check_out' => 'datetime',
-];
+    protected $casts = [
+        'check_in' => 'datetime',
+        'check_out' => 'datetime',
+    ];
     
     public function user(): BelongsTo
     {

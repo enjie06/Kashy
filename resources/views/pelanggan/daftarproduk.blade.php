@@ -67,21 +67,68 @@
   </div>
 </div>
 
-<!-- PAGE HEADER -->
-<div class="px-4 pb-4 pt-1">
-  <div class="text-xl font-bold text-gray-900 mb-1" id="pageTitle">Semua Produk</div>
-  <div class="text-xs text-muted" id="pageSub">Menampilkan semua produk yang kami punya</div>
+
+<!-- ════ KATEGORI ════ -->
+<div class="flex items-center justify-between px-5 pb-3">
+  <span class="text-base font-bold text-gray-900"></span>
 </div>
 
-<!-- FILTER CHIPS -->
-<div class="overflow-x-auto hide-scroll px-4 pb-4">
-  <div class="inline-flex gap-2 min-w-full">
-    <button class="filter-chip flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium border-2 border-border bg-white text-muted cursor-pointer transition-all duration-200 hover:border-terra-l hover:text-terra hover:bg-terra-xs active font-body" data-cat="semua" onclick="setFilter(this)">Semua</button>
-    <button class="filter-chip flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium border-2 border-border bg-white text-muted cursor-pointer transition-all duration-200 hover:border-terra-l hover:text-terra hover:bg-terra-xs font-body" data-cat="kemeja" onclick="window.location.href='{{ route('daftar-produk') }}?cat=kemeja'">Kemeja</button>
-    <button class="filter-chip flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium border-2 border-border bg-white text-muted cursor-pointer transition-all duration-200 hover:border-terra-l hover:text-terra hover:bg-terra-xs font-body" data-cat="rok" onclick="window.location.href='{{ route('daftar-produk') }}?cat=rok'">Rok</button>
-    <button class="filter-chip flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium border-2 border-border bg-white text-muted cursor-pointer transition-all duration-200 hover:border-terra-l hover:text-terra hover:bg-terra-xs font-body" data-cat="cardigan" onclick="window.location.href='{{ route('daftar-produk') }}?cat=cardigan'">Cardigan</button>
-    <button class="filter-chip flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium border-2 border-border bg-white text-muted cursor-pointer transition-all duration-200 hover:border-terra-l hover:text-terra hover:bg-terra-xs font-body" data-cat="celana" onclick="window.location.href='{{ route('daftar-produk') }}?cat=celana'">Celana</button>
-    <button class="filter-chip flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium border-2 border-border bg-white text-muted cursor-pointer transition-all duration-200 hover:border-terra-l hover:text-terra hover:bg-terra-xs font-body" data-cat="jaket" onclick="window.location.href='{{ route('daftar-produk') }}?cat=jaket'">Jaket</button>
+<div class="overflow-x-auto hide-scroll pt-2 pb-6">
+  <div class="inline-flex gap-10 px-5 min-w-full justify-center items-start">
+  <button class="cat-btn active flex flex-col items-center gap-2 bg-transparent border-0 p-0 cursor-pointer font-body" onclick="window.location.href='{{ route('katalog') }}'">
+  <div class="cat-icon w-15 h-15 rounded-full bg-white border-2 border-border flex items-center justify-center transition-all duration-200 hover:border-terra hover:bg-terra-xs hover:-translate-y-1 hover:shadow-lg" style="width:60px;height:60px;">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#9C8B7E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+      <polyline points="9 22 9 12 15 12 15 22"/>
+    </svg>
+  </div>
+  <span class="cat-label text-xs font-medium text-muted whitespace-nowrap">Beranda</span>
+</button>
+    </button>
+    <button class="cat-btn flex flex-col items-center gap-2 bg-transparent border-0 p-0 cursor-pointer font-body" onclick="window.location.href='{{ route('daftar-produk') }}?cat=kemeja'">
+      <div class="cat-icon w-15 h-15 rounded-full bg-white border-2 border-border flex items-center justify-center transition-all duration-200 hover:border-terra hover:bg-terra-xs hover:-translate-y-1 hover:shadow-lg" style="width:60px;height:60px;">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#9C8B7E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/>
+        </svg>
+      </div>
+      <span class="cat-label text-xs font-medium text-muted whitespace-nowrap">Kemeja</span>
+    </button>
+    <button class="cat-btn flex flex-col items-center gap-2 bg-transparent border-0 p-0 cursor-pointer font-body" onclick="window.location.href='{{ route('daftar-produk') }}?cat=rok'">
+      <div class="cat-icon w-15 h-15 rounded-full bg-white border-2 border-border flex items-center justify-center transition-all duration-200 hover:border-terra hover:bg-terra-xs hover:-translate-y-1 hover:shadow-lg" style="width:60px;height:60px;">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#9C8B7E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="7" y="2" width="10" height="4" rx="1"/>
+          <path d="M7 6 4 20h16L17 6"/>
+        </svg>
+      </div>
+      <span class="cat-label text-xs font-medium text-muted whitespace-nowrap">Rok</span>
+    </button>
+    <button class="cat-btn flex flex-col items-center gap-2 bg-transparent border-0 p-0 cursor-pointer font-body" onclick="window.location.href='{{ route('daftar-produk') }}?cat=cardigan'">
+      <div class="cat-icon w-15 h-15 rounded-full bg-white border-2 border-border flex items-center justify-center transition-all duration-200 hover:border-terra hover:bg-terra-xs hover:-translate-y-1 hover:shadow-lg" style="width:60px;height:60px;">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#9C8B7E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 6.5 7.5 3h3L12 5l1.5-2h3L21 6.5l-3 2.5v11a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V9L3 6.5z"/>
+          <path d="M12 5v15"/>
+        </svg>
+      </div>
+      <span class="cat-label text-xs font-medium text-muted whitespace-nowrap">Cardigan</span>
+    </button>
+    <button class="cat-btn flex flex-col items-center gap-2 bg-transparent border-0 p-0 cursor-pointer font-body" onclick="window.location.href='{{ route('daftar-produk') }}?cat=celana'">
+      <div class="cat-icon w-15 h-15 rounded-full bg-white border-2 border-border flex items-center justify-center transition-all duration-200 hover:border-terra hover:bg-terra-xs hover:-translate-y-1 hover:shadow-lg" style="width:60px;height:60px;">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#9C8B7E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2h12v4l-3 16H9L6 6V2z"/>
+          <path d="M6 6h12"/><path d="M12 6v4"/>
+        </svg>
+      </div>
+      <span class="cat-label text-xs font-medium text-muted whitespace-nowrap">Celana</span>
+    </button>
+    <button class="cat-btn flex flex-col items-center gap-2 bg-transparent border-0 p-0 cursor-pointer font-body" onclick="window.location.href='{{ route('daftar-produk') }}?cat=jaket'">
+      <div class="cat-icon w-15 h-15 rounded-full bg-white border-2 border-border flex items-center justify-center transition-all duration-200 hover:border-terra hover:bg-terra-xs hover:-translate-y-1 hover:shadow-lg" style="width:60px;height:60px;">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#9C8B7E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 7 7 3h2.5L12 6l2.5-3H17l4 4-2.5 2L17 7v13a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V7L4.5 9 3 7z"/>
+          <path d="M12 6v14"/>
+        </svg>
+      </div>
+      <span class="cat-label text-xs font-medium text-muted whitespace-nowrap">Jaket</span>
+    </button>
   </div>
 </div>
 
@@ -219,8 +266,6 @@ function render() {
   const start  = (currentPage - 1) * perPage;
   const paged  = filtered.slice(start, start + perPage);
 
-  document.getElementById('pageTitle').textContent = CAT_LABELS[currentCat] || 'Semua Produk';
-  document.getElementById('pageSub').textContent = `Menampilkan ${total} produk${currentSearch ? ` untuk "${currentSearch}"` : ''}`;
 
   const grid = document.getElementById('productGrid');
   if (!paged.length) {
