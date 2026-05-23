@@ -1,6 +1,6 @@
 <!-- ═══════════════ SIDEBAR (NAVIGASI TERSEMBUNYI) ═══════════════ -->
 <aside id="sidebar">
-  <!-- Logo & brand dalam sidebar -->
+  <!-- Logo &<a href="javascript:void(0)" class="nav-item" data-nav> brand dalam sidebar -->
   <div class="flex items-center gap-3 px-5 py-5 border-b border-kashy-border">
     <span class="font-bold text-kashy-dark text-lg tracking-wide">Kashy</span>
   </div>
@@ -18,14 +18,16 @@
       Dashboard Admin
     </a>
 
-    <a href="javascript:void(0)" class="nav-item" data-nav>
-      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-  <line x1="18" y1="20" x2="18" y2="10"/>
-  <line x1="12" y1="20" x2="12" y2="4"/>
-  <line x1="6" y1="20" x2="6" y2="14"/>
-</svg>
-      Laporan Keuangan
-    </a>
+    <a href="{{ route('owner.laporan.keuangan') }}" 
+   class="nav-item {{ request()->routeIs('owner.laporan.keuangan') ? 'active' : '' }}" 
+   data-nav>
+  <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+    <line x1="18" y1="20" x2="18" y2="10"/>
+    <line x1="12" y1="20" x2="12" y2="4"/>
+    <line x1="6" y1="20" x2="6" y2="14"/>
+  </svg>
+  Laporan Keuangan
+</a>
 
     <a href="javascript:void(0)" class="nav-item" data-nav>
       <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
