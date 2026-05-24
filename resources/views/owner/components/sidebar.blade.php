@@ -80,7 +80,7 @@
       Manajemen Produk
     </a>
 
-    <a href="javascript:void(0)" class="nav-item" data-nav>
+    <a href="{{ route('pengaturan.transaksi') }}" class="nav-item {{ request()->routeIs('pengaturan.transaksi') ? 'active' : '' }}" data-nav>
       <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
         <line x1="4" y1="21" x2="4" y2="14"/>
         <line x1="4" y1="10" x2="4" y2="3"/>
