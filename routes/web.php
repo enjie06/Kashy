@@ -107,6 +107,14 @@ Route::get('/kasir/profil', [ProfileController::class, 'kasirProfile'])
 ->middleware('auth')
 ->name('kasir.profil');
 
+Route::put('/kasir/profil/update', [ProfileController::class, 'updateProfile'])
+    ->middleware('auth')
+    ->name('kasir.profile.update');
+
+Route::put('/kasir/profil/password', [ProfileController::class, 'updatePassword'])
+    ->middleware('auth')
+    ->name('kasir.password.update');
+
 Route::get('/kasir/riwayattransaksi', function () {
     return view('kasir.riwayattransaksi');
 })->name('kasir.riwayattransaksi');
