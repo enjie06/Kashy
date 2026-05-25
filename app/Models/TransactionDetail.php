@@ -1,3 +1,4 @@
+```php
 <?php
 
 namespace App\Models;
@@ -12,6 +13,7 @@ class TransactionDetail extends Model
     protected $fillable = [
         'transaction_id',
         'product_id',
+        'product_name',
         'qty',
         'harga',
         'subtotal'
@@ -33,3 +35,4 @@ class TransactionDetail extends Model
         return $this->belongsTo(Product::class);
     }
 }
+```

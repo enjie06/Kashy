@@ -133,6 +133,10 @@ Route::get('/kasir/pembayaran', [KasirTransactionController::class, 'pembayaran'
     ->middleware('auth')
     ->name('kasir.pembayaran');
 
+Route::post('/kasir/finalize-payment', [KasirTransactionController::class, 'finalizePayment'])
+    ->middleware('auth')
+    ->name('kasir.finalize-payment');
+
 Route::middleware(['auth'])->group(function () {
 
     Route::get('/kasir/transaksi-baru', [KasirTransactionController::class, 'create'])

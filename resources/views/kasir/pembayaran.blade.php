@@ -4,6 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <title>Kashy – Pembayaran</title>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -305,8 +306,29 @@
 
   // Proses konfirmasi
   function processPayment() {
-    hideModal('confirmModal');
-    showModal('successModal');
+    fetch("{{ route('kasir.finalize-payment') }}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify({
+        payment_method: selectedPaymentMethod
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        hideModal('confirmModal');
+        showModal('successModal');
+      } else {
+        alert(data.message || 'Gagal menyimpan transaksi');
+      }
+    })
+    .catch(error => {
+      console.error(error);
+      alert('Terjadi kesalahan server');
+    });
   }
 
   function closeSuccessModalAndReset() {

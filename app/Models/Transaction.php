@@ -1,3 +1,4 @@
+```php
 <?php
 
 namespace App\Models;
@@ -12,8 +13,11 @@ class Transaction extends Model
     protected $fillable = [
         'invoice_number',
         'kasir_id',
+        'customer_name',
+        'payment_method',
         'total',
         'diskon',
+        'discount_percent',
         'grand_total',
         'bayar',
         'kembalian',
@@ -23,6 +27,7 @@ class Transaction extends Model
     protected $casts = [
         'total' => 'integer',
         'diskon' => 'integer',
+        'discount_percent' => 'integer',
         'grand_total' => 'integer',
         'bayar' => 'integer',
         'kembalian' => 'integer',
@@ -38,3 +43,4 @@ class Transaction extends Model
         return $this->hasMany(TransactionDetail::class, 'transaction_id');
     }
 }
+```
