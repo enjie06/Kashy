@@ -73,24 +73,23 @@
     margin-bottom:6px; display:block;
   }
   .form-input {
-    width:100%; padding:12px 14px; border:1.5px solid #E0D8CE;
-    border-radius:12px; font-size:13px; font-family:'Poppins',sans-serif;
-    color:#1a1a1a; background:#FAF6F2; outline:none;
-    transition:border-color .2s;
-  }
-  .form-input:focus { border-color:#C49A6C; background:#fff; }
-  .form-input::placeholder { color:#BFB4AC; }
+  width:100%;
+  padding:14px 16px;
+  border:1px solid #E8DED3;
+  border-radius:16px;
+  font-size:13px;
+  font-family:'Poppins',sans-serif;
+  color:#1a1a1a;
+  background:#fff;
+  outline:none;
+  transition:all .25s ease;
+  box-shadow:0 2px 8px rgba(60,40,10,.03);
+}
 
-  .form-input-icon { position:relative; }
-  .form-input-icon svg { position:absolute; left:13px; top:50%; transform:translateY(-50%); pointer-events:none; }
-  .form-input-icon input { padding-left:38px; }
-
-  select.form-input {
-    appearance:none;
-    background-image:url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238A7968' stroke-width='2.5' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-    background-repeat:no-repeat; background-position:right 14px center;
-    padding-right:36px; cursor:pointer;
-  }
+.form-input:focus {
+  border-color:#C49A6C;
+  box-shadow:0 0 0 4px rgba(196,154,108,.08);
+}
 
   /* ── Info card ── */
   .info-card {
@@ -136,36 +135,26 @@
 <main id="main" class="min-h-screen bg-kashy-cream">
   @include('owner.components.topbar')
 
-  <div class="px-5 md:px-8 py-6 max-w-2xl mx-auto">
+  <div class="px-5 md:px-8 py-6 max-w-4xl mx-auto">
 
     <!-- ── Header ── -->
-    <div class="fade-up d1 mb-6">
-      <h1 class="text-3xl font-extrabold text-kashy-dark">Manajemen Toko</h1>
-      <p class="text-sm text-kashy-muted mt-1">Kelola identitas merek dan pengaturan toko Anda di seluruh platform.</p>
-    </div>
+    <div class="bg-white rounded-3xl border border-kashy-border p-6 fade-up d1">
+  <h1 class="text-3xl font-extrabold text-kashy-dark">Manajemen Toko</h1>
+  <p class="text-sm text-kashy-muted mt-2">
+    Kelola identitas merek dan informasi operasional toko Anda.
+  </p>
+</div>
 
-    <form onsubmit="simpanProfil(event)" class="flex flex-col gap-5">
+<form onsubmit="simpanProfil(event)" class="flex flex-col gap-7 mt-6">
 
       <!-- Nama Toko -->
-      <div class="fade-up d2">
+      <div class="bg-white rounded-3xl border border-kashy-border shadow-sm p-6 fade-up d3">
         <label class="form-label">Nama Toko</label>
         <input type="text" class="form-input" value="SND STORE" placeholder="Nama toko Anda"/>
       </div>
 
-      <!-- Pegangan Merk -->
-      <div class="fade-up d2">
-        <label class="form-label">Pegangan Merk</label>
-        <div class="form-input-icon">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8A7968" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/>
-            <path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/>
-          </svg>
-          <input type="text" class="form-input" value="earthandgrace" placeholder="@username"/>
-        </div>
-      </div>
-
       <!-- Informasi Kontak -->
-      <div class="fade-up d3">
+      <div class="bg-white rounded-3xl border border-kashy-border shadow-sm p-6 fade-up d3">
         <p class="section-title">Informasi Kontak</p>
         <div class="flex flex-col gap-3">
           <div>
@@ -180,7 +169,7 @@
       </div>
 
       <!-- Alamat Fisik -->
-      <div class="fade-up d4">
+      <div class="bg-white rounded-3xl border border-kashy-border shadow-sm p-6 fade-up d3">
         <p class="section-title">Alamat Fisik</p>
         <div class="flex flex-col gap-3">
           <div>
@@ -198,13 +187,7 @@
             </div>
           </div>
           <div>
-            <label class="form-label">Negara</label>
-            <select class="form-input">
-              <option selected>Indonesia</option>
-              <option>Malaysia</option>
-              <option>Singapura</option>
-            </select>
-          </div>
+</div>
         </div>
       </div>
 
@@ -213,7 +196,7 @@
         <button
           type="button"
           onclick="buangPerubahan()"
-          class="py-4 rounded-2xl font-bold text-sm text-kashy-muted border-2 border-kashy-border bg-white hover:bg-kashy-cream transition-colors">
+          class="py-4 rounded-2xl font-bold text-sm text-kashy-muted border border-kashy-border bg-white hover:bg-[#faf7f4]">
           Buang Perubahan
         </button>
         <button
@@ -225,40 +208,6 @@
       </div>
 
     </form>
-
-    <!-- ── Info Cards ── -->
-    <div class="flex flex-col gap-3 mt-6 fade-up d5">
-
-      <div class="info-card">
-        <div class="info-card-icon">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C49A6C" stroke-width="2">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-          </svg>
-        </div>
-        <div>
-          <p class="text-xs font-bold text-kashy-dark">Identitas Diverifikasi</p>
-          <p class="text-xs text-kashy-muted mt-0.5 leading-relaxed">
-            Profil toko Anda telah diverifikasi dan aktif untuk perdagangan global.
-          </p>
-        </div>
-      </div>
-
-      <div class="info-card">
-        <div class="info-card-icon">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C49A6C" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/>
-            <polyline points="12 6 12 12 16 14"/>
-          </svg>
-        </div>
-        <div>
-          <p class="text-xs font-bold text-kashy-dark">Terakhir Diperbarui</p>
-          <p class="text-xs text-kashy-muted mt-0.5 leading-relaxed">
-            Profil toko Anda telah diperbarui 24 Oktober 2023 pukul 14:32 oleh Kantor Pusat.
-          </p>
-        </div>
-      </div>
-
-    </div>
 
   </div>
 </main>
