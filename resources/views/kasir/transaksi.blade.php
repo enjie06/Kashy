@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Transaksi Kasir – Kashy</title>
+
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script>
@@ -158,7 +160,7 @@
       </div>
     </div>
 
-    <button onclick="window.location.href='{{ route('kasir.pembayaran') }}'" class="w-full bg-black hover:bg-gray-900 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition shadow-lg">
+    <button onclick="goToPayment()" class="w-full bg-black hover:bg-gray-900 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition shadow-lg">
       Lanjut ke Pembayaran
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
         <line x1="5" y1="12" x2="19" y2="12"/>
@@ -252,22 +254,33 @@
 
 <script>
   // ======================= DATABASE PRODUK =======================
-  const productsDatabase = [
-    { id: 1, name: "Silk Scarf", price: 1250000, img: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Crect fill='%23d4a574' width='40' height='40'/%3E%3Cpath d='M10 10 Q20 5 30 10 L30 30 Q20 35 10 30 Z' fill='%23f4d03f' opacity='0.3'/%3E%3C/svg%3E" },
-    { id: 2, name: "Leather Bag", price: 4750000, img: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Crect fill='%238B4513' width='40' height='40'/%3E%3Crect x='10' y='15' width='20' height='15' rx='2' fill='%23A0522D'/%3E%3C/svg%3E" },
-    { id: 3, name: "Tote Bag", price: 350000, img: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Crect fill='%236B8E23' width='40' height='40'/%3E%3Cpath d='M10 15 L30 15 L28 28 L12 28 Z' fill='%23808020'/%3E%3C/svg%3E" },
-    { id: 4, name: "Wallet", price: 250000, img: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Crect fill='%23B8860B' width='40' height='40'/%3E%3Crect x='12' y='12' width='16' height='16' rx='2' fill='%23D2B48C'/%3E%3C/svg%3E" },
-    { id: 5, name: "Sneakers", price: 890000, img: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Crect fill='%23555' width='40' height='40'/%3E%3Cpath d='M8 20 L32 20 L30 28 L10 28 Z' fill='%23777'/%3E%3C/svg%3E" },
-    { id: 6, name: "Watch", price: 1250000, img: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='14' fill='%23CD7F32'/%3E%3Ccircle cx='20' cy='20' r='10' fill='%23FFF8DC'/%3E%3C/svg%3E" }
-  ];
+  @php
+    $productsForJs = $products->map(function ($product) {
+        return [
+            'id' => $product->id,
+            'name' => $product->nama_produk,
+            'price' => (int) $product->harga,
+            'img' => $product->gambar
+                ? asset('storage/' . $product->gambar)
+                : 'https://via.placeholder.com/40',
+            'stok' => $product->stok,
+        ];
+    })->values();
 
-  let members = [
-    { id: 1, name: "Budi Santoso", phone: "08123456789" },
-    { id: 2, name: "Siti Aisyah", phone: "08234567890" },
-    { id: 3, name: "Agus Salim", phone: "08345678901" },
-    { id: 4, name: "Dewi Lestari", phone: "08567891234" }
-  ];
-  let nextMemberId = 5;
+    $membersForJs = $members->map(function ($member) {
+        return [
+            'id' => $member->id,
+            'name' => $member->nama,
+            'phone' => $member->no_hp,
+        ];
+    })->values();
+  @endphp
+
+  const productsDatabase = {!! json_encode($productsForJs) !!};
+
+  let members = {!! json_encode($membersForJs) !!};
+
+  let nextMemberId = members.length + 1;
   let currentSelectedMember = null;
   let cart = [];
   let currentDiscountPercent = 0;
@@ -379,23 +392,67 @@
   function saveNewMemberFromModal() {
     const name = document.getElementById('modalMemberName').value.trim();
     const phone = document.getElementById('modalMemberPhone').value.trim();
+
     if (!name || !phone) {
       showToast('⚠️ Nama dan nomor HP wajib diisi!', true);
       return;
     }
+
     if (members.find(m => m.phone === phone)) {
       showToast(`Nomor ${phone} sudah terdaftar`, true);
       return;
     }
-    const newMember = { id: nextMemberId++, name, phone };
-    members.push(newMember);
-    currentSelectedMember = newMember;
-    document.getElementById('customerName').textContent = newMember.name;
-    showToast(`🎉 Member ${newMember.name} berhasil ditambahkan & dipilih`);
-    closeAddMemberModal();
-    // Reset search input dan tampilkan default card
-    document.getElementById('searchMemberInput').value = '';
-    showDefaultMemberCard();
+
+    fetch("{{ route('kasir.member.store') }}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify({
+        nama: name,
+        no_hp: phone
+      })
+    })
+    .then(async res => {
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        if (res.status === 422 && data?.errors) {
+          const firstError = Object.values(data.errors)[0][0];
+          showToast(firstError, true);
+        } else {
+          showToast('Gagal menambahkan member', true);
+        }
+        return null;
+      }
+
+      return data;
+    })
+    .then(data => {
+      if (!data || !data.success) return;
+
+      const newMember = {
+        id: data.member.id,
+        name: data.member.nama,
+        phone: data.member.no_hp
+      };
+
+      members.push(newMember);
+      currentSelectedMember = newMember;
+
+      document.getElementById('customerName').textContent = newMember.name;
+
+      showToast(`🎉 Member ${newMember.name} berhasil ditambahkan & dipilih`);
+      closeAddMemberModal();
+
+      document.getElementById('searchMemberInput').value = '';
+      showDefaultMemberCard();
+    })
+    .catch(() => {
+      showToast('Terjadi kesalahan server', true);
+    });
   }
 
   function editCustomer() {
@@ -570,8 +627,41 @@
       showToast('⚠️ Keranjang masih kosong!', true);
       return;
     }
-    const customer = document.getElementById('customerName').textContent;
-    showToast(`🚀 Menuju pembayaran untuk ${customer}...`);
+
+    let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    let discountAmount = subtotal * (currentDiscountPercent / 100);
+    let afterDiscount = subtotal - discountAmount;
+    let total = Math.round(afterDiscount * 1.11);
+
+    fetch("{{ route('kasir.transaksi.session') }}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify({
+        cart: cart,
+        customer_name: document.getElementById('customerName').textContent,
+        member_id: currentSelectedMember ? currentSelectedMember.id : null,
+        discount_percent: currentDiscountPercent,
+        subtotal: subtotal,
+        total: total
+      })
+    })
+    .then(async res => {
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok || !data?.success) {
+        showToast('Gagal lanjut ke pembayaran', true);
+        return;
+      }
+
+      window.location.href = data.redirect;
+    })
+    .catch(() => {
+      showToast('Gagal lanjut ke pembayaran', true);
+    });
   }
   function generateOrderNumber() {
     const num = Math.floor(Math.random() * 9000) + 1000;

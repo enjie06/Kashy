@@ -5,6 +5,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\KasirShiftController;
+use App\Http\Controllers\KasirTransactionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -124,13 +125,26 @@ Route::get('/kasir/laporantransaksi', function () {
     return view('kasir.laporantransaksi');
 })->name('kasir.laporantransaksi');
 
-Route::get('/kasir/transaksi', function () {
-    return view('kasir.transaksi');
-})->name('kasir.transaksi');
+Route::get('/kasir/transaksi', [KasirTransactionController::class, 'create'])
+    ->middleware('auth')
+    ->name('kasir.transaksi');
 
-Route::get('/kasir/pembayaran', function () {
-    return view('kasir.pembayaran');
-})->name('kasir.pembayaran');
+Route::get('/kasir/pembayaran', [KasirTransactionController::class, 'pembayaran'])
+    ->middleware('auth')
+    ->name('kasir.pembayaran');
+
+Route::middleware(['auth'])->group(function () {
+
+    Route::get('/kasir/transaksi-baru', [KasirTransactionController::class, 'create'])
+        ->name('kasir.transaksi');
+
+    Route::post('/kasir/member/store', [KasirTransactionController::class, 'storeMember'])
+        ->name('kasir.member.store');
+
+    Route::post('/kasir/transaksi/session', [KasirTransactionController::class, 'saveTransactionSession'])
+        ->name('kasir.transaksi.session');
+
+});
 
 
 /*

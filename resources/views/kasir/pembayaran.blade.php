@@ -88,42 +88,45 @@
     <div class="fade-up bg-white rounded-2xl p-5 shadow-card border border-border">
       <h2 class="font-bold text-xl text-gray-900 mb-4">Ringkasan Pesanan</h2>
 
-      <!-- Item 1 -->
+      @foreach ($transaction['cart'] as $item)
       <div class="flex justify-between items-start mb-3">
         <div>
-          <p class="font-semibold text-gray-900 text-sm">Silk Evening Gown</p>
-          <p class="text-xs text-muted mt-0.5">Champagne / Medium</p>
+          <p class="font-semibold text-gray-900 text-sm">{{ $item['name'] }}</p>
+          <p class="text-xs text-muted mt-0.5">Qty: {{ $item['qty'] }}</p>
         </div>
-        <span class="text-sm font-medium text-gray-900 whitespace-nowrap ml-4">Rp 3.250.000</span>
+        <span class="text-sm font-medium text-gray-900 whitespace-nowrap ml-4">
+          Rp {{ number_format($item['price'] * $item['qty'], 0, ',', '.') }}
+        </span>
       </div>
-
-      <!-- Item 2 -->
-      <div class="flex justify-between items-start mb-4">
-        <div>
-          <p class="font-semibold text-gray-900 text-sm">Leather Clutch</p>
-          <p class="text-xs text-muted mt-0.5">Midnight Black</p>
-        </div>
-        <span class="text-sm font-medium text-gray-900 whitespace-nowrap ml-4">Rp 1.450.000</span>
-      </div>
+      @endforeach
 
       <div class="h-px bg-border my-4"></div>
 
       <!-- HARGA SEBELUM DISKON -->
       <div class="flex justify-between text-sm mb-2">
-        <span class="text-muted">Total</span>
-        <span class="text-gray-900 font-medium">Rp 4.900.000</span>
+        <span class="text-muted">Subtotal</span>
+        <span class="text-gray-900 font-medium">
+          Rp {{ number_format($transaction['subtotal'], 0, ',', '.') }}
+        </span>
       </div>
 
       <!-- DISKON -->
+      @php
+        $discountAmount = $transaction['subtotal'] * (($transaction['discount_percent'] ?? 0) / 100);
+      @endphp
       <div class="flex justify-between text-sm mb-3">
-        <span class="text-muted">Diskon</span>
-        <span class="text-green-500 font-medium">-Rp 200.000</span>
+        <span class="text-muted">Diskon {{ ($transaction['discount_percent'] ?? 0) > 0 ? '(' . $transaction['discount_percent'] . '%)' : '' }}</span>
+        <span class="text-green-500 font-medium">
+          -Rp {{ number_format($discountAmount, 0, ',', '.') }}
+        </span>
       </div>
 
       <!-- TOTAL AKHIR (setelah pajak) -->
       <div class="flex justify-between items-center pt-1 mt-1 border-t border-border">
         <span class="text-xs font-semibold tracking-wider text-gray-900 uppercase">Total Akhir</span>
-        <span class="text-2xl font-bold text-terra">Rp 4.700.000</span>
+        <span class="text-2xl font-bold text-terra">
+          Rp {{ number_format($transaction['total'], 0, ',', '.') }}
+        </span>
       </div>
     </div>
 
@@ -216,7 +219,7 @@
         </div>
         <div class="flex justify-between">
           <span class="text-muted">Total Tagihan</span>
-          <span class="font-bold text-terra">Rp 5.217.000</span>
+          <span class="font-bold text-terra">Rp {{ number_format($transaction['total'], 0, ',', '.') }}</span>
         </div>
       </div>
       <p class="text-xs text-gray-500 text-center mb-4">Pastikan data sudah benar. Pembayaran akan diproses.</p>
