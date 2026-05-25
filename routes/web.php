@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShiftController;
+use App\Http\Controllers\KasirShiftController;
 
 /*
 |--------------------------------------------------------------------------
@@ -134,6 +135,40 @@ Route::get('/kasir/pembayaran', function () {
 
 /*
 |--------------------------------------------------------------------------
+| SHIFT KASIR API (TAMBAHAN)
+|--------------------------------------------------------------------------
+*/
+
+// Recent transactions untuk dashboard kasir
+Route::get('/kasir/transaksi/recent', function() {
+    $user = Auth::user();
+    $transactions = App\Models\Transaction::where('kasir_id', $user->id)
+        ->whereDate('created_at', today())
+        ->orderBy('created_at', 'desc')
+        ->limit(5)
+        ->get()
+        ->map(function($trx) {
+            return [
+                'invoice_number' => $trx->invoice_number,
+                'grand_total' => $trx->grand_total,
+                'metode_pembayaran' => $trx->metode_pembayaran == 'cash' ? 'Tunai' : ($trx->metode_pembayaran == 'qris' ? 'QRIS' : 'Transfer'),
+                'time' => $trx->created_at->format('H:i')
+            ];
+        });
+    return response()->json($transactions);
+})->middleware('auth')->name('kasir.transaksi.recent');
+
+// ========== SHIFT KASIR API ==========
+Route::middleware(['auth'])->group(function () {
+    Route::get('/kasir/shift/status', [KasirShiftController::class, 'cekStatus'])->name('kasir.shift.status');
+    Route::get('/kasir/shift/min-saldo', [KasirShiftController::class, 'getMinSaldo'])->name('kasir.shift.minSaldo');
+    Route::post('/kasir/shift/buka', [KasirShiftController::class, 'bukaShift'])->name('kasir.shift.buka');
+    Route::post('/kasir/shift/tutup', [KasirShiftController::class, 'tutupShift'])->name('kasir.shift.tutup');
+});
+
+
+/*
+|--------------------------------------------------------------------------
 | KARYAWAN
 |--------------------------------------------------------------------------
 */
@@ -230,6 +265,7 @@ Route::get('/server-time', function() {
         'timezone' => config('app.timezone')
     ]);
 })->name('server.time');
+
 Route::get('/test-time', function() {
     return [
         'server_time' => now()->format('Y-m-d H:i:s'),
@@ -237,6 +273,7 @@ Route::get('/test-time', function() {
         'php_timezone' => date_default_timezone_get()
     ];
 });
+
 
 /*
 |--------------------------------------------------------------------------
