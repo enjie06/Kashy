@@ -212,42 +212,21 @@
     {{-- ── Stat Cards ── --}}
     {{-- Total Pendapatan --}}
     <div class="fade-up d3 stat-card mb-4">
-      <p class="text-[10px] font-bold uppercase tracking-widest text-kashy-muted mb-2">Total Pendapatan</p>
-      <p class="text-3xl font-extrabold text-kashy-dark leading-tight">
-        Rp {{ number_format($totalPendapatan ?? 128450000, 0, ',', '.') }}
-      </p>
-      <div class="flex items-center gap-1.5 mt-2">
-        @php $trend = $pendapatanTrend ?? 12.4; @endphp
-        @if($trend >= 0)
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2D8A5E" stroke-width="2.5">
-            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-            <polyline points="17 6 23 6 23 12"/>
-          </svg>
-          <span class="text-xs font-semibold" style="color:#2D8A5E">+{{ $trend }}% vs periode lalu</span>
-        @else
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C0392B" stroke-width="2.5">
-            <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
-            <polyline points="17 18 23 18 23 12"/>
-          </svg>
-          <span class="text-xs font-semibold" style="color:#C0392B">{{ $trend }}% vs periode lalu</span>
-        @endif
-      </div>
-    </div>
+  <p class="text-[10px] font-bold uppercase tracking-widest text-kashy-muted mb-2">
+    Total Pendapatan
+  </p>
+
+  <p class="text-3xl font-extrabold text-kashy-dark leading-tight">
+    Rp {{ number_format($totalPendapatan ?? 128450000, 0, ',', '.') }}
+  </p>
+</div>
 
     {{-- Produk Terjual --}}
     <div class="fade-up d4 stat-card mb-4">
       <p class="text-[10px] font-bold uppercase tracking-widest text-kashy-muted mb-2">Produk Terjual</p>
       <p class="text-3xl font-extrabold text-kashy-dark leading-tight">
-        {{ number_format($totalProdukTerjual ?? 1248, 0, ',', '.') }} Units
+        {{ number_format($totalProdukTerjual ?? 1248, 0, ',', '.') }} Produk
       </p>
-      <div class="flex items-center gap-1.5 mt-2 text-kashy-muted">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-          <line x1="3" y1="6" x2="21" y2="6"/>
-          <path d="M16 10a4 4 0 0 1-8 0"/>
-        </svg>
-        <span class="text-xs font-semibold">{{ $produkTerlaris ?? 'Premium Silk Focus' }}</span>
-      </div>
     </div>
 
     {{-- Jam Sibuk --}}
@@ -256,13 +235,6 @@
       <p class="text-3xl font-extrabold text-kashy-dark leading-tight">
         {{ $jamSibuk ?? '14:00 – 16:00' }}
       </p>
-      <div class="flex items-center gap-1.5 mt-2 text-kashy-muted">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"/>
-          <polyline points="12 6 12 12 16 14"/>
-        </svg>
-        <span class="text-xs font-semibold">Volume tertinggi hari ini</span>
-      </div>
     </div>
 
     {{-- ── Bar Chart – Tren Pendapatan ── --}}
@@ -306,116 +278,6 @@
           </div>
         @endforeach
       </div>
-    </div>
-
-    {{-- ── Distribusi Waktu (dark card) ── --}}
-    <div class="fade-up d6 dark-card mb-5">
-      <h3 class="text-base font-bold mb-1">Distribusi Waktu</h3>
-      <p class="text-xs mb-5" style="color:rgba(255,255,255,.5)">Analisis jam operasional paling menguntungkan.</p>
-
-      @php
-        $distribusiWaktu = $distribusiWaktu ?? [
-          ['label'=>'PAGI (08:00 – 12:00)',  'persen'=>25],
-          ['label'=>'SIANG (12:00 – 17:00)', 'persen'=>58],
-          ['label'=>'MALAM (17:00 – 22:00)', 'persen'=>17],
-        ];
-      @endphp
-
-      <div class="flex flex-col gap-4">
-        @foreach($distribusiWaktu as $slot)
-          <div>
-            <div class="flex justify-between mb-1.5">
-              <span class="text-[11px] font-semibold tracking-wide" style="color:rgba(255,255,255,.65)">
-                {{ $slot['label'] }}
-              </span>
-              <span class="text-[11px] font-bold" style="color:rgba(255,255,255,.85)">
-                {{ $slot['persen'] }}%
-              </span>
-            </div>
-            <div class="time-bar-bg">
-              <div class="time-bar-fill" style="width:{{ $slot['persen'] }}%"></div>
-            </div>
-          </div>
-        @endforeach
-      </div>
-    </div>
-
-    {{-- ── Detail Penjualan Produk ── --}}
-    <div class="fade-up d7 bg-white rounded-2xl overflow-hidden mb-6" style="box-shadow:0 2px 18px 0 rgba(60,40,10,.07);">
-
-      {{-- Header + search --}}
-      <div class="p-5 border-b border-kashy-border">
-        <h3 class="text-base font-bold text-kashy-dark mb-3">Detail Penjualan Produk</h3>
-        <div style="position:relative;">
-          <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8A7968" stroke-width="2">
-              <circle cx="11" cy="11" r="8"/>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
-          </span>
-          <input type="text" class="search-input" id="productSearch"
-                 placeholder="Cari produk..."
-                 onkeyup="filterProducts(this.value)">
-        </div>
-      </div>
-
-      {{-- Column headers --}}
-      <div class="flex px-5 py-2.5" style="background:#F5F0EB;">
-        <span class="flex-1 text-[10px] font-bold uppercase tracking-widest text-kashy-muted">Produk</span>
-        <span class="w-24 text-[10px] font-bold uppercase tracking-widest text-kashy-muted">Kategori</span>
-      </div>
-
-      {{-- Rows --}}
-      <div id="productRows">
-        @php
-          $produkData = $produkData ?? [
-            ['nama'=>'Classic Silk Blouse',   'kategori'=>'Apparel',     'gambar'=>null],
-            ['nama'=>'Earth Toned Sandals',   'kategori'=>'Footwear',    'gambar'=>null],
-            ['nama'=>'Charcoal Tote Bag',     'kategori'=>'Accessories', 'gambar'=>null],
-          ];
-        @endphp
-
-        @forelse($produkData as $produk)
-          <div class="product-row" data-name="{{ strtolower($produk['nama']) }}">
-            {{-- Produk --}}
-            <div class="flex items-center gap-3">
-              @if(!empty($produk['gambar']))
-                <img src="{{ asset('storage/'.$produk['gambar']) }}"
-                     alt="{{ $produk['nama'] }}"
-                     class="w-9 h-9 rounded-lg object-cover flex-shrink-0">
-              @else
-                <div class="product-thumb-ph">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8A7968" stroke-width="1.8">
-                    <rect x="3" y="3" width="18" height="18" rx="2"/>
-                    <circle cx="8.5" cy="8.5" r="1.5"/>
-                    <polyline points="21 15 16 10 5 21"/>
-                  </svg>
-                </div>
-              @endif
-              <span class="text-sm font-semibold text-kashy-dark leading-tight">{{ $produk['nama'] }}</span>
-            </div>
-            {{-- Kategori --}}
-            <div class="w-24">
-              <span class="text-xs font-500 text-kashy-muted">{{ $produk['kategori'] }}</span>
-            </div>
-          </div>
-        @empty
-          <div class="px-5 py-8 text-center">
-            <p class="text-sm text-kashy-muted">Belum ada data produk.</p>
-          </div>
-        @endforelse
-      </div>
-
-      {{-- See all --}}
-      <a href="javascript:void(0)"
-         class="flex items-center justify-center gap-2 w-full py-4 text-sm font-bold transition-colors hover:bg-kashy-cream"
-         style="color:#C49A6C; border-top:1px solid #E0D8CE; text-decoration:none;">
-        Lihat Semua Produk
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <line x1="5" y1="12" x2="19" y2="12"/>
-          <polyline points="12 5 19 12 12 19"/>
-        </svg>
-      </a>
     </div>
 
   </div>{{-- /max-w --}}
