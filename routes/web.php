@@ -6,6 +6,9 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\KasirShiftController;
 use App\Http\Controllers\KasirTransactionController;
+use App\Http\Controllers\StaffController;
+use App\Http\Controllers\StoreController;
+use App\Http\Controllers\DashboardController;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Auth;
 /*
@@ -28,9 +31,8 @@ Route::get('/', function () {
 Route::middleware(['auth'])->group(function () {
 
     
-    Route::view('/owner/dashboard', 'owner.dashboard')
-    ->middleware('auth')
-    ->name('owner.dashboard');
+    Route::get("/owner/dashboard", [DashboardController::class, "index"])
+    ->name("owner.dashboard");
 
     Route::view('/owner/manajemendiskon', 'owner.manajemendiskon')
     ->middleware('auth')
@@ -76,6 +78,35 @@ Route::middleware(['auth'])->group(function () {
     ->middleware('auth')
     ->name('manajemen.toko');
 
+    /*
+    |--------------------------------------------------------------------------
+    | MANAJEMEN STAFF
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/owner/staff', [StaffController::class, 'index'])
+        ->name('owner.staff.index');
+
+    Route::post('/owner/staff', [StaffController::class, 'store'])
+        ->name('owner.staff.store');
+
+    Route::patch('/owner/staff/{user}/toggle', [StaffController::class, 'toggleStatus'])
+        ->name('owner.staff.toggle');
+
+    Route::delete('/owner/staff/{user}', [StaffController::class, 'destroy'])
+        ->name('owner.staff.destroy');
+
+    /*
+    |--------------------------------------------------------------------------
+    | MANAJEMEN TOKO
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/owner/store-settings', [StoreController::class, 'show'])
+        ->name('owner.store.show');
+
+    Route::post('/owner/store-settings', [StoreController::class, 'update'])
+        ->name('owner.store.update');
 
     /*
     |--------------------------------------------------------------------------
@@ -263,6 +294,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])
         ->name('profile.updatePhoto');
+
+    Route::delete('/profile/photo', [ProfileController::class, 'deletePhoto'])
+        ->name('profile.deletePhoto');
 });
 
 
