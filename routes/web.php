@@ -6,7 +6,11 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\KasirShiftController;
 use App\Http\Controllers\KasirTransactionController;
-
+use App\Http\Controllers\StaffController;
+use App\Http\Controllers\StoreController;
+use App\Http\Controllers\DashboardController;
+use App\Models\Transaction;
+use Illuminate\Support\Facades\Auth;
 /*
 |--------------------------------------------------------------------------
 | LANDING
@@ -27,9 +31,8 @@ Route::get('/', function () {
 Route::middleware(['auth'])->group(function () {
 
     
-    Route::view('/owner/dashboard', 'owner.dashboard')
-    ->middleware('auth')
-    ->name('owner.dashboard');
+    Route::get("/owner/dashboard", [DashboardController::class, "index"])
+    ->name("owner.dashboard");
 
     Route::view('/owner/manajemendiskon', 'owner.manajemendiskon')
     ->middleware('auth')
@@ -75,6 +78,35 @@ Route::middleware(['auth'])->group(function () {
     ->middleware('auth')
     ->name('manajemen.toko');
 
+    /*
+    |--------------------------------------------------------------------------
+    | MANAJEMEN STAFF
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/owner/staff', [StaffController::class, 'index'])
+        ->name('owner.staff.index');
+
+    Route::post('/owner/staff', [StaffController::class, 'store'])
+        ->name('owner.staff.store');
+
+    Route::patch('/owner/staff/{user}/toggle', [StaffController::class, 'toggleStatus'])
+        ->name('owner.staff.toggle');
+
+    Route::delete('/owner/staff/{user}', [StaffController::class, 'destroy'])
+        ->name('owner.staff.destroy');
+
+    /*
+    |--------------------------------------------------------------------------
+    | MANAJEMEN TOKO
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/owner/store-settings', [StoreController::class, 'show'])
+        ->name('owner.store.show');
+
+    Route::post('/owner/store-settings', [StoreController::class, 'update'])
+        ->name('owner.store.update');
 
     /*
     |--------------------------------------------------------------------------
@@ -118,9 +150,17 @@ Route::put('/kasir/profil/password', [ProfileController::class, 'updatePassword'
     ->name('kasir.password.update');
 
 Route::get('/kasir/riwayattransaksi', function () {
-    return view('kasir.riwayattransaksi');
-})->name('kasir.riwayattransaksi');
-
+    $transactions = Transaction::with('details')
+        ->where('kasir_id', Auth::id())
+        ->orderBy('created_at', 'desc')
+        ->get()
+        ->groupBy(function($transaction) {
+            return $transaction->created_at->translatedFormat('d F Y');
+        });
+    
+    return view('kasir.riwayattransaksi', compact('transactions'));
+})->middleware('auth')->name('kasir.riwayattransaksi');
+    
 Route::get('/kasir/laporantransaksi', function () {
     return view('kasir.laporantransaksi');
 })->name('kasir.laporantransaksi');
@@ -139,8 +179,8 @@ Route::post('/kasir/finalize-payment', [KasirTransactionController::class, 'fina
 
 Route::middleware(['auth'])->group(function () {
 
-    Route::get('/kasir/transaksi-baru', [KasirTransactionController::class, 'create'])
-        ->name('kasir.transaksi');
+    // Route::get('/kasir/transaksi-baru', [KasirTransactionController::class, 'create'])
+    //     ->name('kasir.transaksi');
 
     Route::post('/kasir/member/store', [KasirTransactionController::class, 'storeMember'])
         ->name('kasir.member.store');
@@ -160,17 +200,21 @@ Route::middleware(['auth'])->group(function () {
 // Recent transactions untuk dashboard kasir
 Route::get('/kasir/transaksi/recent', function() {
     $user = Auth::user();
-    $transactions = App\Models\Transaction::where('kasir_id', $user->id)
+    $transactions = App\Models\Transaction::with('details')
+        ->where('kasir_id', $user->id)
         ->whereDate('created_at', today())
         ->orderBy('created_at', 'desc')
-        ->limit(5)
         ->get()
         ->map(function($trx) {
+            // Hitung total item terjual dari detail transaksi
+            $totalItems = $trx->details->sum('qty');
+            
             return [
                 'invoice_number' => $trx->invoice_number,
                 'grand_total' => $trx->grand_total,
                 'metode_pembayaran' => $trx->metode_pembayaran == 'cash' ? 'Tunai' : ($trx->metode_pembayaran == 'qris' ? 'QRIS' : 'Transfer'),
-                'time' => $trx->created_at->format('H:i')
+                'time' => $trx->created_at->format('H:i'),
+                'total_items' => $totalItems  // <-- INI YANG DITAMBAH
             ];
         });
     return response()->json($transactions);
@@ -250,6 +294,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])
         ->name('profile.updatePhoto');
+
+    Route::delete('/profile/photo', [ProfileController::class, 'deletePhoto'])
+        ->name('profile.deletePhoto');
 });
 
 
