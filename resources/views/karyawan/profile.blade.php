@@ -169,8 +169,9 @@
             @if($user->profile_photo)
               <img src="{{ asset('storage/' . $user->profile_photo) }}" class="w-full h-full object-cover" alt="Foto Profil">
             @else
-              <div class="w-full h-full flex items-center justify-center" style="background:linear-gradient(135deg,#d4c5b0,#b8a898,#c8b8a8);">
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+             <div class="w-full h-full flex items-center justify-center text-white text-3xl font-bold"
+                   style="background:linear-gradient(135deg,#d4c5b0,#b8a898,#c8b8a8);">
+                {{ strtoupper(substr($user->name, 0, 1)) }}
               </div>
             @endif
           </div>
@@ -178,6 +179,18 @@
         <button type="button" onclick="document.getElementById('profile_photo').click()" class="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-terra shadow-md border-2 border-white flex items-center justify-center hover:bg-terra-l">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         </button>
+        {{-- TAMBAHAN: Tombol hapus foto (hanya muncul kalau ada foto) --}}
+        @if($user->profile_photo)
+        <button type="button" onclick="confirmDeletePhoto()"
+                class="absolute bottom-0 left-0 w-6 h-6 rounded-full bg-red-500 shadow-md border-2 border-white flex items-center justify-center hover:bg-red-600 transition-colors">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+        </button>
+        @endif
+        {{-- TAMBAHAN: Form hapus foto --}}
+        <form id="deletePhotoForm" action="{{ route('profile.deletePhoto') }}" method="POST">
+          @csrf
+          @method('DELETE')
+        </form>
       </div>
       <h1 class="font-display text-xl font-bold text-gray-900">{{ $user->name }}</h1>
       <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[10px] font-semibold bg-terra-xs text-terra border border-terra-ll">
@@ -320,6 +333,12 @@ function performLogout() {
 }
 
 document.getElementById('logoutOverlay').addEventListener('click',function(e){if(e.target===this)closeLogout();});
+
+// TAMBAHAN: fungsi hapus foto
+function confirmDeletePhoto() {
+    if (!confirm('Hapus foto profil? Foto akan diganti dengan inisial nama.')) return;
+    document.getElementById('deletePhotoForm').submit();
+}
 
 function showToast(msg,success=true){let t=document.getElementById('toast'),tm=document.getElementById('toastMsg');tm.textContent=msg;t.style.background=success?'#1c1c1c':'#ef4444';t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2800);}
 </script>
