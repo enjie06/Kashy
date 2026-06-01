@@ -211,13 +211,13 @@
 
     <!-- TABS -->
     <div class="fade-up d2 flex gap-6 mb-5 overflow-x-auto whitespace-nowrap pb-0 border-b border-kashy-border">
-      <button class="tab-btn active" onclick="switchTab('transaksi', this)">
+      <button type="button" class="tab-btn active" onclick="switchTab('transaksi', this)">
         <span class="flex items-center gap-1.5">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
           Transaksi
         </span>
       </button>
-      <button class="tab-btn" onclick="switchTab('struk', this)">
+      <button type="button" class="tab-btn" onclick="switchTab('struk', this)">
         <span class="flex items-center gap-1.5">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -229,13 +229,24 @@
           Template Struk
         </span>
       </button>
-      <button class="tab-btn" onclick="switchTab('printer', this)">
+      <button type="button" class="tab-btn" onclick="switchTab('printer', this)">
         <span class="flex items-center gap-1.5">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
           Printer
         </span>
       </button>
     </div>
+
+    @if (session('success'))
+      <div class="fade-up d2 mb-4 rounded-2xl bg-green-50 border border-green-200 text-green-700 px-4 py-3 text-sm font-semibold">
+        {{ session('success') }}
+      </div>
+    @endif
+
+    <form method="POST" action="{{ route('owner.pengaturan-tambahan.update') }}">
+      @csrf
+      <input type="hidden" name="printer" id="inputPrinter" value="{{ $setting->printer }}">
+      <input type="hidden" name="ukuran_kertas" id="inputUkuranKertas" value="{{ $setting->ukuran_kertas ?? '80mm' }}">
 
     <!-- TAB 1: TRANSAKSI -->
     <div id="panel-transaksi" class="tab-panel active">
@@ -249,21 +260,21 @@
         <div class="divide-y divide-kashy-border/60">
           <div class="flex items-center justify-between px-5 py-4">
             <div class="flex items-center gap-3"><div class="w-9 h-9 rounded-xl bg-kashy-cream flex items-center justify-center"><svg class="w-5 h-5 text-kashy-brown" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 12h.01M18 12h.01"/></svg></div><div><p class="text-sm font-semibold text-kashy-dark">Tunai</p><p class="text-xs text-kashy-muted">Terima pembayaran uang tunai di kasir</p></div></div>
-            <input type="checkbox" id="toggle-tunai" class="toggle-input" checked><label for="toggle-tunai" class="toggle-label"></label>
+            <input type="checkbox" name="tunai" id="toggle-tunai" class="toggle-input" {{ $setting->tunai ? 'checked' : '' }}><label for="toggle-tunai" class="toggle-label"></label>
           </div>
           <div class="flex items-center justify-between px-5 py-4">
             <div class="flex items-center gap-3"><div class="w-9 h-9 rounded-xl bg-kashy-cream flex items-center justify-center"><svg class="w-5 h-5 text-kashy-brown" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h7v7H3V3zm1 1v5h5V4H4zm1 1h3v3H5V5zM14 3h7v7h-7V3zm1 1v5h5V4h-5zm1 1h3v3h-3V5zM3 14h7v7H3v-7zm1 1v5h5v-5H4zm1 1h3v3H5v-3zM14 14h2v2h-2v-2zm3 0h2v2h-2v-2zm-3 3h2v2h-2v-2zm3 0h2v2h-2v-2z"/></svg></div><div><p class="text-sm font-semibold text-kashy-dark">QRIS</p><p class="text-xs text-kashy-muted">Pembayaran digital via kode QR standar nasional</p></div></div>
-            <input type="checkbox" id="toggle-qris" class="toggle-input" checked><label for="toggle-qris" class="toggle-label"></label>
+            <input type="checkbox" name="qris" id="toggle-qris" class="toggle-input" {{ $setting->qris ? 'checked' : '' }}><label for="toggle-qris" class="toggle-label"></label>
           </div>
           <div class="flex items-center justify-between px-5 py-4">
             <div class="flex items-center gap-3"><div class="w-9 h-9 rounded-xl bg-kashy-cream flex items-center justify-center"><svg class="w-5 h-5 text-kashy-brown" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div><div><p class="text-sm font-semibold text-kashy-dark">Debit</p><p class="text-xs text-kashy-muted">Proses transaksi kartu debit melalui terminal EDC</p></div></div>
-            <input type="checkbox" id="toggle-debit" class="toggle-input"><label for="toggle-debit" class="toggle-label"></label>
+            <input type="checkbox" name="debit" id="toggle-debit" class="toggle-input" {{ $setting->debit ? 'checked' : '' }}><label for="toggle-debit" class="toggle-label"></label>
           </div>
         </div>
       </div>
       <div class="fade-up d4 bg-white rounded-2xl p-5 flex items-start gap-4 shadow-card">
         <div class="w-10 h-10 rounded-xl bg-kashy-cream flex items-center justify-center flex-shrink-0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C49A6C" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
-        <div><p class="text-sm font-semibold text-kashy-dark mb-0.5">Butuh Bantuan?</p><p class="text-xs text-kashy-muted">Tim kurasi kami siap membantu konfigurasi sistem kasir butik Anda.</p><button class="mt-3 text-white text-xs font-semibold px-4 py-2 rounded-xl" style="background:#C49A6C;">Hubungi Dukungan</button></div>
+        <div><p class="text-sm font-semibold text-kashy-dark mb-0.5">Butuh Bantuan?</p><p class="text-xs text-kashy-muted">Tim kurasi kami siap membantu konfigurasi sistem kasir butik Anda.</p><button type="button" class="mt-3 text-white text-xs font-semibold px-4 py-2 rounded-xl" style="background:#C49A6C;">Hubungi Dukungan</button></div>
       </div>
     </div>
 
@@ -271,17 +282,17 @@
     <div id="panel-struk" class="tab-panel">
       <div class="fade-up d3 bg-white rounded-2xl p-5 mb-4 shadow-card">
         <div class="flex items-center gap-2 mb-4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C49A6C" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg><span class="text-base font-bold text-kashy-dark">Detail Header</span></div>
-        <div class="mb-4"><label class="form-label">Nama Toko</label><input type="text" id="inputNamaToko" class="form-input" value="SND Store" oninput="updatePreviewStruk()" placeholder="Nama toko..."/></div>
-        <div><label class="form-label">Alamat Toko</label><textarea id="inputAlamatToko" class="form-input" rows="3" oninput="updatePreviewStruk()" placeholder="Alamat toko...">Jl. Bromo No.171 C, Binjai, Kec. Medan Denai, Kota Medan, Sumatera Utara</textarea></div>
+        <div class="mb-4"><label class="form-label">Nama Toko</label><input type="text" name="nama_toko" id="inputNamaToko" class="form-input" value="{{ old('nama_toko', $setting->nama_toko) }}" oninput="updatePreviewStruk()" placeholder="Nama toko..."/></div>
+        <div><label class="form-label">Alamat Toko</label><textarea name="alamat_toko" id="inputAlamatToko" class="form-input" rows="3" oninput="updatePreviewStruk()" placeholder="Alamat toko...">{{ old('alamat_toko', $setting->alamat_toko) }}</textarea></div>
       </div>
 
       <div class="fade-up d4 grid grid-cols-2 gap-3 mb-5">
-        <button onclick="buangPerubahanStruk()" class="py-4 rounded-2xl font-bold text-kashy-dark text-sm border-2 border-kashy-border bg-white hover:bg-kashy-cream active:scale-[.97] transition-all">Buang Perubahan</button>
-        <button onclick="simpanTemplateStruk()" class="py-4 rounded-2xl font-bold text-white text-sm transition-all hover:opacity-90 active:scale-[.97]" style="background:#C49A6C; box-shadow:0 4px 14px 0 rgba(196,154,108,.35);">Simpan Template</button>
+        <button type="button" onclick="buangPerubahanStruk()" class="py-4 rounded-2xl font-bold text-kashy-dark text-sm border-2 border-kashy-border bg-white hover:bg-kashy-cream active:scale-[.97] transition-all">Buang Perubahan</button>
+        <button type="submit" class="py-4 rounded-2xl font-bold text-white text-sm transition-all hover:opacity-90 active:scale-[.97]" style="background:#C49A6C; box-shadow:0 4px 14px 0 rgba(196,154,108,.35);">Simpan Template</button>
       </div>
 
       <div class="fade-up d5">
-        <div class="flex items-center justify-between mb-2"><div class="flex items-center gap-2 text-sm font-semibold text-kashy-dark"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Pratinjau Langsung</div><button class="w-8 h-8 rounded-full bg-white shadow flex items-center justify-center" onclick="cetakStrukPreview()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8A7968" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button></div>
+        <div class="flex items-center justify-between mb-2"><div class="flex items-center gap-2 text-sm font-semibold text-kashy-dark"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Pratinjau Langsung</div><button type="button" class="w-8 h-8 rounded-full bg-white shadow flex items-center justify-center" onclick="cetakStrukPreview()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8A7968" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button></div>
         <div class="receipt" id="receiptPreviewStruk">
           <p class="receipt-title" id="previewNamaToko">SND STORE</p>
           <p class="receipt-addr" id="previewAlamatToko">Jalan Bromo, Komplek Bromo Residence<br/>Nomor 171 C</p>
@@ -312,21 +323,27 @@
       <div class="fade-up d3 bg-white rounded-2xl p-5 mb-4 shadow-card">
         <div class="flex items-start justify-between mb-1"><h2 class="text-base font-bold text-kashy-dark">Perangkat Terhubung</h2><span class="badge-aktif"><span class="badge-dot"></span>Aktif</span></div>
         <p class="text-sm text-kashy-muted mb-4">Kelola koneksi printer POS aktif Anda</p>
-        <div class="flex items-center gap-4 p-4 bg-kashy-cream rounded-xl"><div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C49A6C" stroke-width="1.8"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></div><div><p class="text-sm font-bold">Epson TM-T82X</p><p class="text-xs text-kashy-muted">Bluetooth · Terhubung: 13:42:18</p></div><button class="badge-nonaktif ml-auto" onclick="nonaktifkanPrinter()">Nonaktif</button></div>
+        <div class="flex items-center gap-4 p-4 bg-kashy-cream rounded-xl"><div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C49A6C" stroke-width="1.8"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></div><div><p class="text-sm font-bold">{{ $setting->printer ?? 'Epson TM-T82X' }}</p><p class="text-xs text-kashy-muted">Bluetooth · Terhubung</p></div><button type="button" class="badge-nonaktif ml-auto" onclick="nonaktifkanPrinter()">Nonaktif</button></div>
       </div>
       <div class="fade-up d3 bg-white rounded-2xl p-5 mb-4 shadow-card">
         <h2 class="text-base font-bold mb-4">Pindai Printer</h2>
-        <div class="flex gap-3 mb-4"><div class="relative flex-1"><svg class="absolute left-3 top-1/2 -translate-y-1/2" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8A7968"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" class="search-input pl-9" placeholder="Cari melalui Bluetooth atau Jaringan..." oninput="filterPrinter(this.value)"/></div><button class="refresh-btn" onclick="refreshScan()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></button></div>
-        <div id="printerList" class="flex flex-col gap-2"><div class="printer-row" onclick="pilihPrinter(this, 'Rongta RP326')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8A7968"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg><span class="text-sm font-medium">Rongta RP326</span></div><div class="printer-row" onclick="pilihPrinter(this, 'POS-58 Printer')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8A7968"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg><span class="text-sm font-medium">POS-58 Printer</span></div></div>
+        <div class="flex gap-3 mb-4"><div class="relative flex-1"><svg class="absolute left-3 top-1/2 -translate-y-1/2" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8A7968"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" class="search-input pl-9" placeholder="Cari melalui Bluetooth atau Jaringan..." oninput="filterPrinter(this.value)"/></div><button type="button" class="refresh-btn" onclick="refreshScan()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></button></div>
+        <div id="printerList" class="flex flex-col gap-2"><div class="printer-row {{ $setting->printer == 'Rongta RP326' ? 'selected' : '' }}" onclick="pilihPrinter(this, 'Rongta RP326')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8A7968"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg><span class="text-sm font-medium">Rongta RP326</span></div><div class="printer-row {{ $setting->printer == 'POS-58 Printer' ? 'selected' : '' }}" onclick="pilihPrinter(this, 'POS-58 Printer')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8A7968"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg><span class="text-sm font-medium">POS-58 Printer</span></div></div>
       </div>
       <div class="fade-up d4 bg-white rounded-2xl p-5 mb-4 shadow-card">
         <h2 class="text-base font-bold mb-4">Spesifikasi Kertas</h2>
         <p class="text-[10px] font-bold text-kashy-muted uppercase tracking-wide mb-2">Pengaturan Margin</p>
-        <div class="flex gap-3 mb-6"><button class="paper-chip active" onclick="pilihKertas(this, '80mm')"><span class="check">✓</span>80mm</button><button class="paper-chip" onclick="pilihKertas(this, '58mm')"><span class="check">✓</span>58mm</button></div>
-        <button onclick="jalankanTesPrint()" class="w-full py-4 rounded-2xl font-bold text-white text-sm tracking-wide mb-2 transition-all" style="background:#C49A6C;">Jalankan Tes Print</button>
+        <div class="flex gap-3 mb-6"><button type="button" class="paper-chip {{ ($setting->ukuran_kertas ?? '80mm') == '80mm' ? 'active' : '' }}" onclick="pilihKertas(this, '80mm')"><span class="check">✓</span>80mm</button><button type="button" class="paper-chip {{ ($setting->ukuran_kertas ?? '80mm') == '58mm' ? 'active' : '' }}" onclick="pilihKertas(this, '58mm')"><span class="check">✓</span>58mm</button></div>
+        <button type="button" onclick="jalankanTesPrint()" class="w-full py-4 rounded-2xl font-bold text-white text-sm tracking-wide mb-2 transition-all" style="background:#C49A6C;">Jalankan Tes Print</button>
         <p class="text-center text-xs text-kashy-muted">Memverifikasi koneksi dan penyelarasan</p>
       </div>
+
+      <div class="fade-up d5 grid grid-cols-1 mb-5">
+        <button type="submit" class="py-4 rounded-2xl font-bold text-white text-sm transition-all hover:opacity-90 active:scale-[.97]" style="background:#C49A6C; box-shadow:0 4px 14px 0 rgba(196,154,108,.35);">Simpan Pengaturan</button>
+      </div>
     </div>
+
+    </form>
   </div>
 </main>
 
@@ -336,12 +353,32 @@
   // ========= SIDEBAR =========
   const sidebar = document.getElementById('sidebar');
   const overlay = document.getElementById('overlay');
-  const menuBtn = document.getElementById('global-menu-toggle');
-  function openSidebar()  { sidebar.classList.add('sidebar-open'); overlay.classList.add('show'); document.body.style.overflow='hidden'; }
-  function closeSidebar() { sidebar.classList.remove('sidebar-open'); overlay.classList.remove('show'); document.body.style.overflow=''; }
-  if (menuBtn) menuBtn.addEventListener('click', e => { e.stopPropagation(); openSidebar(); });
+
+  function openSidebar() {
+    if (!sidebar || !overlay) return;
+    sidebar.classList.add('sidebar-open');
+    overlay.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeSidebar() {
+    if (!sidebar || !overlay) return;
+    sidebar.classList.remove('sidebar-open');
+    overlay.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  document.addEventListener('click', function(e) {
+    const menuBtn = e.target.closest('#global-menu-toggle');
+    if (menuBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      openSidebar();
+    }
+  });
+
   if (overlay) overlay.addEventListener('click', closeSidebar);
-  document.addEventListener('keydown', e => { if (e.key==='Escape') closeSidebar(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSidebar(); });
 
   // ========= TAB SWITCH =========
   function switchTab(tab, btn) {
@@ -369,10 +406,18 @@
 
   // ========= STRUK PREVIEW =========
   function updatePreviewStruk() {
-    const namaToko = document.getElementById('inputNamaToko').value.toUpperCase() || "SND STORE";
-    const alamatToko = document.getElementById('inputAlamatToko').value || "Alamat toko tidak diisi";
-    document.getElementById('previewNamaToko').textContent = namaToko;
-    document.getElementById('previewAlamatToko').innerHTML = alamatToko.replace(/\n/g, '<br/>');
+    const inputNama = document.getElementById('inputNamaToko');
+    const inputAlamat = document.getElementById('inputAlamatToko');
+    const previewNama = document.getElementById('previewNamaToko');
+    const previewAlamat = document.getElementById('previewAlamatToko');
+
+    if (!inputNama || !inputAlamat || !previewNama || !previewAlamat) return;
+
+    const namaToko = inputNama.value.toUpperCase() || "SND STORE";
+    const alamatToko = inputAlamat.value || "Alamat toko tidak diisi";
+
+    previewNama.textContent = namaToko;
+    previewAlamat.innerHTML = alamatToko.replace(/\n/g, '<br/>');
   }
 
   function buangPerubahanStruk() {
@@ -383,11 +428,7 @@
   }
 
   function simpanTemplateStruk() {
-    localStorage.setItem('templateStruk', JSON.stringify({
-      namaToko: document.getElementById('inputNamaToko').value,
-      alamatToko: document.getElementById('inputAlamatToko').value
-    }));
-    showToast("Template struk disimpan");
+    showToast("Template siap disimpan");
   }
 
   function cetakStrukPreview() {
@@ -401,6 +442,8 @@
   function pilihPrinter(el, nama) {
     document.querySelectorAll('.printer-row').forEach(r => r.classList.remove('selected'));
     el.classList.add('selected');
+    const inputPrinter = document.getElementById('inputPrinter');
+    if (inputPrinter) inputPrinter.value = nama;
     showToast('Printer "' + nama + '" dipilih');
   }
   function filterPrinter(q) {
@@ -410,29 +453,27 @@
   }
   function refreshScan() {
     const btn = document.querySelector('.refresh-btn');
+    if (!btn) return;
     btn.classList.add('spinning');
     setTimeout(() => { btn.classList.remove('spinning'); showToast('Pemindaian selesai'); }, 700);
   }
   function pilihKertas(el, ukuran) {
     document.querySelectorAll('.paper-chip').forEach(c => c.classList.remove('active'));
     el.classList.add('active');
+    const inputUkuran = document.getElementById('inputUkuranKertas');
+    if (inputUkuran) inputUkuran.value = ukuran;
     showToast('Ukuran kertas ' + ukuran + ' dipilih');
   }
   function nonaktifkanPrinter() {
-    if (confirm('Nonaktifkan printer ini?')) showToast('Printer dinonaktifkan', false);
+    if (confirm('Nonaktifkan printer ini?')) {
+      const inputPrinter = document.getElementById('inputPrinter');
+      if (inputPrinter) inputPrinter.value = '';
+      showToast('Printer dinonaktifkan', false);
+    }
   }
   function jalankanTesPrint() { showToast('Mengirim tes print...'); }
 
-  // Load saved template
-  const savedTemplate = localStorage.getItem('templateStruk');
-  if (savedTemplate) {
-    try {
-      const { namaToko, alamatToko } = JSON.parse(savedTemplate);
-      document.getElementById('inputNamaToko').value = namaToko;
-      document.getElementById('inputAlamatToko').value = alamatToko;
-      updatePreviewStruk();
-    } catch(e) {}
-  }
+  // Preview awal mengikuti data dari database
   updatePreviewStruk();
 </script>
 </body>
