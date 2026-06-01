@@ -9,6 +9,7 @@ use App\Http\Controllers\KasirTransactionController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\StockOpnameController;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Auth;
 /*
@@ -42,9 +43,13 @@ Route::middleware(['auth'])->group(function () {
     ->middleware('auth')
     ->name('owner.laporan.keuangan');
 
-    Route::view('/owner/stokopname', 'owner.stokopname')
+    Route::get('/owner/stokopname', [StockOpnameController::class, 'index'])
     ->middleware('auth')
     ->name('stokopname');
+
+    // Route::get('/owner/stokopname', [StockOpnameController::class, 'index'])
+    // ->middleware('auth')
+    // ->name('stokopname');
 
     Route::view('/owner/manajemenstaff', 'owner.manajemenstaff')
     ->middleware('auth')
@@ -77,6 +82,14 @@ Route::middleware(['auth'])->group(function () {
     Route::view('/owner/manajementoko', 'owner.manajementoko')
     ->middleware('auth')
     ->name('manajemen.toko');
+
+    Route::post('/owner/stokopname', [StockOpnameController::class, 'store'])
+    ->middleware('auth')
+    ->name('stok-opname.store');
+
+    Route::delete('/owner/stokopname/{stockOpname}', [StockOpnameController::class, 'destroy'])
+    ->middleware('auth')
+    ->name('stok-opname.destroy');
 
     /*
     |--------------------------------------------------------------------------
