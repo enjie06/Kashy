@@ -51,7 +51,6 @@
   .card-hover { transition: transform 0.2s, box-shadow 0.2s; }
   .card-hover:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(0,0,0,0.08); }
 
-  /* Shift Modal - CENTERED */
   #shiftModal {
     opacity:0; pointer-events:none;
     transition:opacity .25s ease;
@@ -100,7 +99,6 @@
   .btn-absensi-card:hover { background:#333; transform:translateY(-1px); }
   .btn-absensi-card:active { transform:scale(.98); }
 
-  /* Toast responsif (disamakan dengan profile) */
   #toast {
     max-width: calc(100% - 32px);
     white-space: normal;
@@ -110,11 +108,7 @@
     border-radius: 40px;
   }
   @media (max-width: 480px) {
-    #toast {
-      font-size: 10px;
-      padding: 6px 14px;
-      max-width: 90%;
-    }
+    #toast { font-size: 10px; padding: 6px 14px; max-width: 90%; }
   }
 </style>
 </head>
@@ -125,7 +119,7 @@
 <main class="flex-1 overflow-y-auto pb-28">
   <div class="max-w-md mx-auto px-4 pt-5 space-y-5">
 
-    <!-- GREETING (ukuran lebih kecil, seperti profile) -->
+    <!-- GREETING -->
     <div class="fade-up delay-1">
       <p class="text-[10px] text-muted font-medium uppercase tracking-wide">Dashboard Karyawan</p>
       <h1 class="font-display text-xl font-bold text-gray-900 mt-0.5" id="greetingText">
@@ -134,7 +128,7 @@
       <p class="text-xs text-muted mt-1 leading-relaxed">Berikut ringkasan aktivitas dan shift anda hari ini.</p>
     </div>
 
-    <!-- SHIFT CARD (diperkecil style-nya seperti card di profile) -->
+    <!-- SHIFT CARD -->
     <div class="bg-white rounded-2xl border border-border shadow-sm overflow-hidden fade-up delay-2">
       <div class="shimmer-bar h-1 w-full"></div>
       <div class="p-4">
@@ -150,7 +144,6 @@
               <p class="text-[10px] text-muted" id="shiftHariTanggal"></p>
             </div>
           </div>
-          <!-- Badge -->
           <div id="shiftBadge" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border">
             <span id="badgeDot" class="w-2 h-2 rounded-full"></span>
             <span id="badgeText" class="text-[10px] font-semibold">Memuat...</span>
@@ -168,13 +161,11 @@
           </div>
         </div>
 
-        <!-- Pesan terlambat -->
         <div id="lateWarning" class="hidden mb-2 text-[10px] text-red-600 bg-red-50 p-1.5 rounded-lg flex items-center gap-1.5">
           <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           <span>⚠️ Terlambat</span>
         </div>
 
-        <!-- Tombol Pilih Shift -->
         <div id="selectShiftButtonContainer" class="mb-3">
           <button class="btn-absensi-card" onclick="openShiftModal()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -203,7 +194,7 @@
       </div>
     </div>
 
-    <!-- TO-DO LIST (diperkecil) -->
+    <!-- TO-DO LIST -->
     <div class="bg-white rounded-2xl border border-border shadow-sm overflow-hidden fade-up delay-3">
       <div class="p-4">
         <div class="flex items-center justify-between mb-3 flex-wrap gap-1.5">
@@ -243,7 +234,7 @@
       </div>
     </div>
 
-    <!-- QUOTE BANNER (diperkecil) -->
+    <!-- QUOTE BANNER -->
     <div class="rounded-2xl overflow-hidden relative min-h-[110px] shadow-sm fade-up delay-4" style="background-image:url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80'); background-size:cover; background-position:center 30%;">
       <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20"></div>
       <div class="relative z-10 flex flex-col justify-end h-full p-3 min-h-[110px]">
@@ -252,6 +243,7 @@
         <p class="text-[9px] text-white/60 mt-1">— Leonardo da Vinci</p>
       </div>
     </div>
+
   </div>
 </main>
 
@@ -260,7 +252,7 @@
   <span id="toastMsg">—</span>
 </div>
 
-<!-- Modal Hapus Semua Todo (diperkecil ukurannya) -->
+<!-- Modal Hapus Semua Todo -->
 <div id="confirmDeleteAllModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden">
   <div class="bg-white rounded-2xl max-w-xs w-full mx-4 p-4 shadow-2xl">
     <div class="text-center">
@@ -277,7 +269,7 @@
   </div>
 </div>
 
-<!-- MODAL PILIH SHIFT (CENTERED, ukuran lebih pas di HP) -->
+<!-- MODAL PILIH SHIFT -->
 <div id="shiftModal" class="fixed inset-0 z-[60] flex items-center justify-center p-3 bg-black/50" style="backdrop-filter:blur(4px);">
   <div id="shiftModalDialog" class="w-full max-w-[320px] bg-white rounded-2xl shadow-2xl overflow-hidden">
     <div class="shimmer-bar h-1 w-full"></div>
@@ -323,9 +315,6 @@
 </div>
 
 <script>
-/* ═══════════════════════════════════════════════════════════════
-   SHIFT CONFIGURATION (TIDAK BERUBAH)
-═══════════════════════════════════════════════════════════════ */
 const SHIFT_CONFIG = {
   pagi:  { nama:'Shift Pagi',  mulai:'09:00', selesai:'17:00', mulaiJam:9,  endHour:17, allowedFrom:9  },
   malam: { nama:'Shift Malam', mulai:'15:00', selesai:'23:00', mulaiJam:15, endHour:23, allowedFrom:15 },
@@ -353,27 +342,20 @@ function saveShiftChoice(shiftType) {
 
 function isShiftAvailable(shiftType) {
   const now = new Date();
-  const hour = now.getHours();
-  const min = now.getMinutes();
-  const nowMins = hour * 60 + min;
+  const nowMins = now.getHours() * 60 + now.getMinutes();
   const cfg = SHIFT_CONFIG[shiftType];
   if (!cfg) return false;
-  const startMins = cfg.mulaiJam * 60;
-  const endMins = cfg.endHour * 60;
-  return (nowMins >= startMins && nowMins <= endMins);
+  return (nowMins >= cfg.mulaiJam * 60 && nowMins <= cfg.endHour * 60);
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   RENDER SHIFT CARD + BADGE (hanya Aktif / Tidak Aktif)
-═══════════════════════════════════════════════════════════════ */
 let currentServerData = null;
 
 function renderShiftCard(shiftType, serverData) {
-  const mulaiEl   = document.getElementById('shiftMulai');
-  const berakhirEl= document.getElementById('shiftBerakhir');
-  const badgeWrap = document.getElementById('shiftBadge');
-  const badgeDot  = document.getElementById('badgeDot');
-  const badgeText = document.getElementById('badgeText');
+  const mulaiEl    = document.getElementById('shiftMulai');
+  const berakhirEl = document.getElementById('shiftBerakhir');
+  const badgeWrap  = document.getElementById('shiftBadge');
+  const badgeDot   = document.getElementById('badgeDot');
+  const badgeText  = document.getElementById('badgeText');
   const selectBtnContainer = document.getElementById('selectShiftButtonContainer');
   const lateWarning = document.getElementById('lateWarning');
 
@@ -388,16 +370,35 @@ function renderShiftCard(shiftType, serverData) {
     lateWarning.classList.add('hidden');
   }
 
+  // ✅ SELESAI
+  if (serverData && serverData.shift_status === 'selesai') {
+    const cfg = SHIFT_CONFIG[shiftType] || (serverData.shift_type ? SHIFT_CONFIG[serverData.shift_type] : null);
+    if (cfg) {
+      mulaiEl.textContent    = cfg.mulai;
+      berakhirEl.textContent = cfg.selesai;
+    } else {
+      mulaiEl.textContent    = serverData.shift_start || '--:--';
+      berakhirEl.textContent = serverData.shift_end   || '--:--';
+    }
+    if (selectBtnContainer) selectBtnContainer.classList.add('hidden');
+    badgeDot.className    = 'w-2 h-2 rounded-full bg-gray-400';
+    badgeText.textContent = 'Selesai';
+    badgeWrap.className   = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-300 bg-gray-100';
+    return;
+  }
+
+  // Belum pilih shift
   if (!shiftType) {
     mulaiEl.textContent    = '--:--';
     berakhirEl.textContent = '--:--';
     if (selectBtnContainer) selectBtnContainer.classList.remove('hidden');
-    badgeDot.className = 'w-2 h-2 rounded-full bg-red-500';
+    badgeDot.className    = 'w-2 h-2 rounded-full bg-red-500';
     badgeText.textContent = 'Tidak Aktif';
-    badgeWrap.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-red-300 bg-red-100';
+    badgeWrap.className   = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-red-300 bg-red-100';
     return;
   }
 
+  // Aktif
   const cfg = SHIFT_CONFIG[shiftType];
   if (cfg) {
     mulaiEl.textContent    = cfg.mulai;
@@ -407,24 +408,21 @@ function renderShiftCard(shiftType, serverData) {
     berakhirEl.textContent = '--:--';
   }
   if (selectBtnContainer) selectBtnContainer.classList.add('hidden');
-
-  badgeDot.className = 'w-2 h-2 rounded-full bg-green-500 pulse-dot';
+  badgeDot.className    = 'w-2 h-2 rounded-full bg-green-500 pulse-dot';
   badgeText.textContent = 'Aktif';
-  badgeWrap.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-green-300 bg-green-100';
+  badgeWrap.className   = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-green-300 bg-green-100';
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   LOAD SHIFT STATUS
-═══════════════════════════════════════════════════════════════ */
 async function loadShiftStatus() {
   try {
     const response = await fetch('{{ route("shift.status") }}');
     const data     = await response.json();
     currentServerData = data;
-    
+
     if (data.shift_status === 'tidak_aktif') {
       localStorage.removeItem('kashy_selected_shift');
     }
+
     const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
     document.getElementById('shiftHariTanggal').textContent =
       new Date().toLocaleDateString('id-ID', opts);
@@ -442,9 +440,6 @@ async function loadShiftStatus() {
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   MODAL SHIFT LOGIC
-═══════════════════════════════════════════════════════════════ */
 function openShiftModal() {
   updateModalTime();
   updateShiftOptionState();
@@ -456,20 +451,17 @@ function closeShiftModal() {
   document.getElementById('shiftModal').classList.remove('open');
   document.body.style.overflow = '';
 }
+
 document.getElementById('shiftModal')?.addEventListener('click', function(e) {
   if (e.target === this) closeShiftModal();
 });
 
 function updateShiftOptionState() {
   const now = new Date();
-  const hour = now.getHours();
-  const min = now.getMinutes();
-  const nowMins = hour * 60 + min;
+  const nowMins = now.getHours() * 60 + now.getMinutes();
   updateModalTime();
 
-  const pagiStart = SHIFT_CONFIG.pagi.mulaiJam * 60;
-  const pagiEnd   = SHIFT_CONFIG.pagi.endHour * 60;
-  const pagiAvail = (nowMins >= pagiStart && nowMins <= pagiEnd);
+  const pagiAvail = (nowMins >= SHIFT_CONFIG.pagi.mulaiJam * 60 && nowMins <= SHIFT_CONFIG.pagi.endHour * 60);
   const optPagi = document.getElementById('optPagi');
   if (pagiAvail) {
     optPagi.classList.remove('disabled');
@@ -483,9 +475,7 @@ function updateShiftOptionState() {
     document.getElementById('arrowPagi').classList.add('hidden');
   }
 
-  const malamStart = SHIFT_CONFIG.malam.mulaiJam * 60;
-  const malamEnd   = SHIFT_CONFIG.malam.endHour * 60;
-  const malamAvail = (nowMins >= malamStart && nowMins <= malamEnd);
+  const malamAvail = (nowMins >= SHIFT_CONFIG.malam.mulaiJam * 60 && nowMins <= SHIFT_CONFIG.malam.endHour * 60);
   const optMalam = document.getElementById('optMalam');
   if (malamAvail) {
     optMalam.classList.remove('disabled');
@@ -505,7 +495,7 @@ function updateModalTime() {
   const h = String(now.getHours()).padStart(2,'0');
   const m = String(now.getMinutes()).padStart(2,'0');
   document.getElementById('modalCurrentTime').textContent = h + ':' + m + ' WIB';
-  const days = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  const days   = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
   const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
   document.getElementById('modalDateLabel').textContent =
     days[now.getDay()] + ', ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
@@ -523,9 +513,6 @@ function pilihShift(type) {
   setTimeout(() => { window.location.href = '{{ route("absensi") }}'; }, 500);
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   TOAST & TO-DO LIST (TIDAK BERUBAH)
-═══════════════════════════════════════════════════════════════ */
 function showToast(msg) {
   const t = document.getElementById('toast');
   document.getElementById('toastMsg').textContent = msg;
@@ -593,9 +580,6 @@ function deleteAllTodos() {
 }
 function escapeHtml(s) { return s.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
 
-/* ═══════════════════════════════════════════════════════════════
-   GREETING + INIT (TIDAK BERUBAH)
-═══════════════════════════════════════════════════════════════ */
 (function() {
   const h = new Date().getHours();
   let greet = 'Selamat Pagi';
@@ -612,7 +596,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const deleteAllBtn = document.getElementById('deleteAllBtn');
   if (showBtn)      showBtn.onclick      = showTodoForm;
   if (deleteAllBtn) deleteAllBtn.onclick = deleteAllTodos;
-
   setInterval(loadShiftStatus, 30000);
   setInterval(updateShiftOptionState, 60000);
 });
