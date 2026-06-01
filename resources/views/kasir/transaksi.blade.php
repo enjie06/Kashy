@@ -42,15 +42,23 @@
 
 <body class="bg-[#f8f8f8] min-h-screen font-poppins">
 
-<!-- TOPBAR with Back Button -->
-<nav class="sticky top-0 z-20 bg-gray-900 px-4 py-3 flex items-center justify-between shadow-md">
-  <button onclick="window.location.href='{{ route('dashboard-kasir') }}'" class="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/10 transition">
-    <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
-      <path d="M19 12H5M12 19l-7-7 7-7"/>
-    </svg>
-  </button>
-  <span class="font-poppins text-xl font-bold text-white tracking-widest">Kashy</span>
-  <div class="w-9"></div>
+<!-- TOPBAR -->
+<nav class="sticky top-0 z-50 bg-gray-900 shadow-sm h-12 px-4 flex items-center justify-between relative">
+    <!-- Tombol Back -->
+    <button
+        onclick="window.location.href='{{ route('dashboard-kasir') }}'"
+        class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 transition">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+            <path d="M19 12H5"/>
+            <path d="M12 19L5 12L12 5"/>
+        </svg>
+    </button>
+    <!-- Logo -->
+    <span class="font-bold text-white text-lg tracking-wider absolute left-1/2 -translate-x-1/2">
+        Kashy
+    </span>
+    <!-- Spacer -->
+    <div class="w-8"></div>
 </nav>
 
 <main class="max-w-2xl mx-auto w-full px-4 pt-6 pb-28">

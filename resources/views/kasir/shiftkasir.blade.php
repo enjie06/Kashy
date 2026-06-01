@@ -56,6 +56,7 @@
   }
 </style>
 </head>
+@include('kasir.components.topbar')
 <body class="bg-bg min-h-screen flex flex-col">
 
 <!-- NAVBAR COMPONENT -->

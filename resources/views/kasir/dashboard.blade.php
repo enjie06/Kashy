@@ -52,6 +52,7 @@
   .card-hover:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(0,0,0,0.08); }
 </style>
 </head>
+@include('kasir.components.topbar')
 <body class="bg-bg min-h-screen flex flex-col">
 
 @include('kasir.components.navbar')
