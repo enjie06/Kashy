@@ -74,7 +74,7 @@
           <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
         </svg>
       </div>
-      <span class="text-sm font-semibold leading-tight">Transaksi<br>Baru</span>
+      <span class="text-sm font-semibold leading-tight">Transaksi Baru</span>
     </button>
 
     <button onclick="window.location.href='{{ route('kasir.shiftkasir') }}'"
@@ -86,7 +86,7 @@
           <line x1="21" y1="12" x2="9" y2="12"/>
         </svg>
       </div>
-      <span id="shiftBtnLabel" class="text-sm font-semibold leading-tight text-gray-900">Buka Shift</span>
+      <span id="shiftBtnLabel" class="text-sm font-semibold leading-tight text-gray-900">Pilih Shift</span>
     </button>
   </div>
 

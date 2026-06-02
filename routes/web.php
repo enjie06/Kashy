@@ -133,6 +133,10 @@ Route::get('/kasir/dashboard', function () {
     return view('kasir.dashboard');
 })->middleware('auth')->name('dashboard-kasir');
 
+Route::get('/kasir/absensikasir', function () {
+    return view('kasir.absensikasir');
+})->middleware('auth')->name('kasir.absensikasir');
+
 Route::get('/kasir/shiftkasir', function () {
     return view('kasir.shiftkasir');
 })->name('kasir.shiftkasir');

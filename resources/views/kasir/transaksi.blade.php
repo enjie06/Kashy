@@ -161,12 +161,12 @@
     </div>
 
     <button onclick="goToPayment()" class="w-full bg-black hover:bg-gray-900 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition shadow-lg">
-      Lanjut ke Pembayaran
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
-        <line x1="5" y1="12" x2="19" y2="12"/>
-        <polyline points="12 5 19 12 12 19"/>
-      </svg>
-    </button>
+  Cetak Struk
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+    <line x1="5" y1="12" x2="19" y2="12"/>
+    <polyline points="12 5 19 12 12 19"/>
+  </svg>
+</button>
   </div>
 </main>
 
@@ -468,7 +468,7 @@
   function renderCart() {
     const container = document.getElementById('cartItems');
     if (!cart.length) {
-      container.innerHTML = `<div class="text-center text-gray-400 py-4">Belum ada produk, tambah produk dulu yuk!</div>`;
+      container.innerHTML = `<div class="text-center text-gray-400 py-4">Belum ada produk, Tambah Produk Dulu Yuk!</div>`;
       calculateTotal();
       return;
     }
@@ -549,7 +549,7 @@
     let filtered = productsDatabase;
     if (lowerTerm) filtered = productsDatabase.filter(p => p.name.toLowerCase().includes(lowerTerm));
     if (!filtered.length) {
-      container.innerHTML = `<div class="text-center text-gray-400 py-4 text-sm">Tidak ada produk yang cocok</div>`;
+      container.innerHTML = `<div class="text-center text-gray-400 py-4 text-sm">Produk Tidak Ditemukan</div>`;
       return;
     }
     let html = '';
@@ -656,8 +656,11 @@
         showToast('Gagal lanjut ke pembayaran', true);
         return;
       }
-
       window.location.href = data.redirect;
+
+setTimeout(() => {
+   window.location.href = "{{ route('dashboard-kasir') }}";
+}, 3000);
     })
     .catch(() => {
       showToast('Gagal lanjut ke pembayaran', true);
