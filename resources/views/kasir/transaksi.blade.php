@@ -269,8 +269,8 @@
             'name' => $product->nama_produk,
             'price' => (int) $product->harga,
             'img' => $product->gambar
-                ? asset('storage/' . $product->gambar)
-                : 'https://via.placeholder.com/40',
+    ? asset($product->gambar)
+    : 'https://via.placeholder.com/40',
             'stok' => $product->stok,
         ];
     })->values();
