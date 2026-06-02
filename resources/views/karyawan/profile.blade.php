@@ -117,33 +117,31 @@
     transform: translateX(-50%) translateY(0);
   }
 
-  #logoutOverlay {
+  /* Semua overlay modal pakai style yang sama */
+  .kashy-overlay {
     opacity: 0;
     pointer-events: none;
     transition: opacity .25s ease;
   }
-  #logoutOverlay.open {
+  .kashy-overlay.open {
     opacity: 1;
     pointer-events: all;
   }
-  #logoutDialog {
+  .kashy-dialog {
     transform: scale(.92) translateY(12px);
     transition: transform .3s cubic-bezier(0.34,1.56,.64,1);
   }
-  #logoutOverlay.open #logoutDialog {
+  .kashy-overlay.open .kashy-dialog {
     transform: scale(1) translateY(0);
   }
 </style>
 </head>
 <body class="bg-bg min-h-screen flex flex-col">
 @include('karyawan.components.navbar')
-<!-- TOPBAR (sama dengan halaman lain) -->
 <nav class="sticky top-0 z-50 bg-gray-900 flex items-center justify-center px-5 shadow-md h-12 px-4">
   <div class="absolute left-1/2 -translate-x-1/2">
-        <span class="font-bold text-white text-lg tracking-wider">
-            Kashy
-        </span>
-    </div>
+    <span class="font-bold text-white text-lg tracking-wider">Kashy</span>
+  </div>
 </nav>
 
 <main class="flex-1 overflow-y-auto hide-scroll pb-28">
@@ -169,7 +167,7 @@
             @if($user->profile_photo)
               <img src="{{ asset('storage/' . $user->profile_photo) }}" class="w-full h-full object-cover" alt="Foto Profil">
             @else
-             <div class="w-full h-full flex items-center justify-center text-white text-3xl font-bold"
+              <div class="w-full h-full flex items-center justify-center text-white text-3xl font-bold"
                    style="background:linear-gradient(135deg,#d4c5b0,#b8a898,#c8b8a8);">
                 {{ strtoupper(substr($user->name, 0, 1)) }}
               </div>
@@ -179,14 +177,12 @@
         <button type="button" onclick="document.getElementById('profile_photo').click()" class="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-terra shadow-md border-2 border-white flex items-center justify-center hover:bg-terra-l">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         </button>
-        {{-- TAMBAHAN: Tombol hapus foto (hanya muncul kalau ada foto) --}}
         @if($user->profile_photo)
-        <button type="button" onclick="confirmDeletePhoto()"
+        <button type="button" onclick="openDeletePhotoModal()"
                 class="absolute bottom-0 left-0 w-6 h-6 rounded-full bg-red-500 shadow-md border-2 border-white flex items-center justify-center hover:bg-red-600 transition-colors">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
         </button>
         @endif
-        {{-- TAMBAHAN: Form hapus foto --}}
         <form id="deletePhotoForm" action="{{ route('profile.deletePhoto') }}" method="POST">
           @csrf
           @method('DELETE')
@@ -198,7 +194,7 @@
       </span>
     </div>
 
-    <!-- Info Card (data karyawan) -->
+    <!-- Info Card -->
     <div class="anim-1 bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
       <div class="shimmer-bar h-1"></div>
       <div class="info-row flex items-center gap-3 px-4 py-3 border-b border-stone-100">
@@ -231,22 +227,18 @@
         <form action="{{ route('karyawan.profile.update') }}" method="POST" enctype="multipart/form-data" class="space-y-3">
           @csrf
           @method('PUT')
-
-        <div>
-    <label class="block text-[9px] font-bold tracking-wide text-muted mb-1">Foto Profil</label>
-    <input 
-      type="file" 
-      name="profile_photo" 
-      id="profile_photo" 
-      accept="image/*"
-      class="kashy-input w-full px-3 py-2.5 border border-border rounded-lg bg-bg text-sm text-gray-900"
-    >
-  </div>
-
+          <div>
+            <label class="block text-[9px] font-bold tracking-wide text-muted mb-1">Foto Profil</label>
+            <input type="file" name="profile_photo" id="profile_photo" accept="image/*"
+              class="kashy-input w-full px-3 py-2.5 border border-border rounded-lg bg-bg text-sm text-gray-900">
+          </div>
           <div><label class="block text-[9px] font-bold tracking-wide text-muted mb-1">Nama Lengkap</label><input type="text" name="name" value="{{ old('name', $user->name) }}" class="kashy-input w-full px-3 py-2.5 border border-border rounded-lg bg-bg text-sm text-gray-900"></div>
           <div><label class="block text-[9px] font-bold tracking-wide text-muted mb-1">Email</label><input type="email" name="email" value="{{ old('email', $user->email) }}" class="kashy-input w-full px-3 py-2.5 border border-border rounded-lg bg-bg text-sm"></div>
           <div><label class="block text-[9px] font-bold tracking-wide text-muted mb-1">Nomor Telepon</label><input type="tel" name="phone" value="{{ old('phone', $user->phone) }}" class="kashy-input w-full px-3 py-2.5 border border-border rounded-lg bg-bg text-sm"></div>
-          <button type="submit" class="btn-dark w-full py-2.5 text-white font-semibold rounded-lg text-xs tracking-wide flex items-center justify-center gap-2"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Simpan Perubahan</button>
+          <button type="submit" class="btn-dark w-full py-2.5 text-white font-semibold rounded-lg text-xs tracking-wide flex items-center justify-center gap-2">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Simpan Perubahan
+          </button>
         </form>
       </div>
     </div>
@@ -258,15 +250,24 @@
           <div class="w-7 h-7 rounded-lg bg-terra-xs flex items-center justify-center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8966C" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
           <h3 class="text-sm font-bold text-gray-900">Ganti Password</h3>
         </div>
-        <form action="{{ route('karyawan.password.update') }}" method="POST" class="space-y-3">
-          @csrf
-          @method('PUT')
-
+        <form id="passwordForm" class="space-y-3">
           <div><label class="block text-[9px] font-bold tracking-wide text-muted mb-1">Password Lama</label><div class="relative"><input type="password" name="current_password" id="pwLama" class="kashy-input w-full px-3 py-2.5 pr-10 border border-border rounded-lg bg-bg text-sm"><button type="button" onclick="togglePw('pwLama','eyeL')" class="absolute right-2 top-1/2 -translate-y-1/2 text-stone-300 hover:text-terra" id="eyeL"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
           <div><label class="block text-[9px] font-bold tracking-wide text-muted mb-1">Password Baru</label><div class="relative"><input type="password" name="password" id="pwBaru" class="kashy-input w-full px-3 py-2.5 pr-10 border border-border rounded-lg bg-bg text-sm"><button type="button" onclick="togglePw('pwBaru','eyeB')" class="absolute right-2 top-1/2 -translate-y-1/2 text-stone-300 hover:text-terra" id="eyeB"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
           <div><label class="block text-[9px] font-bold tracking-wide text-muted mb-1">Konfirmasi Password</label><div class="relative"><input type="password" name="password_confirmation" id="pwKonfirm" class="kashy-input w-full px-3 py-2.5 pr-10 border border-border rounded-lg bg-bg text-sm"><button type="button" onclick="togglePw('pwKonfirm','eyeK')" class="absolute right-2 top-1/2 -translate-y-1/2 text-stone-300 hover:text-terra" id="eyeK"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
           <div id="strengthWrap" class="hidden"><div class="flex gap-1 mb-0.5"><div class="flex-1 h-1 rounded-full bg-stone-100" id="s1"></div><div class="flex-1 h-1 rounded-full bg-stone-100" id="s2"></div><div class="flex-1 h-1 rounded-full bg-stone-100" id="s3"></div><div class="flex-1 h-1 rounded-full bg-stone-100" id="s4"></div></div><p class="text-[10px] text-muted" id="strengthLabel">Kekuatan password</p></div>
-          <button type="submit" class="btn-terra w-full py-2.5 text-white font-semibold rounded-lg text-xs tracking-wide flex items-center justify-center gap-2"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Update Password</button>
+          <!-- Tombol ini trigger modal konfirmasi, bukan submit langsung -->
+          <button type="button" onclick="openUpdatePasswordModal()" class="btn-terra w-full py-2.5 text-white font-semibold rounded-lg text-xs tracking-wide flex items-center justify-center gap-2">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Update Password
+          </button>
+        </form>
+        <!-- Form asli yang akan disubmit setelah konfirmasi -->
+        <form id="realPasswordForm" action="{{ route('karyawan.password.update') }}" method="POST" class="hidden">
+          @csrf
+          @method('PUT')
+          <input type="hidden" id="hiddenCurrentPw" name="current_password">
+          <input type="hidden" id="hiddenNewPw" name="password">
+          <input type="hidden" id="hiddenConfirmPw" name="password_confirmation">
         </form>
       </div>
     </div>
@@ -289,58 +290,165 @@
   </div>
 </main>
 
-<!-- Logout Modal -->
-<div id="logoutOverlay" class="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">  <div id="logoutDialog" class="w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden">
+<!-- ===================== MODAL HAPUS FOTO ===================== -->
+<div id="deletePhotoOverlay" class="kashy-overlay fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+  <div id="deletePhotoDialog" class="kashy-dialog w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden">
     <div class="shimmer-bar h-1"></div>
     <div class="px-5 pt-5 pb-6 text-center">
-      <div class="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center mx-auto mb-3"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></div>
+      <div class="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center mx-auto mb-3">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
+          <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/>
+        </svg>
+      </div>
+      <h3 class="font-display text-lg font-bold text-gray-900 mb-1">Hapus Foto Profil?</h3>
+      <p class="text-xs text-muted">Foto profil akan dihapus dan diganti dengan inisial nama kamu.</p>
+      <div class="flex gap-3 mt-5">
+        <button onclick="closeDeletePhotoModal()" class="flex-1 py-2.5 rounded-lg border border-border text-xs font-semibold text-muted hover:bg-stone-50 transition-colors">Batal</button>
+        <button onclick="doDeletePhoto()" class="flex-1 py-2.5 rounded-lg bg-red-500 text-white text-xs font-semibold hover:bg-red-600 transition-colors">Ya, Hapus</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL UPDATE PASSWORD ===================== -->
+<div id="updatePasswordOverlay" class="kashy-overlay fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+  <div id="updatePasswordDialog" class="kashy-dialog w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden">
+    <div class="shimmer-bar h-1"></div>
+    <div class="px-5 pt-5 pb-6 text-center">
+      <div class="w-12 h-12 rounded-xl bg-terra-xs flex items-center justify-center mx-auto mb-3">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C8966C" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </div>
+      <h3 class="font-display text-lg font-bold text-gray-900 mb-1">Update Password?</h3>
+      <p class="text-xs text-muted">Pastikan kamu mengingat password baru kamu setelah diperbarui.</p>
+      <div class="flex gap-3 mt-5">
+        <button onclick="closeUpdatePasswordModal()" class="flex-1 py-2.5 rounded-lg border border-border text-xs font-semibold text-muted hover:bg-stone-50 transition-colors">Batal</button>
+        <button onclick="doUpdatePassword()" class="flex-1 py-2.5 rounded-lg text-white text-xs font-semibold transition-colors" style="background:#C8966C;">Ya, Update</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL LOGOUT ===================== -->
+<div id="logoutOverlay" class="kashy-overlay fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+  <div id="logoutDialog" class="kashy-dialog w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden">
+    <div class="shimmer-bar h-1"></div>
+    <div class="px-5 pt-5 pb-6 text-center">
+      <div class="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center mx-auto mb-3">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </div>
       <h3 class="font-display text-lg font-bold text-gray-900 mb-1">Keluar dari Akun?</h3>
       <p class="text-xs text-muted">Sesi Anda akan berakhir dan Anda perlu login kembali.</p>
-      <div class="flex gap-3 mt-5"><button onclick="closeLogout()" class="flex-1 py-2.5 rounded-lg border border-border text-xs font-semibold text-muted hover:bg-stone-50">Batal</button><button onclick="performLogout()" class="flex-1 py-2.5 rounded-lg bg-red-500 text-white text-xs font-semibold hover:bg-red-600">Ya, Keluar</button></div>
+      <div class="flex gap-3 mt-5">
+        <button onclick="closeLogout()" class="flex-1 py-2.5 rounded-lg border border-border text-xs font-semibold text-muted hover:bg-stone-50 transition-colors">Batal</button>
+        <button onclick="performLogout()" class="flex-1 py-2.5 rounded-lg bg-red-500 text-white text-xs font-semibold hover:bg-red-600 transition-colors">Ya, Keluar</button>
+      </div>
     </div>
   </div>
 </div>
 
 <!-- Toast -->
-<div id="toast" class="fixed bottom-24 left-1/2 z-[70] bg-gray-900 text-white text-sm font-medium px-5 py-3 rounded-full shadow-xl flex items-center gap-2"><span id="toastMsg"></span></div>
+<div id="toast" class="fixed bottom-24 left-1/2 z-[70] bg-gray-900 text-white text-sm font-medium px-5 py-3 rounded-full shadow-xl flex items-center gap-2">
+  <span id="toastMsg"></span>
+</div>
 
 <script>
-function setNav(el){document.querySelectorAll('.bn-item').forEach(b=>b.classList.remove('active'));el.classList.add('active');}
+// ==================== HELPER ====================
+function openOverlay(id) {
+  document.getElementById(id).classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeOverlay(id) {
+  document.getElementById(id).classList.remove('open');
+  document.body.style.overflow = '';
+}
 
-function togglePw(inputId,btnId){let i=document.getElementById(inputId),b=document.getElementById(btnId),hide=i.type==='password';i.type=hide?'text':'password';b.innerHTML=hide?`<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`:`<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>`;b.style.color=hide?'#C8966C':'';}
+// Tutup modal kalau klik area gelap
+['deletePhotoOverlay','updatePasswordOverlay','logoutOverlay'].forEach(id => {
+  document.getElementById(id).addEventListener('click', function(e) {
+    if (e.target === this) closeOverlay(id);
+  });
+});
 
-document.getElementById('pwBaru').addEventListener('input',function(){let v=this.value,w=document.getElementById('strengthWrap'),bars=[...'s1,s2,s3,s4'.split(',').map(id=>document.getElementById(id))],l=document.getElementById('strengthLabel');if(!v){w.classList.add('hidden');return;}w.classList.remove('hidden');let s=(v.length>=8?1:0)+(/[A-Z]/.test(v)?1:0)+(/[0-9]/.test(v)?1:0)+(/[^A-Za-z0-9]/.test(v)?1:0);let c=['#ef4444','#f97316','#eab308','#22c55e'],t=['Lemah','Cukup','Kuat','Sangat Kuat'];bars.forEach((b,i)=>{b.style.background=i<s?c[s-1]:'#e7e5e4'});l.textContent=t[s-1]||'Lemah';l.style.color=c[s-1]||'#ef4444';});
+// ==================== HAPUS FOTO ====================
+function openDeletePhotoModal() { openOverlay('deletePhotoOverlay'); }
+function closeDeletePhotoModal() { closeOverlay('deletePhotoOverlay'); }
+function doDeletePhoto() {
+  closeDeletePhotoModal();
+  document.getElementById('deletePhotoForm').submit();
+}
 
-function handleSimpan(){showToast('✓ Perubahan profil berhasil disimpan');}
-function handleUpdatePassword(){let l=document.getElementById('pwLama').value,b=document.getElementById('pwBaru').value,k=document.getElementById('pwKonfirm').value;if(!l||!b||!k)return showToast('⚠ Isi semua kolom password',false);if(b!==k)return showToast('⚠ Password baru tidak cocok',false);if(b.length<8)return showToast('⚠ Password minimal 8 karakter',false);showToast('✓ Password berhasil diperbarui');document.getElementById('pwLama').value=document.getElementById('pwBaru').value=document.getElementById('pwKonfirm').value='';document.getElementById('strengthWrap').classList.add('hidden');}
+// ==================== UPDATE PASSWORD ====================
+function openUpdatePasswordModal() {
+  const l = document.getElementById('pwLama').value;
+  const b = document.getElementById('pwBaru').value;
+  const k = document.getElementById('pwKonfirm').value;
+  if (!l || !b || !k) { showToast('⚠ Isi semua kolom password', false); return; }
+  if (b !== k) { showToast('⚠ Password baru tidak cocok', false); return; }
+  if (b.length < 8) { showToast('⚠ Password minimal 8 karakter', false); return; }
+  openOverlay('updatePasswordOverlay');
+}
+function closeUpdatePasswordModal() { closeOverlay('updatePasswordOverlay'); }
+function doUpdatePassword() {
+  // Pindahkan nilai ke hidden form lalu submit
+  document.getElementById('hiddenCurrentPw').value = document.getElementById('pwLama').value;
+  document.getElementById('hiddenNewPw').value     = document.getElementById('pwBaru').value;
+  document.getElementById('hiddenConfirmPw').value = document.getElementById('pwKonfirm').value;
+  closeUpdatePasswordModal();
+  document.getElementById('realPasswordForm').submit();
+}
 
-function openLogout(){document.getElementById('logoutOverlay').classList.add('open');document.body.style.overflow='hidden';}
-function closeLogout(){document.getElementById('logoutOverlay').classList.remove('open');document.body.style.overflow='';}
-
+// ==================== LOGOUT ====================
+function openLogout() { openOverlay('logoutOverlay'); }
+function closeLogout() { closeOverlay('logoutOverlay'); }
 function performLogout() {
-    showToast('Sampai jumpa! 👋');
-    closeLogout();
-    var form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '{{ route("logout") }}';
-    var csrfInput = document.createElement('input');
-    csrfInput.type = 'hidden';
-    csrfInput.name = '_token';
-    csrfInput.value = '{{ csrf_token() }}';
-    form.appendChild(csrfInput);
-    document.body.appendChild(form);
-    form.submit();
+  showToast('Sampai jumpa! 👋');
+  closeLogout();
+  var form = document.createElement('form');
+  form.method = 'POST';
+  form.action = '{{ route("logout") }}';
+  var csrfInput = document.createElement('input');
+  csrfInput.type = 'hidden';
+  csrfInput.name = '_token';
+  csrfInput.value = '{{ csrf_token() }}';
+  form.appendChild(csrfInput);
+  document.body.appendChild(form);
+  form.submit();
 }
 
-document.getElementById('logoutOverlay').addEventListener('click',function(e){if(e.target===this)closeLogout();});
-
-// TAMBAHAN: fungsi hapus foto
-function confirmDeletePhoto() {
-    if (!confirm('Hapus foto profil? Foto akan diganti dengan inisial nama.')) return;
-    document.getElementById('deletePhotoForm').submit();
+// ==================== PASSWORD TOGGLE & STRENGTH ====================
+function togglePw(inputId, btnId) {
+  let i = document.getElementById(inputId), b = document.getElementById(btnId), hide = i.type === 'password';
+  i.type = hide ? 'text' : 'password';
+  b.innerHTML = hide
+    ? `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`
+    : `<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>`;
+  b.style.color = hide ? '#C8966C' : '';
 }
 
-function showToast(msg,success=true){let t=document.getElementById('toast'),tm=document.getElementById('toastMsg');tm.textContent=msg;t.style.background=success?'#1c1c1c':'#ef4444';t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2800);}
+document.getElementById('pwBaru').addEventListener('input', function() {
+  let v = this.value, w = document.getElementById('strengthWrap'),
+      bars = ['s1','s2','s3','s4'].map(id => document.getElementById(id)),
+      l = document.getElementById('strengthLabel');
+  if (!v) { w.classList.add('hidden'); return; }
+  w.classList.remove('hidden');
+  let s = (v.length >= 8 ? 1 : 0) + (/[A-Z]/.test(v) ? 1 : 0) + (/[0-9]/.test(v) ? 1 : 0) + (/[^A-Za-z0-9]/.test(v) ? 1 : 0);
+  let c = ['#ef4444','#f97316','#eab308','#22c55e'], t = ['Lemah','Cukup','Kuat','Sangat Kuat'];
+  bars.forEach((b, i) => { b.style.background = i < s ? c[s-1] : '#e7e5e4'; });
+  l.textContent = t[s-1] || 'Lemah';
+  l.style.color = c[s-1] || '#ef4444';
+});
+
+// ==================== TOAST ====================
+function showToast(msg, success = true) {
+  let t = document.getElementById('toast'), tm = document.getElementById('toastMsg');
+  tm.textContent = msg;
+  t.style.background = success ? '#1c1c1c' : '#ef4444';
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 2800);
+}
 </script>
 </body>
 </html>
