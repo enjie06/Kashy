@@ -201,7 +201,7 @@
           <line x1="21" y1="12" x2="9" y2="12"/>
         </svg>
       </div>
-      <h3 class="font-poppins text-lg font-bold text-gray-900 mb-1">Yakin ingin pulang sekarang?</h3>
+      <h3 class="font-poppins text-lg font-bold text-gray-900 mb-1">Akhiri Shift Anda Hari ini?</h3>
       <p class="text-xs text-muted">Absensi pulang akan dicatat pada waktu ini dan tidak bisa diubah.</p>
       <div class="flex gap-3 mt-5">
         <button onclick="closePulangModal()" class="flex-1 py-2.5 rounded-lg border border-border text-xs font-semibold text-muted hover:bg-stone-50 transition-colors">Batal</button>
