@@ -85,7 +85,6 @@
 
   <div class="absolute left-1/2 -translate-x-1/2 text-center">
     <span class="text-lg sm:text-xl font-bold text-white">SND STORE</span>
-    <p class="text-[10px] text-gray-400 leading-none mt-0.5" id="pageSubtitle">Detail Produk</p>
   </div>
 
   <div class="relative">
@@ -238,7 +237,7 @@ if (!product) {
   </div>`;
 } else {
   // Update subtitle topbar
-  document.getElementById('pageSubtitle').textContent = product.name;
+
 
   const inStock = product.stok > 0;
   const icon    = ICONS[product.cat] || ICONS.default;
@@ -293,13 +292,10 @@ if (!product) {
     <!-- INFO -->
     <div class="w-full lg:flex-1 fade-up">
       <!-- Kategori + stok -->
-      <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
-        <span class="text-xs bg-white border border-border text-muted px-3 py-1 rounded-full capitalize">${product.cat}</span>
-        ${stokHtml}
-      </div>
-
-      <!-- Nama -->
-      <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-3">${product.name}</h1>
+<div class="flex items-center gap-4 mb-4 flex-wrap">
+  <h1 class="text-2xl md:text-3xl font-bold text-gray-900">${product.name}</h1>
+  ${stokHtml}
+</div>
 
       <!-- Harga -->
       <div class="flex items-baseline gap-3 mb-4">

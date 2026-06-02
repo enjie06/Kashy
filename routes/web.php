@@ -9,6 +9,8 @@ use App\Http\Controllers\KasirTransactionController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\StockOpnameController;
+use App\Http\Controllers\OwnerSettingController;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Auth;
 /*
@@ -42,9 +44,17 @@ Route::middleware(['auth'])->group(function () {
     ->middleware('auth')
     ->name('owner.laporan.keuangan');
 
-    Route::view('/owner/stokopname', 'owner.stokopname')
+    Route::get('/owner/stokopname', [StockOpnameController::class, 'index'])
     ->middleware('auth')
     ->name('stokopname');
+    
+    Route::post('/owner/stokopname', [StockOpnameController::class, 'store'])
+    ->middleware('auth')
+    ->name('stok-opname.store');
+
+    Route::delete('/owner/stokopname/{stockOpname}', [StockOpnameController::class, 'destroy'])
+    ->middleware('auth')
+    ->name('stok-opname.destroy');
 
     Route::view('/owner/manajemenstaff', 'owner.manajemenstaff')
     ->middleware('auth')
@@ -54,9 +64,13 @@ Route::middleware(['auth'])->group(function () {
     ->middleware('auth')
     ->name('manajemen.produk');
 
-    Route::view('/owner/pengaturantransaksi', 'owner.pengaturantransaksi')
-    ->middleware('auth')
-    ->name('pengaturan.transaksi');
+    Route::middleware(['auth'])->group(function () {
+    Route::get('/owner/pengaturantransaksi', [OwnerSettingController::class, 'index'])
+        ->name('pengaturan.transaksi');
+
+    Route::post('/owner/pengaturantransaksi', [OwnerSettingController::class, 'update'])
+        ->name('owner.pengaturan-tambahan.update');
+    });
 
     Route::view('/owner/kustomisasitemplatstruk','owner.kustomisasitemplatstruk')
     ->name('kustomisasi.template.struk');
@@ -77,6 +91,15 @@ Route::middleware(['auth'])->group(function () {
     Route::view('/owner/manajementoko', 'owner.manajementoko')
     ->middleware('auth')
     ->name('manajemen.toko');
+
+    Route::middleware(['auth'])->group(function () {
+    Route::get('/owner/pengaturan-tambahan', [OwnerSettingController::class, 'index'])
+        ->name('owner.pengaturan-tambahan');
+
+    Route::post('/owner/pengaturan-tambahan', [OwnerSettingController::class, 'update'])
+        ->name('owner.pengaturan-tambahan.update');
+});
+
 
     /*
     |--------------------------------------------------------------------------

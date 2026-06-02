@@ -59,6 +59,10 @@
   .fp-ring-fill { fill: none; stroke: #fff; stroke-width: 4; stroke-linecap: round; stroke-dasharray: 364; stroke-dashoffset: 364; transition: stroke-dashoffset linear; filter: drop-shadow(0 0 6px rgba(255,255,255,.7)); }
   @keyframes glowPulse { 0%,100% { box-shadow: 0 0 20px rgba(200,150,108,.4); } 50% { box-shadow: 0 0 50px rgba(229,177,138,.8); } }
   .scanning-glow { animation: glowPulse .7s ease-in-out infinite; }
+  #pulangOverlay { opacity: 0; pointer-events: none; transition: opacity .25s ease; }
+  #pulangOverlay.open { opacity: 1; pointer-events: all; }
+  #pulangDialog { transform: scale(.92) translateY(12px); transition: transform .3s cubic-bezier(0.34,1.56,.64,1); }
+  #pulangOverlay.open #pulangDialog { transform: scale(1) translateY(0); }
 </style>
 </head>
 @include('karyawan.components.navbar')
@@ -67,6 +71,7 @@
 
 <main class="flex-1 overflow-y-auto pb-28">
   <div class="max-w-md mx-auto px-4 pt-5 space-y-5">
+
     <!-- Jam & Tanggal -->
     <div class="bg-white rounded-2xl border border-border shadow-sm overflow-hidden fade-up-1 card-hover">
       <div class="shimmer-bar h-1 w-full bg-gradient-to-r from-terra via-terra-l via-terra-ll to-terra bg-[length:200%] animate-shimmer-slow"></div>
@@ -76,27 +81,20 @@
       </div>
     </div>
 
-    <!-- Fingerprint Scanner Card (ukuran diperkecil) -->
+    <!-- Fingerprint Scanner Card -->
     <div class="bg-white rounded-2xl border border-border shadow-sm overflow-hidden fade-up-2 card-hover">
       <div class="px-4 py-5 flex flex-col items-center">
         <div class="relative flex items-center justify-center mb-5" style="width:200px; height:200px;">
-          <!-- Lingkaran idle -->
           <div class="absolute rounded-full border-2 border-terra/30 inset-0 animate-ring-1"></div>
           <div class="absolute rounded-full border-2 border-terra/20 animate-ring-2" style="inset:-8px;border-radius:9999px;"></div>
           <div class="absolute rounded-full border-2 border-terra/10 animate-ring-3" style="inset:-18px;border-radius:9999px;"></div>
-          
-          <!-- Glow background -->
           <div id="fpGlow" class="absolute inset-4 rounded-full transition-all duration-500" style="background:radial-gradient(circle,#E5B18A 0%,#C8966C 60%,#a07050 100%);"></div>
-          
-          <!-- Progress ring SVG -->
           <div class="fp-ring-track">
             <svg viewBox="0 0 130 130">
               <circle class="fp-ring-bg" cx="65" cy="65" r="58"/>
               <circle class="fp-ring-fill" cx="65" cy="65" r="58" id="fpRingFill"/>
             </svg>
           </div>
-          
-          <!-- Tombol fingerprint -->
           <button id="fpBtn" class="relative z-10 flex flex-col items-center justify-center gap-1 select-none focus:outline-none rounded-full" style="width:110px; height:110px; background:transparent; touch-action:none;" aria-label="Scan sidik jari">
             <svg width="48" height="48" viewBox="0 0 64 64" fill="none" class="drop-shadow-sm pointer-events-none">
               <path class="fp-path" d="M10 40 C8 18, 56 18, 54 40" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none"/>
@@ -114,13 +112,9 @@
               <p id="fpSub" class="text-[8px] text-white/70 mt-0.5">untuk scan</p>
             </div>
           </button>
-
-          <!-- Persentase scan di tengah -->
           <div id="scanPercent" class="absolute inset-0 flex items-center justify-center z-20 pointer-events-none hidden">
             <span class="text-white font-bold text-xl">0%</span>
           </div>
-
-          <!-- Success circle -->
           <div id="successCircle" class="absolute inset-4 rounded-full flex flex-col items-center justify-center hidden z-30 text-center" style="background:radial-gradient(circle,#34d399 0%,#10b981 60%,#059669 100%);">
             <div class="w-14 h-14 rounded-full border-2 border-white flex items-center justify-center mb-1">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
@@ -130,7 +124,6 @@
             <p class="text-white font-bold text-xs">Terverifikasi</p>
           </div>
         </div>
-        
         <div class="text-center space-y-1 mb-2" id="scanStatus">
           <p class="text-sm font-semibold text-gray-700" id="statusTitle">Memuat data...</p>
           <p class="text-xs text-muted" id="statusSub">Mohon tunggu</p>
@@ -170,20 +163,64 @@
         </div>
       </div>
     </div>
+
   </div>
 </main>
 
+<!-- Modal Belum Pilih Shift -->
+<div id="noShiftOverlay" class="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4" style="opacity:0; pointer-events:none; transition: opacity .25s ease;">
+  <div id="noShiftDialog" class="w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden" style="transform: scale(.92) translateY(12px); transition: transform .3s cubic-bezier(0.34,1.56,.64,1);">
+    <div class="h-1 w-full bg-gradient-to-r from-terra via-terra-l via-terra-ll to-terra bg-[length:200%] animate-shimmer-slow"></div>
+    <div class="px-5 pt-5 pb-6 text-center">
+      <div class="w-12 h-12 rounded-xl bg-terra-xs flex items-center justify-center mx-auto mb-3">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C8966C" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
+          <path d="M16 2v4M8 2v4M3 10h18"/>
+          <path d="m9 16 2 2 4-4"/>
+        </svg>
+      </div>
+      <h3 class="font-poppins text-lg font-bold text-gray-900 mb-1">Belum Pilih Shift</h3>
+      <p class="text-xs text-muted">Kamu belum memilih shift hari ini. Pilih shift terlebih dahulu di dashboard.</p>
+      <div class="flex gap-3 mt-5">
+        <button onclick="closeNoShiftModal()" class="flex-1 py-2.5 rounded-lg border border-border text-xs font-semibold text-muted hover:bg-stone-50 transition-colors">Nanti</button>
+        <button onclick="goToDashboard()" class="flex-1 py-2.5 rounded-lg text-white text-xs font-semibold transition-colors" style="background:#C8966C;">Pilih Shift</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Konfirmasi Absen Pulang -->
+<div id="pulangOverlay" class="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+  <div id="pulangDialog" class="w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden">
+    <div class="h-1 w-full bg-gradient-to-r from-terra via-terra-l via-terra-ll to-terra bg-[length:200%] animate-shimmer-slow"></div>
+    <div class="px-5 pt-5 pb-6 text-center">
+      <div class="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center mx-auto mb-3">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+      </div>
+      <h3 class="font-poppins text-lg font-bold text-gray-900 mb-1">Yakin ingin pulang sekarang?</h3>
+      <p class="text-xs text-muted">Absensi pulang akan dicatat pada waktu ini dan tidak bisa diubah.</p>
+      <div class="flex gap-3 mt-5">
+        <button onclick="closePulangModal()" class="flex-1 py-2.5 rounded-lg border border-border text-xs font-semibold text-muted hover:bg-stone-50 transition-colors">Batal</button>
+        <button onclick="confirmPulang()" class="flex-1 py-2.5 rounded-lg bg-red-500 text-white text-xs font-semibold hover:bg-red-600 transition-colors">Ya, Pulang</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
 <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-[60] px-4 py-2.5 rounded-full shadow-xl flex items-center gap-2 pointer-events-none transition-all duration-300 opacity-0 translate-y-4 bg-gray-900 text-white text-xs font-medium"><span id="toastMsg">—</span></div>
 
 <script>
-// ==================== GLOBAL VARIABLES ====================
 let shiftStatus = 'tidak_aktif';
 let checkInTime = null;
 let checkOutTime = null;
 let scanState = 'idle';
 let absenType = null;
 
-// ==================== HELPER FUNCTIONS ====================
 function showToast(msg) {
   const t = document.getElementById('toast');
   document.getElementById('toastMsg').textContent = msg;
@@ -196,8 +233,7 @@ function showToast(msg) {
   }, 2600);
 }
 
-// Progress ring (new circumference = 2 * PI * 58 ≈ 364.4)
-const CIRCUMFERENCE = 2 * Math.PI * 58; // ≈ 364.4
+const CIRCUMFERENCE = 2 * Math.PI * 58;
 function setRingProgress(pct) {
   const offset = CIRCUMFERENCE * (1 - pct);
   const fill = document.getElementById('fpRingFill');
@@ -205,6 +241,59 @@ function setRingProgress(pct) {
   fill.style.strokeDasharray = CIRCUMFERENCE;
 }
 function resetRing() { setRingProgress(0); }
+
+function getSelectedShift() {
+  const today = new Date().toISOString().split('T')[0];
+  const savedDate = localStorage.getItem('kashy_shift_date');
+  if (savedDate !== today) {
+    localStorage.removeItem('kashy_selected_shift');
+    return null;
+  }
+  return localStorage.getItem('kashy_selected_shift');
+}
+
+function setFpBtnDisabled(disabled) {
+  const fpBtn = document.getElementById('fpBtn');
+  const fpGlow = document.getElementById('fpGlow');
+  fpBtn.disabled = disabled;
+  fpBtn.style.opacity = disabled ? '0.45' : '1';
+  fpGlow.style.filter = disabled ? 'grayscale(1)' : '';
+}
+
+// ==================== MODAL BELUM PILIH SHIFT ====================
+function openNoShiftModal() {
+  const overlay = document.getElementById('noShiftOverlay');
+  const dialog  = document.getElementById('noShiftDialog');
+  overlay.style.opacity = '1';
+  overlay.style.pointerEvents = 'all';
+  dialog.style.transform = 'scale(1) translateY(0)';
+  document.body.style.overflow = 'hidden';
+}
+function closeNoShiftModal() {
+  const overlay = document.getElementById('noShiftOverlay');
+  const dialog  = document.getElementById('noShiftDialog');
+  overlay.style.opacity = '0';
+  overlay.style.pointerEvents = 'none';
+  dialog.style.transform = 'scale(.92) translateY(12px)';
+  document.body.style.overflow = '';
+}
+function goToDashboard() {
+  window.location.href = '{{ route("dashboard-karyawan") }}';
+}
+
+// ==================== MODAL KONFIRMASI PULANG ====================
+function openPulangModal() {
+  document.getElementById('pulangOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closePulangModal() {
+  document.getElementById('pulangOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function confirmPulang() {
+  closePulangModal();
+  startFakeScan();
+}
 
 // ==================== LOAD HISTORY ====================
 async function loadHistory() {
@@ -244,10 +333,10 @@ async function loadData() {
   try {
     const response = await fetch('{{ route("shift.status") }}');
     const data = await response.json();
-    shiftStatus = data.shift_status;
-    checkInTime = data.check_in;
+    shiftStatus  = data.shift_status;
+    checkInTime  = data.check_in;
     checkOutTime = data.check_out;
-    if (checkInTime) document.getElementById('todayMasuk').textContent = checkInTime + ' WIB';
+    if (checkInTime)  document.getElementById('todayMasuk').textContent  = checkInTime  + ' WIB';
     if (checkOutTime) document.getElementById('todayPulang').textContent = checkOutTime + ' WIB';
     updateUIByServerStatus();
     await loadHistory();
@@ -258,37 +347,44 @@ async function loadData() {
 }
 
 function updateUIByServerStatus() {
-  const statusTitle = document.getElementById('statusTitle');
-  const statusSub = document.getElementById('statusSub');
-  const fpBtn = document.getElementById('fpBtn');
+  const statusTitle   = document.getElementById('statusTitle');
+  const statusSub     = document.getElementById('statusSub');
+  const selectedShift = getSelectedShift();
+
+  if (shiftStatus === 'selesai') {
+    statusTitle.textContent = 'Absensi Selesai';
+    statusSub.textContent   = 'Terima kasih, Anda sudah absen hari ini';
+    setFpBtnDisabled(true);
+    absenType = null;
+    return;
+  }
+
+  if (!selectedShift) {
+    statusTitle.textContent = 'Belum Pilih Shift';
+    statusSub.textContent   = 'Pilih shift di dashboard terlebih dahulu';
+    setFpBtnDisabled(true);
+    absenType = null;
+    return;
+  }
+
   if (shiftStatus === 'tidak_aktif') {
     statusTitle.textContent = 'Shift Belum Aktif';
-    statusSub.textContent = 'Tekan untuk memulai shift';
-    fpBtn.disabled = false;
-    fpBtn.style.opacity = '1';
-    absenType = null;
-  } else if (shiftStatus === 'selesai') {
-    statusTitle.textContent = 'Absensi Selesai';
-    statusSub.textContent = 'Terima kasih, Anda sudah absen hari ini';
-    fpBtn.disabled = true;
-    fpBtn.style.opacity = '0.5';
+    statusSub.textContent   = 'Tekan untuk memulai shift';
+    setFpBtnDisabled(false);
     absenType = null;
   } else if (shiftStatus === 'aktif') {
     if (checkInTime && !checkOutTime) {
       statusTitle.textContent = 'Siap Absen Pulang';
-      statusSub.textContent = 'Tekan untuk mengakhiri shift';
-      fpBtn.disabled = false;
-      fpBtn.style.opacity = '1';
+      statusSub.textContent   = 'Tekan untuk mengakhiri shift';
+      setFpBtnDisabled(false);
       absenType = 'pulang';
     } else if (!checkInTime) {
       statusTitle.textContent = 'Siap Absen Masuk';
-      statusSub.textContent = 'Tekan untuk memulai shift';
-      fpBtn.disabled = false;
-      fpBtn.style.opacity = '1';
+      statusSub.textContent   = 'Tekan untuk memulai shift';
+      setFpBtnDisabled(false);
       absenType = 'masuk';
     } else {
-      fpBtn.disabled = true;
-      fpBtn.style.opacity = '0.5';
+      setFpBtnDisabled(true);
     }
   }
 }
@@ -296,10 +392,11 @@ function updateUIByServerStatus() {
 // ==================== SCAN & BACKEND ====================
 async function completeScan() {
   try {
+    const selectedShift = getSelectedShift();
     const response = await fetch('{{ route("shift.handle") }}', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-      body: JSON.stringify({ action: absenType })
+      body: JSON.stringify({ action: absenType, shift_type: selectedShift })
     });
     const result = await response.json();
     if (result.success) {
@@ -308,33 +405,23 @@ async function completeScan() {
       sc.classList.remove('hidden');
       sc.style.display = 'flex';
       sc.classList.add('animate-success-pop');
-      
+
       if (absenType === 'masuk') {
         const serverTime = result.check_in;
         document.getElementById('statusTitle').textContent = '✓ Absen Masuk Berhasil';
-        document.getElementById('statusSub').textContent = `Tercatat pukul ${serverTime} WIB`;
-        document.getElementById('todayMasuk').textContent = serverTime + ' WIB';
-        checkInTime = serverTime;
+        document.getElementById('statusSub').textContent   = `Tercatat pukul ${serverTime} WIB`;
+        document.getElementById('todayMasuk').textContent  = serverTime + ' WIB';
         showToast(result.message);
         localStorage.setItem('shift_updated', Date.now());
-        absenType = 'pulang';
-        setTimeout(() => resetAfterSuccess('Siap Absen Pulang', 'Tekan untuk mengakhiri shift', 'Tahan', 'untuk scan'), 1200);
+        setTimeout(() => { window.location.href = '{{ route("dashboard-karyawan") }}'; }, 1400);
       } else if (absenType === 'pulang') {
         const serverTime = result.check_out;
         document.getElementById('statusTitle').textContent = '✓ Absen Pulang Berhasil';
-        document.getElementById('statusSub').textContent = `Tercatat pukul ${serverTime} WIB`;
+        document.getElementById('statusSub').textContent   = `Tercatat pukul ${serverTime} WIB`;
         document.getElementById('todayPulang').textContent = serverTime + ' WIB';
-        checkOutTime = serverTime;
         showToast(result.message);
-        await loadHistory();
-        setTimeout(() => {
-          document.getElementById('statusTitle').textContent = 'Absensi Selesai';
-          document.getElementById('statusSub').textContent = 'Terima kasih, Anda sudah absen hari ini';
-          document.getElementById('fpLabel').textContent = 'Selesai';
-          document.getElementById('fpSub').textContent = '';
-          document.getElementById('fpBtn').disabled = true;
-          document.getElementById('fpBtn').style.opacity = '0.5';
-        }, 1200);
+        localStorage.setItem('shift_updated', Date.now());
+        setTimeout(() => { window.location.href = '{{ route("dashboard-karyawan") }}'; }, 1400);
       }
     } else {
       showToast(result.message || 'Terjadi kesalahan');
@@ -348,39 +435,13 @@ async function completeScan() {
   scanState = 'done';
   document.getElementById('fpBtn').style.pointerEvents = '';
   document.getElementById('fpGlow').style.boxShadow = '';
-  setTimeout(() => {
-    document.getElementById('successCircle').classList.add('hidden');
-    document.getElementById('successCircle').classList.remove('animate-success-pop');
-    document.getElementById('fpGlow').style.opacity = '1';
-    scanState = 'idle';
-  }, 1200);
-}
-
-function resetAfterSuccess(title, sub, label, sublabel) {
-  scanState = 'idle';
-  document.getElementById('fpGlow').style.opacity = '1';
-  document.getElementById('successCircle').classList.add('hidden');
-  document.getElementById('successCircle').classList.remove('animate-success-pop');
-  document.getElementById('statusTitle').textContent = title;
-  document.getElementById('statusSub').textContent = sub;
-  document.getElementById('fpLabel').textContent = label;
-  document.getElementById('fpSub').textContent = sublabel;
-  document.getElementById('fpBtn').disabled = false;
-  document.getElementById('fpBtn').style.opacity = '1';
-  document.getElementById('fpGlow').style.boxShadow = '';
-  resetRing();
-  const scanPercentDiv = document.getElementById('scanPercent');
-  if (scanPercentDiv) scanPercentDiv.classList.add('hidden');
-  const textGroup = document.getElementById('fpTextGroup');
-  if (textGroup) textGroup.style.display = 'flex';
 }
 
 function resetScanner() {
   scanState = 'idle';
   document.getElementById('fpGlow').style.opacity = '1';
+  document.getElementById('fpGlow').style.filter  = '';
   document.getElementById('successCircle').classList.add('hidden');
-  document.getElementById('fpBtn').disabled = false;
-  document.getElementById('fpBtn').style.opacity = '1';
   document.getElementById('fpGlow').style.boxShadow = '';
   resetRing();
   updateUIByServerStatus();
@@ -396,9 +457,6 @@ function startFakeScan() {
   if (scanState !== 'idle') return;
   if (document.getElementById('fpBtn').disabled) return;
   if (checkInTime && checkOutTime) { showToast('✅ Anda sudah absen hari ini.'); return; }
-  if (!checkInTime) absenType = 'masuk';
-  else if (checkInTime && !checkOutTime) absenType = 'pulang';
-  else return;
 
   scanState = 'scanning';
   const scanPercentDiv = document.getElementById('scanPercent');
@@ -406,10 +464,11 @@ function startFakeScan() {
   document.querySelector('#fpBtn svg').style.display = 'none';
   document.getElementById('fpTextGroup').style.display = 'none';
   document.getElementById('fpGlow').classList.add('scanning-glow');
+  document.getElementById('fpGlow').style.filter = '';
   document.getElementById('statusTitle').textContent = 'Memindai Sidik Jari';
-  document.getElementById('statusSub').textContent = 'Mohon tunggu...';
+  document.getElementById('statusSub').textContent   = 'Mohon tunggu...';
   document.getElementById('fpBtn').style.pointerEvents = 'none';
-  
+
   let progress = 0;
   setRingProgress(0);
   if (scanInterval) clearInterval(scanInterval);
@@ -445,7 +504,33 @@ setInterval(updateClock, 1000);
 document.addEventListener('DOMContentLoaded', () => {
   resetRing();
   loadData();
-  document.getElementById('fpBtn').addEventListener('click', startFakeScan);
+
+  document.getElementById('pulangOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closePulangModal();
+  });
+  document.getElementById('noShiftOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeNoShiftModal();
+  });
+
+  document.getElementById('fpBtn').addEventListener('click', () => {
+    if (scanState !== 'idle') return;
+
+    if (!getSelectedShift()) {
+      openNoShiftModal();
+      return;
+    }
+
+    if (document.getElementById('fpBtn').disabled) return;
+    if (checkInTime && checkOutTime) { showToast('✅ Anda sudah absen hari ini.'); return; }
+
+    if (!checkInTime) {
+      absenType = 'masuk';
+      startFakeScan();
+    } else if (checkInTime && !checkOutTime) {
+      absenType = 'pulang';
+      openPulangModal();
+    }
+  });
 });
 </script>
 </body>

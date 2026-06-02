@@ -129,17 +129,10 @@
   }
 </style>
 </head>
-
+@include('kasir.components.topbar')
 <body class="bg-bg min-h-screen flex flex-col">
 
 @include('kasir.components.navbar')
-
-<!-- TOPBAR -->
-<nav class="sticky top-0 z-20 bg-gray-900 px-5 py-3 flex items-center justify-between shadow-md">
-  <div class="w-8"></div>
-  <span class="font-display text-xl font-bold text-white tracking-widest">Kashy</span>
-  <div class="w-8"></div>
-</nav>
 
 <main class="flex-1 overflow-y-auto pb-28 max-w-2xl mx-auto w-full">
 
