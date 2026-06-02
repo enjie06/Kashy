@@ -592,10 +592,10 @@ async function confirmTutupShift() {
             showToast(result.message + selisihText);
             closeTutupModal();
             localStorage.setItem('kasir_shift_updated', Date.now());
-
-setTimeout(() => {
-    window.location.href = '{{ route("kasir.absensikasir") }}?type=pulang';
-}, 1200);
+            // ✅ LANGSUNG KE DASHBOARD (bukan ke absensi)
+            setTimeout(() => {
+                window.location.href = '{{ route("dashboard-kasir") }}';
+            }, 1200);
         } else {
             showToast(result.message || 'Gagal menutup shift');
             closeTutupModal();
