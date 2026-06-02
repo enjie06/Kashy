@@ -69,15 +69,23 @@
 </head>
 <body class="min-h-screen bg-[#f8f8f8] font-poppins">
 
-<!-- TOPBAR with Back Button -->
-<nav class="sticky top-0 z-20 bg-gray-900 px-4 py-3 flex items-center justify-between shadow-md">
-  <button onclick="goBack()" class="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/10 transition">
-    <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
-      <path d="M19 12H5M12 19l-7-7 7-7"/>
-    </svg>
-  </button>
-  <span class="font-poppins text-xl font-bold text-white tracking-widest">Kashy</span>
-  <div class="w-9"></div>
+<!-- TOPBAR -->
+<nav class="sticky top-0 z-50 bg-gray-900 shadow-sm h-12 px-4 flex items-center justify-between relative">
+    <!-- Back Button -->
+    <button
+        onclick="goBack()"
+        class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 transition">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+            <path d="M19 12H5"/>
+            <path d="M12 19L5 12L12 5"/>
+        </svg>
+    </button>
+    <!-- Logo -->
+    <span class="font-bold text-white text-lg tracking-wider absolute left-1/2 -translate-x-1/2">
+        Kashy
+    </span>
+    <!-- Spacer -->
+    <div class="w-8"></div>
 </nav>
 
 <!-- MAIN CONTENT -->
@@ -163,12 +171,22 @@
         </button>
       </div>
 
-      <!-- Input khusus untuk TUNAI -->
-      <div id="cashPaymentSection" class="hidden mt-4 p-4 bg-gray-50 rounded-xl">
-        <label class="text-sm font-semibold text-gray-700 block mb-2">Jumlah Uang Dibayar</label>
-        <input type="number" id="jumlahBayar" class="w-full border-2 border-border rounded-xl p-3 text-lg font-semibold" placeholder="Masukkan nominal" oninput="hitungKembalian()">
-        <div id="kembalianInfo" class="mt-3 text-sm"></div>
-      </div>
+    <!-- Input khusus untuk TUNAI -->
+<div id="cashPaymentSection" class="hidden mt-4 p-4 bg-gray-50 rounded-xl">
+    <label class="text-sm font-semibold text-gray-700 block mb-2">
+        Jumlah Uang Dibayar
+    </label>
+
+    <input
+        type="text"
+        id="jumlahBayar"
+        class="w-full border-2 border-border rounded-xl p-3 text-lg font-semibold"
+        placeholder="Masukkan nominal"
+        oninput="formatBayar(this)"
+    >
+
+    <div id="kembalianInfo" class="mt-3 text-sm"></div>
+</div>
 
       <!-- Informasi untuk QRIS & Debit -->
       <div id="qrisInfo" class="hidden mt-4 p-4 bg-blue-50 rounded-xl">
@@ -184,7 +202,7 @@
       <!-- Submit Button -->
       <button id="submit-btn"
         class="mt-5 w-full bg-terra hover:bg-terra-l text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition shadow-md">
-        Submit Pembayaran
+        Cetak Struk
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
           <line x1="5" y1="12" x2="19" y2="12"/>
           <polyline points="12 5 19 12 12 19"/>
@@ -240,7 +258,7 @@
       <p class="text-xs text-gray-500 text-center mb-4">Pastikan data sudah benar. Pembayaran akan diproses.</p>
       <div class="flex gap-3">
         <button onclick="closeConfirmModal()" class="flex-1 border border-gray-300 text-gray-700 font-medium py-2.5 rounded-lg hover:bg-gray-50 transition">Batal</button>
-        <button onclick="processPayment()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 rounded-lg transition">Lanjutkan</button>
+        <button onclick="processPayment()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 rounded-lg transition">Cetak</button>
       </div>
     </div>
   </div>
@@ -257,7 +275,7 @@
       </svg>
     </div>
     <h3 class="text-lg font-bold text-gray-900 mb-2">Pembayaran Berhasil!</h3>
-    <p class="text-sm text-gray-600 mb-5">Terima kasih, transaksi Anda telah diproses.</p>
+    <p class="text-sm text-gray-600 mb-5">Terima Kasih, transaksi Anda telah berhasil diproses.</p>
     <button onclick="closeSuccessModalAndReset()" class="w-full bg-terra hover:bg-terra-l text-white font-semibold py-2.5 rounded-lg transition">Selesai</button>
   </div>
 </div>
@@ -267,6 +285,19 @@
   let bayarNominal = 0;
   let kembalianNominal = 0;
   const totalTagihan = {{ $transaction['total'] }};
+  function formatBayar(input) {
+  let value = input.value.replace(/\D/g, '');
+
+  if (value === '') {
+    input.value = '';
+    document.getElementById('kembalianInfo').innerHTML = '';
+    return;
+  }
+
+  input.value = parseInt(value).toLocaleString('id-ID');
+  hitungKembalian();
+}
+
 
   function goBack() { window.history.back(); }
 
@@ -315,7 +346,9 @@
   }
 
   function hitungKembalian() {
-    const bayar = parseInt(document.getElementById('jumlahBayar')?.value) || 0;
+   const bayar = parseInt(
+    document.getElementById('jumlahBayar').value.replace(/\./g, '')
+) || 0;
     const kembalian = bayar - totalTagihan;
     const infoDiv = document.getElementById('kembalianInfo');
     
@@ -353,7 +386,9 @@
     }
     
     if (selectedPaymentMethod === 'tunai') {
-      const bayar = parseInt(document.getElementById('jumlahBayar')?.value) || 0;
+     const bayar = parseInt(
+    document.getElementById('jumlahBayar').value.replace(/\./g, '')
+) || 0;
       if (bayar < totalTagihan) {
         alert('Jumlah uang kurang!');
         return;
@@ -401,6 +436,10 @@
       if (data.success) {
         hideModal('confirmModal');
         showModal('successModal');
+
+setTimeout(() => {
+   window.location.href = '{{ route('dashboard-kasir') }}';
+}, 2000);
       } else {
         alert(data.message || 'Gagal menyimpan transaksi');
       }
@@ -412,9 +451,9 @@
   }
 
   function closeSuccessModalAndReset() {
-    hideModal('successModal');
-    window.location.href = '{{ route('kasir.transaksi') }}';
-  }
+  hideModal('successModal');
+  window.location.href = '{{ route('dashboard-kasir') }}';
+}
 </script>
 </body>
 </html>

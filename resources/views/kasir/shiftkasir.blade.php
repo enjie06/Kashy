@@ -56,6 +56,7 @@
   }
 </style>
 </head>
+@include('kasir.components.topbar')
 <body class="bg-bg min-h-screen flex flex-col">
 
 <!-- NAVBAR COMPONENT -->
@@ -76,7 +77,7 @@
       <div class="w-1 h-5 bg-terra rounded-full"></div>
       <p class="text-xs text-muted font-semibold uppercase tracking-wider">Sesi Aktif</p>
     </div>
-    <h2 class="text-3xl font-extrabold text-gray-900 mb-6 tracking-tight">Buka Shift</h2>
+    <h2 class="text-3xl font-extrabold text-gray-900 mb-6 tracking-tight">Mulai Shift</h2>
 
     <div class="bg-white rounded-2xl shadow-sm border border-border p-6 card-hover">
       <p class="text-sm text-muted mb-5 leading-relaxed">
@@ -407,7 +408,11 @@ async function bukaShift() {
     
     document.getElementById('modalBalance').innerText = 'Rp ' + balanceNum.toLocaleString('id-ID');
     const now = new Date();
-    const waktuMulai = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    const waktuMulai = now.toLocaleTimeString('id-ID', { 
+   hour: '2-digit', 
+   minute: '2-digit',
+   second: '2-digit'
+}); 
     document.getElementById('modalStartTime').innerText = waktuMulai;
     
     document.getElementById('confirmModal').classList.remove('hidden');
@@ -438,11 +443,11 @@ async function confirmBukaShift() {
         const result = await response.json();
         
         if (result.success) {
-            showToast(result.message);
-            closeModal();
-            await cekStatusShift();
-            localStorage.setItem('kasir_shift_updated', Date.now());
-        } else {
+    closeModal();
+    localStorage.setItem('kasir_shift_updated', Date.now());
+
+    window.location.href = '{{ route("kasir.absensikasir") }}?type=masuk';
+} else {
             // Tutup modal konfirmasi
             closeModal();
             
@@ -586,8 +591,11 @@ async function confirmTutupShift() {
             }
             showToast(result.message + selisihText);
             closeTutupModal();
-            await cekStatusShift();
             localStorage.setItem('kasir_shift_updated', Date.now());
+
+setTimeout(() => {
+    window.location.href = '{{ route("kasir.absensikasir") }}?type=pulang';
+}, 1200);
         } else {
             showToast(result.message || 'Gagal menutup shift');
             closeTutupModal();

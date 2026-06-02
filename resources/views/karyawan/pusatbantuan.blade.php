@@ -65,19 +65,8 @@
   .bn-item.active .bn-label { color:#C8966C; font-weight:600; }
 </style>
 </head>
-
+@include('karyawan.components.topbarback')
 <body class="bg-bg font-poppins min-h-screen flex flex-col">
-
-<!-- TOPBAR with Back Button -->
-<nav class="sticky top-0 z-20 bg-gray-900 px-4 py-3 flex items-center justify-between shadow-md">
-  <button onclick="goBack()" class="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/10 transition">
-    <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
-      <path d="M19 12H5M12 19l-7-7 7-7"/>
-    </svg>
-  </button>
-  <span class="font-poppins text-xl font-bold text-white tracking-widest">Kashy</span>
-  <div class="w-9"></div>
-</nav>
 
   <!-- MAIN CONTENT (ukuran mobile max-w-md) -->
   <main class="flex-1 overflow-y-auto pb-28">
@@ -138,7 +127,7 @@
         <!-- item 3 -->
         <div class="faq-item border-b border-border" data-question="jadwal cuti bersama tahun 2024">
           <button class="faq-trigger w-full flex items-center justify-between gap-3 px-4 py-3 text-left transition" onclick="toggleFaq(this)">
-            <span class="text-xs font-medium text-gray-900 leading-snug">Jadwal cuti bersama tahun 2024?</span>
+            <span class="text-xs font-medium text-gray-900 leading-snug">Jadwal cuti bersama tahun 2026?</span>
             <svg class="faq-chevron flex-shrink-0 text-muted" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
           </button>
           <div class="faq-answer bg-terra-xs">
@@ -202,29 +191,19 @@
         </div>
         <h2 class="text-white font-bold text-base mb-1">Butuh bantuan lebih lanjut?</h2>
         <p class="text-white/60 text-xs leading-relaxed mb-4">Admin tersedia pukul 09:00 – 18:00 WIB</p>
-        <button onclick="hubungiAdmin()" class="w-full bg-terra hover:bg-terra-l text-white font-semibold text-sm py-2.5 rounded-xl transition flex items-center justify-center gap-2 shadow-lg">
-          <svg width="14" height="14" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.15 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.06 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z"/></svg>
-          Hubungi Admin
-        </button>
+        <a href="https://wa.me/6285261246660"
+   target="_blank"
+   class="w-full bg-terra hover:bg-terra-l text-white font-semibold text-sm py-2.5 rounded-xl transition flex items-center justify-center gap-2 shadow-lg">
+
+  <svg width="14" height="14" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
+    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.15 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.06 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z"/>
+  </svg>
+
+  Hubungi Admin
+</a>
       </div>
     </div>
   </main>
-
-  <!-- Bottom Navigation (sama persis dengan halaman lain) -->
-  <nav class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-border flex justify-around py-2 pb-4 shadow-[0_-2px_12px_rgba(28,28,28,0.06)]">
-    <button class="bn-item flex flex-col items-center gap-1 flex-1" onclick="window.location.href='{{ route('dashboard-karyawan') }}'">
-      <div class="bn-icon w-10 h-10 rounded-xl flex items-center justify-center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9C8B7E" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><span class="bn-label text-[10px] font-medium text-muted">Beranda</span>
-    </button>
-    <button class="bn-item flex flex-col items-center gap-1 flex-1" onclick="window.location.href='{{ route('absensi') }}'">
-      <div class="bn-icon w-10 h-10 rounded-xl flex items-center justify-center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9C8B7E" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m9 16 2 2 4-4"/></svg></div><span class="bn-label text-[10px] font-medium text-muted">Absensi</span>
-    </button>
-    <button class="bn-item flex flex-col items-center gap-1 flex-1" onclick="window.location.href='{{ route('stok-produk') }}'">
-      <div class="bn-icon w-10 h-10 rounded-xl flex items-center justify-center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9C8B7E" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div><span class="bn-label text-[10px] font-medium text-muted">Stok Produk</span>
-    </button>
-    <button class="bn-item active flex flex-col items-center gap-1 flex-1" onclick="window.location.href='{{ route('karyawan.profile') }}'">
-      <div class="bn-icon w-10 h-10 rounded-xl flex items-center justify-center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9C8B7E" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><span class="bn-label text-[10px] font-medium text-terra">Profil</span>
-    </button>
-  </nav>
 
   <script>
     function goBack() { window.history.back(); }

@@ -138,9 +138,11 @@
 <body class="bg-bg min-h-screen flex flex-col">
 
 <!-- TOPBAR -->
-<nav class="sticky top-0 z-50 bg-gray-900 flex items-center justify-center px-5 shadow-md h-[52px]">
-  <span class="font-poppins text-xl font-bold text-white tracking-widest">Kashy</span>
-</nav>
+<nav class="sticky top-0 z-50 bg-gray-900 flex items-center justify-center px-5 shadow-md h-12 px-4 ">
+<div class="absolute left-1/2 -translate-x-1/2"><span class="font-bold text-white text-lg tracking-wider">
+            Kashy</span>
+          </div>
+        </nav>
 
 <main class="flex-1 overflow-y-auto hide-scroll">
   <div class="max-w-lg mx-auto px-4 pt-7 pb-28 space-y-5">

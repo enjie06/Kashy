@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Daftar Produk</title>
+<title>Daftar Produk | SND STORE</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script>
@@ -37,24 +37,74 @@
     to   { opacity: 1; transform: translateY(0); }
   }
   .card.selected { border-color: #C8966C !important; box-shadow: 0 0 0 4px rgba(200,150,108,.18), 0 12px 40px rgba(28,28,28,.18) !important; transform: translateY(-4px) !important; }
-  .card.selected::after { content:''; position:absolute; inset:0; background:linear-gradient(180deg,rgba(200,150,108,.06) 0%,transparent 50%); pointer-events:none; }
-  .bn-item.active .bn-icon { background: #F0D7C7; }
-  .bn-item.active .bn-icon svg { stroke: #C8966C; }
-  .bn-item.active .bn-label { color: #C8966C; font-weight: 600; }
   .filter-chip.active { background: #1C1C1C; border-color: #1C1C1C; color: white; }
   .pg-btn.active { background: #1C1C1C; border-color: #1C1C1C; color: white; font-weight: 600; }
+
+  /* Hamburger dropdown */
+  #hamburger-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 12px;
+    background: #1f2937;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    overflow: hidden;
+    min-width: 160px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    z-index: 200;
+  }
+  #hamburger-menu.open { display: block; animation: fadeUp .2s ease; }
+  .hb-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px; color: #d1d5db; font-size: 13px; font-weight: 500;
+    text-decoration: none; transition: background .15s;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .hb-item:last-child { border-bottom: none; }
+  .hb-item:hover { background: rgba(200,150,108,0.15); color: #C8966C; }
+  .hb-item.active { color: #C8966C; font-weight: 600; }
 </style>
 </head>
 <body class="bg-bg min-h-screen flex flex-col">
 
 <!-- ════ TOPBAR ════ -->
-<nav class="sticky top-0 z-50 bg-gray-900 px-5 py-3.5 flex items-center justify-center shadow-md">
-  <a href="javascript:history.back()"  class="absolute left-5 flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors no-underline">
-    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5m7-7-7 7 7 7"/></svg>
-    Kembali
-  </a>
-  <span class="font-sans text-xl font-bold text-white tracking-normal">SND STORE</span>
+<!-- ════ TOPBAR ════ -->
+<nav class="sticky top-0 z-50 bg-gray-900 px-4 py-3 flex items-center justify-between shadow-md relative">
+<a href="javascript:history.back()"
+   class="w-11 h-11 flex items-center justify-center rounded-xl text-white bg-white/10 hover:bg-white/20 active:scale-95 transition-all">
+  <svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.7" viewBox="0 0 24 24">
+    <path d="M19 12H5m7-7-7 7 7 7"/>
+  </svg>
+</a>
+
+  <div class="absolute left-1/2 -translate-x-1/2 text-center">
+    <span class="text-lg sm:text-xl font-bold text-white">SND STORE</span>
+  </div>
+
+  <div class="relative">
+    <button id="hamburger-btn" onclick="toggleMenu()" class="flex flex-col gap-1.5 p-2 rounded-lg hover:bg-white/10">
+      <span class="block w-6 h-0.5 bg-white rounded"></span>
+      <span class="block w-6 h-0.5 bg-white rounded"></span>
+      <span class="block w-6 h-0.5 bg-white rounded"></span>
+    </button>
+
+    <div id="hamburger-menu">
+      <a href="{{ route('katalog') }}" class="hb-item">
+        Beranda
+      </a>
+
+      <a href="{{ route('daftar-produk') }}" class="hb-item active">
+        Daftar Produk
+      </a>
+    </div>
+  </div>
 </nav>
+
+<div class="w-full px-4 pt-5 pb-2 text-center">
+  <h1 id="mainTitle" class="text-2xl sm:text-3xl font-extrabold text-gray-900">Daftar Produk</h1>
+  <p class="text-xs sm:text-sm text-muted mt-1">Pilih produk berdasarkan kategori.</p>
+</div>
 
 <!-- SEARCH -->
 <div class="w-full px-4 pt-4 pb-2.5">
@@ -67,24 +117,9 @@
   </div>
 </div>
 
-
 <!-- ════ KATEGORI ════ -->
-<div class="flex items-center justify-between px-5 pb-3">
-  <span class="text-base font-bold text-gray-900"></span>
-</div>
-
 <div class="overflow-x-auto hide-scroll pt-2 pb-6">
-  <div class="inline-flex gap-10 px-5 min-w-full justify-center items-start">
-  <button class="cat-btn active flex flex-col items-center gap-2 bg-transparent border-0 p-0 cursor-pointer font-body" onclick="window.location.href='{{ route('katalog') }}'">
-  <div class="cat-icon w-15 h-15 rounded-full bg-white border-2 border-border flex items-center justify-center transition-all duration-200 hover:border-terra hover:bg-terra-xs hover:-translate-y-1 hover:shadow-lg" style="width:60px;height:60px;">
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#9C8B7E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-      <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-      <polyline points="9 22 9 12 15 12 15 22"/>
-    </svg>
-  </div>
-  <span class="cat-label text-xs font-medium text-muted whitespace-nowrap">Beranda</span>
-</button>
-    </button>
+  <div class="inline-flex gap-5 sm:gap-10 px-4 min-w-full justify-center items-start">
     <button class="cat-btn flex flex-col items-center gap-2 bg-transparent border-0 p-0 cursor-pointer font-body" onclick="window.location.href='{{ route('daftar-produk') }}?cat=kemeja'">
       <div class="cat-icon w-15 h-15 rounded-full bg-white border-2 border-border flex items-center justify-center transition-all duration-200 hover:border-terra hover:bg-terra-xs hover:-translate-y-1 hover:shadow-lg" style="width:60px;height:60px;">
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#9C8B7E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -133,7 +168,7 @@
 </div>
 
 <!-- PRODUCT GRID -->
-<div class="grid grid-cols-2 gap-2 px-2 pb-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-5 md:gap-3 lg:gap-4 md:px-5 lg:px-7 flex-1" id="productGrid"></div>
+<div class="grid grid-cols-2 gap-3 px-3 pb-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 sm:px-5 lg:px-7 flex-1" id="productGrid"></div>
 
 <!-- PAGINATION -->
 <div class="flex flex-col items-center gap-2.5 px-4 py-4 pb-5">
@@ -156,29 +191,20 @@
 
 <div class="h-1.5 bg-bg"></div>
 
-<!-- BOTTOM NAV -->
-<nav class="sticky bottom-0 z-50 bg-white border-t border-border flex justify-around py-2.5 pb-4 shadow-[0_-2px_12px_rgba(28,28,28,0.06)]">
-  <button class="bn-item flex flex-col items-center gap-1 flex-1 border-0 bg-transparent cursor-pointer font-body p-0"
-          onclick="window.location.href='{{ route('katalog') }}'">
-    <div class="bn-icon w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 hover:bg-terra-xs hover:-translate-y-0.5">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9C8B7E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-        <polyline points="9 22 9 12 15 12 15 22"/>
-      </svg>
-    </div>
-    <span class="bn-label text-xs font-medium text-muted transition-colors">Beranda</span>
-  </button>
-  <button class="bn-item active flex flex-col items-center gap-1 flex-1 border-0 bg-transparent cursor-pointer font-body p-0">
-    <div class="bn-icon w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 hover:bg-terra-xs hover:-translate-y-0.5">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9C8B7E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M4 6h16M4 12h16M4 18h16"/>
-      </svg>
-    </div>
-    <span class="bn-label text-xs font-medium text-muted transition-colors">Daftar Produk</span>
-  </button>
-</nav>
-
 <script>
+// ── Hamburger ──
+function toggleMenu() {
+  document.getElementById('hamburger-menu').classList.toggle('open');
+}
+document.addEventListener('click', function(e) {
+  const btn  = document.getElementById('hamburger-btn');
+  const menu = document.getElementById('hamburger-menu');
+  if (!btn.contains(e.target) && !menu.contains(e.target)) {
+    menu.classList.remove('open');
+  }
+});
+
+// ── Data ──
 const BASE = [
   { name:'Kulot Modis',         cat:'celana',   price:'Rp 76.000',  old:'',           badge:'new',     bg:'linear-gradient(135deg,#e8ddd4,#d4c5b4)' },
   { name:'Kemeja Cokelat',      cat:'kemeja',   price:'Rp 52.000',  old:'',           badge:'',        bg:'linear-gradient(135deg,#d4c9bc,#c4b8a8)' },
@@ -186,7 +212,7 @@ const BASE = [
   { name:'Cardigan Rajut',      cat:'cardigan', price:'Rp 47.000',  old:'',           badge:'',        bg:'linear-gradient(135deg,#e0d4c9,#d0c4b9)' },
   { name:'Kemeja Flannel',      cat:'kemeja',   price:'Rp 85.000',  old:'',           badge:'branded', bg:'linear-gradient(135deg,#d9cfc4,#c9bfb4)' },
   { name:'Celana Cargo',        cat:'celana',   price:'Rp 120.000', old:'',           badge:'branded', bg:'linear-gradient(135deg,#cfc4b9,#bfb4a9)' },
-  { name:'Jaket Denim',         cat:'jaket',    price:'Rp 150.000', old:'',           badge:'',  bg:'linear-gradient(135deg,#c9cfe0,#b9c2d4)' },
+  { name:'Jaket Denim',         cat:'jaket',    price:'Rp 150.000', old:'',           badge:'',        bg:'linear-gradient(135deg,#c9cfe0,#b9c2d4)' },
   { name:'Rok Mini Plaid',      cat:'rok',      price:'Rp 95.000',  old:'Rp 120.000', badge:'sale',    bg:'linear-gradient(135deg,#e0c9c9,#d0b9b9)' },
   { name:'Kemeja Putih',        cat:'kemeja',   price:'Rp 65.000',  old:'',           badge:'new',     bg:'linear-gradient(135deg,#eee8e0,#ddd8d0)' },
   { name:'Celana Jeans Slim',   cat:'celana',   price:'Rp 135.000', old:'Rp 160.000', badge:'sale',    bg:'linear-gradient(135deg,#c5cdd8,#b5bdc8)' },
@@ -200,7 +226,7 @@ const BASE = [
   { name:'Blouse Renda',        cat:'kemeja',   price:'Rp 68.000',  old:'',           badge:'new',     bg:'linear-gradient(135deg,#f0e8e0,#e0d8d0)' },
   { name:'Cardigan Knit',       cat:'cardigan', price:'Rp 110.000', old:'',           badge:'',        bg:'linear-gradient(135deg,#d8d0c8,#c8c0b8)' },
   { name:'Celana Pipa',         cat:'celana',   price:'Rp 105.000', old:'Rp 130.000', badge:'sale',    bg:'linear-gradient(135deg,#d8c8b8,#c8b8a8)' },
-  { name:'Jaket Corduroy',      cat:'jaket',    price:'Rp 165.000', old:'',           badge:'',  bg:'linear-gradient(135deg,#c8b8a8,#b8a898)' },
+  { name:'Jaket Corduroy',      cat:'jaket',    price:'Rp 165.000', old:'',           badge:'',        bg:'linear-gradient(135deg,#c8b8a8,#b8a898)' },
   { name:'Rok Wrap',            cat:'rok',      price:'Rp 88.000',  old:'',           badge:'',        bg:'linear-gradient(135deg,#e0ccc0,#d0bcb0)' },
   { name:'Kemeja Linen',        cat:'kemeja',   price:'Rp 92.000',  old:'',           badge:'',        bg:'linear-gradient(135deg,#e8e0d0,#d8d0c0)' },
   { name:'Celana Palazzo',      cat:'celana',   price:'Rp 115.000', old:'',           badge:'new',     bg:'linear-gradient(135deg,#d0c8c0,#c0b8b0)' },
@@ -210,7 +236,7 @@ const BASE = [
   { name:'Celana Chino',        cat:'celana',   price:'Rp 98.000',  old:'',           badge:'',        bg:'linear-gradient(135deg,#d4ccc0,#c4bcb0)' },
   { name:'Jaket Hoodie',        cat:'jaket',    price:'Rp 175.000', old:'',           badge:'new',     bg:'linear-gradient(135deg,#c8d0d8,#b8c0c8)' },
   { name:'Rok Floral',          cat:'rok',      price:'Rp 85.000',  old:'',           badge:'',        bg:'linear-gradient(135deg,#e8d0d0,#d8c0c0)' },
-  { name:'Kemeja Motif',        cat:'kemeja',   price:'Rp 79.000',  old:'',           badge:'',  bg:'linear-gradient(135deg,#d8c8d0,#c8b8c0)' },
+  { name:'Kemeja Motif',        cat:'kemeja',   price:'Rp 79.000',  old:'',           badge:'',        bg:'linear-gradient(135deg,#d8c8d0,#c8b8c0)' },
   { name:'Celana Linen',        cat:'celana',   price:'Rp 108.000', old:'',           badge:'',        bg:'linear-gradient(135deg,#dcd4c8,#ccc4b8)' },
   { name:'Cardigan V-Neck',     cat:'cardigan', price:'Rp 88.000',  old:'Rp 110.000', badge:'sale',    bg:'linear-gradient(135deg,#e4dcd0,#d4ccc0)' },
   { name:'Jaket Fleece',        cat:'jaket',    price:'Rp 140.000', old:'',           badge:'',        bg:'linear-gradient(135deg,#c8d4dc,#b8c4cc)' },
@@ -222,14 +248,13 @@ const BASE = [
   { name:'Rok Asimetris',       cat:'rok',      price:'Rp 98.000',  old:'',           badge:'',        bg:'linear-gradient(135deg,#e0d4cc,#d0c4bc)' },
   { name:'Cardigan Panjang',    cat:'cardigan', price:'Rp 145.000', old:'',           badge:'branded', bg:'linear-gradient(135deg,#dcd0c4,#ccc0b4)' },
   { name:'Celana Mom Jeans',    cat:'celana',   price:'Rp 130.000', old:'',           badge:'',        bg:'linear-gradient(135deg,#c4ccd8,#b4bcc8)' },
-  { name:'Jaket Trucker',       cat:'jaket',    price:'Rp 160.000', old:'',           badge:'',  bg:'linear-gradient(135deg,#c8c0b8,#b8b0a8)' },
+  { name:'Jaket Trucker',       cat:'jaket',    price:'Rp 160.000', old:'',           badge:'',        bg:'linear-gradient(135deg,#c8c0b8,#b8b0a8)' },
   { name:'Rok Ruffle',          cat:'rok',      price:'Rp 76.000',  old:'',           badge:'',        bg:'linear-gradient(135deg,#e4d8d0,#d4c8c0)' },
   { name:'Kemeja Batik Modern', cat:'kemeja',   price:'Rp 115.000', old:'',           badge:'',        bg:'linear-gradient(135deg,#d8c8b8,#c8b8a8)' },
   { name:'Celana Skirt',        cat:'celana',   price:'Rp 88.000',  old:'Rp 105.000', badge:'sale',    bg:'linear-gradient(135deg,#e0d0c8,#d0c0b8)' },
   { name:'Cardigan Stripes',    cat:'cardigan', price:'Rp 98.000',  old:'',           badge:'new',     bg:'linear-gradient(135deg,#d8d4cc,#c8c4bc)' },
   { name:'Jaket Varsity',       cat:'jaket',    price:'Rp 210.000', old:'',           badge:'branded', bg:'linear-gradient(135deg,#b8c4d0,#a8b4c0)' },
 ];
-
 const PRODUCTS = BASE.map((p, i) => ({ id: i+1, ...p }));
 
 const ICONS = {
@@ -240,15 +265,10 @@ const ICONS = {
   jaket:    `<path d="M3 7 7 3h2.5L12 6l2.5-3H17l4 4-2.5 2L17 7v13a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V7L4.5 9 3 7z"/><path d="M12 6v14"/>`,
   default:  `<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>`,
 };
-const BADGE_LABELS  = { new:'New', branded:'Branded', sale:'Sale'};
+const BADGE_LABELS  = { new:'New', branded:'Branded', sale:'Sale' };
 const BADGE_CLASSES = { new:'bg-gray-900 text-white', branded:'bg-terra text-white', sale:'bg-red-500 text-white' };
-const CAT_LABELS    = { semua:'Semua Produk', kemeja:'Kemeja', rok:'Rok', cardigan:'Cardigan', celana:'Celana', jaket:'Jaket' };
 
-let currentCat    = 'semua';
-let currentSearch = '';
-let currentPage   = 1;
-let perPage       = 24;
-let selected      = null;
+let currentCat = 'semua', currentSearch = '', currentPage = 1, perPage = 24;
 
 function getFiltered() {
   return PRODUCTS.filter(p => {
@@ -263,34 +283,25 @@ function render() {
   const total      = filtered.length;
   const totalPages = Math.max(1, Math.ceil(total / perPage));
   if (currentPage > totalPages) currentPage = totalPages;
-  const start  = (currentPage - 1) * perPage;
-  const paged  = filtered.slice(start, start + perPage);
+  const paged = filtered.slice((currentPage-1)*perPage, currentPage*perPage);
+  const grid  = document.getElementById('productGrid');
 
-
-  const grid = document.getElementById('productGrid');
   if (!paged.length) {
     grid.innerHTML = `<div class="col-span-full text-center py-14 text-muted">
       <svg class="w-12 h-12 mx-auto mb-3 stroke-stone-300" viewBox="0 0 24 24" fill="none" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <p class="text-sm">Produk tidak ditemukan</p>
-    </div>`;
-    renderPagination(total, totalPages);
-    return;
+      <p class="text-sm">Produk tidak ditemukan</p></div>`;
+    renderPagination(total, totalPages); return;
   }
 
   grid.innerHTML = paged.map((p, i) => {
-    const icon = ICONS[p.cat] || ICONS.default;
-    const badgeHtml = p.badge
-      ? `<span class="absolute top-2 right-2 z-20 text-[10px] font-bold px-2 py-0.5 rounded-full ${BADGE_CLASSES[p.badge]||'bg-gray-500 text-white'}">${BADGE_LABELS[p.badge]}</span>`
-      : '';
-    const isS = selected === p.id;
-
+    const icon  = ICONS[p.cat] || ICONS.default;
+    const badge = p.badge ? `<span class="absolute top-2 right-2 z-20 text-[10px] font-bold px-2 py-0.5 rounded-full ${BADGE_CLASSES[p.badge]}">${BADGE_LABELS[p.badge]}</span>` : '';
     return `
-    <div class="card relative bg-white rounded-2xl overflow-hidden shadow-sm cursor-pointer border-2 transition-all duration-200 hover:-translate-y-1 hover:shadow-md hover:border-terra-l ${isS?'selected':'border-transparent'}" style="animation:fadeUp .3s ease ${i*.04}s both" onclick="window.location.href='/detail-produk/${p.id}'">
-      ${badgeHtml}
-      <div class="relative w-full overflow-hidden" style="aspect-ratio:3/3">
-        <div class="absolute inset-0" style="background:${p.bg}"></div>
-        <div class="relative z-10 w-full h-full flex items-center justify-center">
-          <svg class="transition-transform duration-300 hover:scale-110" style="width:48%;height:48%" viewBox="0 0 24 24" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${icon}</svg>
+    <div class="card relative bg-white rounded-2xl overflow-hidden shadow-sm cursor-pointer border-2 border-transparent transition-all duration-200 hover:-translate-y-1 hover:shadow-md hover:border-terra-l" style="animation:fadeUp .3s ease ${i*.04}s both" onclick="window.location.href='/detail-produk/${p.id}'">
+      ${badge}
+      <div class="relative w-full" style="aspect-ratio:1/1; background:${p.bg}">
+        <div class="w-full h-full flex items-center justify-center">
+          <svg style="width:48%;height:48%" viewBox="0 0 24 24" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${icon}</svg>
         </div>
       </div>
       <div class="p-2.5 pb-3">
@@ -302,7 +313,6 @@ function render() {
       </div>
     </div>`;
   }).join('');
-
   renderPagination(total, totalPages);
 }
 
@@ -310,31 +320,19 @@ function renderPagination(total, totalPages) {
   document.getElementById('pageInfo').textContent = total ? `Halaman ${currentPage} dari ${totalPages}` : '';
   const pg = document.getElementById('pagination');
   if (totalPages <= 1) { pg.innerHTML = ''; return; }
-
-  const pages = buildPageList(currentPage, totalPages);
-  let html = '';
-
-  html += `<button onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''} class="w-9 h-9 rounded-xl border-2 border-stone-200 bg-white text-muted flex items-center justify-center cursor-pointer transition-all duration-200 hover:border-terra-l hover:text-terra hover:bg-terra-xs disabled:opacity-30 disabled:cursor-not-allowed font-body">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m15 18-6-6 6-6"/></svg>
-  </button>`;
-
+  const pages = totalPages <= 7 ? Array.from({length:totalPages},(_,i)=>i+1) : buildPageList(currentPage, totalPages);
+  let html = `<button onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''} class="w-9 h-9 rounded-xl border-2 border-stone-200 bg-white text-muted flex items-center justify-center cursor-pointer transition-all hover:border-terra-l hover:text-terra hover:bg-terra-xs disabled:opacity-30 disabled:cursor-not-allowed">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m15 18-6-6 6-6"/></svg></button>`;
   pages.forEach(p => {
-    if (p === '…') {
-      html += `<span class="w-9 h-9 flex items-center justify-center text-sm text-muted">…</span>`;
-    } else {
-      html += `<button onclick="goPage(${p})" class="pg-btn w-9 h-9 rounded-xl border-2 border-stone-200 bg-white text-muted text-sm font-medium flex items-center justify-center cursor-pointer transition-all duration-200 hover:border-terra-l hover:text-terra hover:bg-terra-xs font-body ${p===currentPage?'active':''}">${p}</button>`;
-    }
+    if (p === '…') html += `<span class="w-9 h-9 flex items-center justify-center text-sm text-muted">…</span>`;
+    else html += `<button onclick="goPage(${p})" class="pg-btn w-9 h-9 rounded-xl border-2 border-stone-200 bg-white text-muted text-sm font-medium flex items-center justify-center cursor-pointer transition-all hover:border-terra-l hover:text-terra hover:bg-terra-xs ${p===currentPage?'active':''}">${p}</button>`;
   });
-
-  html += `<button onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''} class="w-9 h-9 rounded-xl border-2 border-stone-200 bg-white text-muted flex items-center justify-center cursor-pointer transition-all duration-200 hover:border-terra-l hover:text-terra hover:bg-terra-xs disabled:opacity-30 disabled:cursor-not-allowed font-body">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m9 18 6-6-6-6"/></svg>
-  </button>`;
-
+  html += `<button onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''} class="w-9 h-9 rounded-xl border-2 border-stone-200 bg-white text-muted flex items-center justify-center cursor-pointer transition-all hover:border-terra-l hover:text-terra hover:bg-terra-xs disabled:opacity-30 disabled:cursor-not-allowed">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m9 18 6-6-6-6"/></svg></button>`;
   pg.innerHTML = html;
 }
 
 function buildPageList(cur, total) {
-  if (total <= 7) return Array.from({length:total}, (_,i) => i+1);
   const pages = [1];
   if (cur - 1 > 2) pages.push('…');
   for (let i = Math.max(2, cur-1); i <= Math.min(total-1, cur+1); i++) pages.push(i);
@@ -348,36 +346,27 @@ function goPage(p) {
   const totalPages = Math.max(1, Math.ceil(total / perPage));
   if (p < 1 || p > totalPages) return;
   currentPage = p;
-  selected = null;
   render();
   document.getElementById('productGrid').scrollIntoView({ behavior:'smooth', block:'start' });
 }
-function selectCard(id) { selected = selected === id ? null : id; render(); }
-function setFilter(el) {
-  currentCat = el.dataset.cat;
-  currentPage = 1;
-  selected = null;
-  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  render();
-}
-function onSearch() { currentSearch = document.getElementById('searchInput').value; currentPage = 1; selected = null; render(); }
-function onPerPageChange() { perPage = parseInt(document.getElementById('perPageSelect').value); currentPage = 1; selected = null; render(); }
-function setNav(el) { document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('active')); el.classList.add('active'); }
+function onSearch() { currentSearch = document.getElementById('searchInput').value; currentPage = 1; render(); }
+function onPerPageChange() { perPage = parseInt(document.getElementById('perPageSelect').value); currentPage = 1; render(); }
 
-// AMBIL PARAMETER CATEGORY DARI URL
+// URL param
 const params = new URLSearchParams(window.location.search);
-const kategoriURL = params.get('cat');
+const katURL  = params.get('cat');
+if (katURL) currentCat = katURL;
+const TITLE_MAP = {
+  kemeja: 'Kemeja',
+  rok: 'Rok',
+  cardigan: 'Cardigan',
+  celana: 'Celana',
+  jaket: 'Jaket'
+};
 
-if (kategoriURL) {
-  currentCat = kategoriURL;
-  document.querySelectorAll('.filter-chip').forEach(btn => {
-    btn.classList.remove('active');
-    if (btn.dataset.cat === kategoriURL) {
-      btn.classList.add('active');
-    }
-  });
-}
+const titleText = TITLE_MAP[currentCat] || 'Daftar Produk';
+
+document.getElementById('mainTitle').textContent = titleText;
 
 render();
 </script>

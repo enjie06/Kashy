@@ -6,6 +6,7 @@ use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
@@ -64,8 +65,11 @@ class ProfileController extends Controller
      */
     public function ownerProfile()
     {
+        $store = DB::table('store_settings')->first();
+
         return view('owner.profile', [
-            'user' => Auth::user()
+            'user'  => Auth::user(),
+            'store' => $store,
         ]);
     }
 
@@ -145,6 +149,22 @@ class ProfileController extends Controller
         ]);
 
         return back()->with('success', 'Password berhasil diperbarui.');
+    }
+
+    /**
+     * Hapus foto profil.
+     */
+    public function deletePhoto(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->profile_photo && Storage::disk('public')->exists($user->profile_photo)) {
+            Storage::disk('public')->delete($user->profile_photo);
+        }
+
+        $user->update(['profile_photo' => null]);
+
+        return back()->with('success', 'Foto profil berhasil dihapus.');
     }
 
     /**
