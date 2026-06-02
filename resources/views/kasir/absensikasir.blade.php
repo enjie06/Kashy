@@ -61,7 +61,6 @@
 <nav class="sticky top-0 z-50 bg-gray-900 px-5 py-3.5 flex items-center justify-center shadow-md">
   <div class="text-center">
     <span class="font-bold text-white text-xl tracking-wide">Kashy</span>
-    <p class="text-[10px] text-gray-400 leading-none mt-0.5">Absensi Kasir</p>
   </div>
 </nav>
 
@@ -307,47 +306,51 @@ function getSelectedShiftFromStorage() {
   return localStorage.getItem('kashy_selected_shift_kasir');
 }
 
-// ── Update UI ──
 function updateUIByServerStatus() {
   const statusTitle = document.getElementById('statusTitle');
   const statusSub   = document.getElementById('statusSub');
   const shift       = selectedShift || getSelectedShiftFromStorage();
 
+  console.log('=== UPDATE UI ===');
+  console.log('selectedShift:', selectedShift);
+  console.log('shift dari storage:', getSelectedShiftFromStorage());
+  console.log('shiftStatus:', shiftStatus);
+  console.log('checkInTime:', checkInTime);
+  console.log('checkOutTime:', checkOutTime);
+
   if (!shift) {
     statusTitle.textContent = 'Pilih shift terlebih dahulu';
-    statusSub.textContent   = 'Absensi akan aktif setelah shift dipilih';
+    statusSub.textContent   = 'Pilih shift pagi atau malam';
     setFpBtnDisabled(true);
     absenType = null;
     return;
   }
 
-  if (shiftStatus === 'selesai') {
+  if (checkInTime && checkOutTime) {
     statusTitle.textContent = 'Absensi selesai';
-    statusSub.textContent   = 'Terima kasih, Anda sudah absen hari ini';
+    statusSub.textContent   = 'Anda sudah absen masuk dan pulang hari ini';
     setFpBtnDisabled(true);
     absenType = null;
     return;
   }
 
-  if (shiftStatus === 'tidak_aktif' || shiftStatus === 'aktif') {
-    if (!checkInTime) {
-      statusTitle.textContent = 'Siap absen masuk';
-      statusSub.textContent   = 'Tekan tombol untuk memulai shift';
-      setFpBtnDisabled(false);
-      absenType = 'masuk';
-    } else if (checkInTime && !checkOutTime) {
-      statusTitle.textContent = 'Siap absen pulang';
-      statusSub.textContent   = 'Tekan tombol untuk mengakhiri shift';
-      setFpBtnDisabled(false);
-      absenType = 'pulang';
-    } else {
-      statusTitle.textContent = 'Absensi selesai';
-      statusSub.textContent   = 'Terima kasih, Anda sudah absen hari ini';
-      setFpBtnDisabled(true);
-      absenType = null;
-    }
+  if (checkInTime && !checkOutTime) {
+    statusTitle.textContent = 'Siap absen pulang';
+    statusSub.textContent   = 'Tekan tombol untuk mengakhiri shift';
+    setFpBtnDisabled(false);
+    absenType = 'pulang';
+    return;
+  }
+
+  if (!checkInTime) {
+    statusTitle.textContent = 'Siap absen masuk';
+    statusSub.textContent   = 'Tekan tombol untuk memulai shift';
+    setFpBtnDisabled(false);
+    absenType = 'masuk';
+    return;
   }
 }
+
 
 // ── Modal Pulang ──
 function openPulangModal() {
@@ -363,71 +366,87 @@ function confirmPulang() {
   startFakeScan();
 }
 
-// ── Load History ──
+// ── Load History Absensi ──
 async function loadHistory() {
   try {
-    const response = await fetch('{{ route("kasir.transaksi.recent") }}');
-    const histories = await response.json();
+    // Ganti dengan endpoint yang benar untuk riwayat absensi
+    const response = await fetch('{{ route("shift.full-history") }}');
+    const result = await response.json();
+    
     const container = document.getElementById('historyContent');
     const loadingEl = document.getElementById('historyLoading');
-    if (histories.length === 0) {
-      container.innerHTML = '<p class="text-center text-muted text-xs py-4">Belum ada riwayat absensi</p>';
-    } else {
-      container.innerHTML = histories.map(h => `
+    
+    if (result.success && result.data && result.data.length > 0) {
+      container.innerHTML = result.data.map(h => `
         <div class="flex items-center justify-between p-2.5 rounded-xl bg-stone-50 border border-stone-100">
           <div class="flex items-center gap-2.5">
             <div class="w-7 h-7 rounded-full bg-terra-xs flex items-center justify-center">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#C8966C" stroke-width="2">
-                <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
               </svg>
             </div>
             <div>
-              <p class="text-xs font-medium text-gray-800">${h.invoice_number}</p>
-              <p class="text-[9px] text-muted">${h.time} · ${h.metode_pembayaran}</p>
+              <p class="text-xs font-medium text-gray-800">${h.shift_type || 'Shift'} · ${h.action === 'masuk' ? '✅ Masuk' : '🔚 Pulang'}</p>
+              <p class="text-[9px] text-muted">${h.time || h.created_at}</p>
             </div>
           </div>
-          <span class="text-xs font-bold text-gray-900">Rp ${h.grand_total.toLocaleString('id-ID')}</span>
+          <span class="text-xs font-bold text-gray-900">${h.action === 'masuk' ? 'Masuk' : 'Pulang'}</span>
         </div>
       `).join('');
+    } else {
+      container.innerHTML = '<p class="text-center text-muted text-xs py-4">Belum ada riwayat absensi</p>';
     }
     loadingEl.classList.add('hidden');
     container.classList.remove('hidden');
   } catch (err) {
-    document.getElementById('historyLoading').innerHTML =
-      '<p class="text-center text-muted text-xs py-4">Gagal memuat riwayat</p>';
+    console.error('Gagal load riwayat:', err);
+    document.getElementById('historyLoading').innerHTML = '';
+    document.getElementById('historyContent').innerHTML = '<p class="text-center text-muted text-xs py-4">Gagal memuat riwayat</p>';
+    document.getElementById('historyContent').classList.remove('hidden');
+    document.getElementById('historyLoading').classList.add('hidden');
   }
 }
 
 // ── Load Status ──
 async function loadData() {
   try {
-    const response = await fetch('{{ route("kasir.shift.status") }}');
-    const data = await response.json();
+    // Cek shift kasir
+    const shiftResponse = await fetch('{{ route("kasir.shift.status") }}');
+    const shiftData = await shiftResponse.json();
 
-    // kasir.shift.status returns: { shift_active, shift: { waktu_buka, ... } }
-    if (data.shift_active && data.shift) {
+    // Cek absensi (check_in / check_out)
+    const absenRes = await fetch('{{ route("shift.status") }}');
+    const absenData = await absenRes.json();
+    
+    console.log('Shift Data:', shiftData);
+    console.log('Absen Data:', absenData);
+    
+    if (shiftData.shift_active && shiftData.shift) {
       shiftStatus = 'aktif';
-      // Cek absensi kasir dari shift.handle — pakai endpoint karyawan untuk cek check_in/out
     } else {
       shiftStatus = 'tidak_aktif';
     }
-
-    // Cek absensi (check_in / check_out) dari shift.status karyawan
-    const absenRes = await fetch('{{ route("shift.status") }}');
-    const absenData = await absenRes.json();
-    checkInTime  = absenData.check_in;
+    
+    checkInTime = absenData.check_in;
     checkOutTime = absenData.check_out;
-    if (checkInTime)  document.getElementById('todayMasuk').textContent  = checkInTime  + ' WIB';
-    if (checkOutTime) document.getElementById('todayPulang').textContent = checkOutTime + ' WIB';
-    if (absenData.shift_status) shiftStatus = absenData.shift_status;
+    
+    if (checkInTime) {
+      document.getElementById('todayMasuk').textContent = checkInTime;
+    }
+    if (checkOutTime) {
+      document.getElementById('todayPulang').textContent = checkOutTime;
+    }
 
     // Restore shift pilihan dari storage
     const storedShift = getSelectedShiftFromStorage();
     if (storedShift) {
       selectedShift = storedShift;
       const activeBtn = document.getElementById(storedShift === 'pagi' ? 'btnPagi' : 'btnMalam');
-      activeBtn.classList.add('border-terra', 'bg-terra-xs', 'text-terra');
-      activeBtn.classList.remove('border-border', 'text-gray-700');
+      if (activeBtn) {
+        activeBtn.classList.add('border-terra', 'bg-terra-xs', 'text-terra');
+        activeBtn.classList.remove('border-border', 'text-gray-700');
+      }
       document.getElementById('shiftSelectedInfo').textContent =
         `Shift ${storedShift === 'pagi' ? 'Pagi' : 'Malam'} dipilih`;
     }
@@ -435,6 +454,7 @@ async function loadData() {
     updateUIByServerStatus();
     await loadHistory();
   } catch (err) {
+    console.error('Gagal memuat data absensi:', err);
     showToast('Gagal memuat data absensi');
   }
 }
@@ -465,7 +485,10 @@ async function completeScan() {
         showToast(result.message);
         localStorage.setItem('shift_updated', Date.now());
         localStorage.setItem('kasir_shift_updated', Date.now());
-        setTimeout(() => { window.location.href = '{{ route("dashboard-kasir") }}'; }, 1400);
+        // ✅ LANGSUNG KE DASHBOARD
+        setTimeout(() => { 
+          window.location.href = '{{ route("dashboard-kasir") }}';
+        }, 1400);
       } else if (absenType === 'pulang') {
         const waktu = result.check_out;
         document.getElementById('statusTitle').textContent = '✓ Absen pulang berhasil';
@@ -474,10 +497,11 @@ async function completeScan() {
         showToast(result.message);
         localStorage.setItem('shift_updated', Date.now());
         localStorage.setItem('kasir_shift_updated', Date.now());
+        // ✅ LANGSUNG KE DASHBOARD
         setTimeout(() => { 
-        window.location.href = '/kasir/dashboard';  // ← Ganti dengan URL langsung
-    }, 1400);
-}
+          window.location.href = '{{ route("dashboard-kasir") }}';
+        }, 1400);
+      }
     } else {
       showToast(result.message || 'Terjadi kesalahan');
       resetScanner();
