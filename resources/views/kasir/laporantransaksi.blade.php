@@ -42,12 +42,18 @@
   .delay-4 { animation-delay:.28s; }
   .delay-5 { animation-delay:.36s; }
   .stat-card {
-    background:#fff;
-    border-radius:20px;
-    border:1.5px solid #EAE0D6;
-    padding:20px;
-    transition:box-shadow .2s;
-  }
+  background:#fff;
+  border-radius:18px;
+  border:1.5px solid #EAE0D6;
+  padding:16px;
+  transition:box-shadow .2s;
+}
+
+.stats-two-column {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
   .stat-card:hover { box-shadow:0 6px 24px rgba(200,150,108,.12); }
   .stat-label {
     font-size:11px; font-weight:600; color:#9C8B7E;
@@ -96,8 +102,8 @@
     display:flex; align-items:center; gap:8px;
     background:#1C1C1C; color:#fff;
     font-size:14px; font-weight:700;
-    padding:14px 20px; border-radius:16px;
-    border:none; cursor:pointer;
+    padding:12px 18px; border-radius:16px;
+    border-radius:14px;
     font-family:'Poppins',sans-serif;
     transition:background .2s;
     width:100%; justify-content:center;
@@ -141,7 +147,7 @@
     <p class="text-sm text-muted mt-1" id="dateLabel"></p>
   </div>
 
-  <div class="px-4 flex flex-col gap-5">
+  <div class="px-4 flex flex-col gap-3">
     <!-- Loading State -->
     <div id="loadingState" class="loading-state">
       <div class="loading-spinner"></div>
@@ -215,7 +221,7 @@
                 </div>
                 <span class="cat-amount">${formatRupiah(kat.total)}</span>
               </div>
-            `).join('') : '<div class="text-center text-muted py-4">Belum ada data penjualan</div>'}
+            `).join('') : '<div class="text-center text-muted py-3">Belum ada data penjualan</div>'}
           </div>
 
           <div class="stat-card fade-up delay-4">

@@ -162,7 +162,11 @@ Route::get('/kasir/absensikasir', function () {
 
 Route::get('/kasir/shiftkasir', function () {
     return view('kasir.shiftkasir');
-})->name('kasir.shiftkasir');
+})->middleware('auth')->name('kasir.shiftkasir');
+
+Route::post('/kasir/shift/handle', [ShiftController::class, 'handleAbsensi'])
+    ->middleware('auth')
+    ->name('shift.handle');
 
 Route::get('/kasir/profil', [ProfileController::class, 'kasirProfile'])
 ->middleware('auth')

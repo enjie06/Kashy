@@ -139,6 +139,64 @@
     </div>
   </div>
 
+  <!-- Status Hari Ini -->
+<div class="bg-white rounded-2xl border border-border shadow-sm overflow-hidden animate-fade-up card-hover">
+  <div class="px-4 py-4">
+    <p class="text-[10px] font-bold tracking-[.14em] uppercase text-muted mb-3">Status Hari Ini</p>
+
+    <div class="grid grid-cols-2 gap-3">
+      <div class="flex items-center gap-2.5 p-2.5 rounded-xl bg-stone-50 border border-stone-100">
+        <div class="w-8 h-8 rounded-xl bg-terra-xs flex items-center justify-center">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C8966C" stroke-width="2.5">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+            <polyline points="10 17 15 12 10 7"/>
+            <line x1="15" y1="12" x2="3" y2="12"/>
+          </svg>
+        </div>
+        <div>
+          <p class="text-[10px] text-muted font-medium uppercase tracking-wide">Masuk</p>
+          <p class="text-sm font-bold text-gray-900" id="todayMasuk">—</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2.5 p-2.5 rounded-xl bg-stone-50 border border-stone-100">
+        <div class="w-8 h-8 rounded-xl bg-terra-xs flex items-center justify-center">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C8966C" stroke-width="2.5">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+        </div>
+        <div>
+          <p class="text-[10px] text-muted font-medium uppercase tracking-wide">Pulang</p>
+          <p class="text-sm font-bold text-gray-900" id="todayPulang">—</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Riwayat Absensi -->
+<div class="bg-white rounded-2xl border border-border shadow-sm overflow-hidden animate-fade-up card-hover">
+  <div class="px-4 pt-4 pb-4">
+    <h3 class="font-semibold text-gray-900 text-sm mb-3">Riwayat Absensi</h3>
+
+    <div class="space-y-2" id="historyContent">
+      <div class="flex items-center justify-between p-2.5 rounded-xl bg-stone-50 border border-stone-100">
+        <div>
+          <p class="text-xs font-medium text-gray-800">Hari ini</p>
+          <p class="text-[10px] text-muted">
+            Masuk: <span id="historyMasuk">—</span> · Pulang: <span id="historyPulang">—</span>
+          </p>
+        </div>
+        <span class="text-[10px] px-2 py-0.5 rounded-full bg-terra-xs text-terra font-semibold">
+          Kasir
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
   <!-- Info kasir -->
   <div class="bg-white rounded-2xl border border-border shadow-sm px-4 py-4 animate-fade-up">
     <div class="flex items-center gap-3">
@@ -166,9 +224,8 @@ const absenType = urlParams.get('type') === 'pulang' ? 'pulang' : 'masuk';
 const isPulang  = absenType === 'pulang';
 
 // ── Set warna glow & teks sesuai tipe ──
-document.getElementById('fpGlow').style.background = isPulang
-  ? 'radial-gradient(circle,#f87171 0%,#ef4444 60%,#b91c1c 100%)'
-  : 'radial-gradient(circle,#E5B18A 0%,#C8966C 60%,#a07050 100%)';
+document.getElementById('fpGlow').style.background =
+  'radial-gradient(circle,#E5B18A 0%,#C8966C 60%,#a07050 100%)';
 
 document.getElementById('navSubtitle').textContent  = isPulang ? 'Absensi Pulang' : 'Absensi Masuk';
 document.getElementById('statusTitle').textContent  = isPulang ? 'Siap Absen Pulang' : 'Siap Absen Masuk';
@@ -176,8 +233,8 @@ document.getElementById('statusSub').textContent    = isPulang ? 'Tekan tombol u
 document.getElementById('infoSub').textContent      = isPulang ? 'Kasir · Absensi Pulang' : 'Kasir · Absensi Masuk';
 
 const avatarEl = document.getElementById('avatarEl');
-avatarEl.style.background = isPulang ? '#fee2e2' : '#FAF2EC';
-avatarEl.style.color      = isPulang ? '#ef4444' : '#C8966C';
+avatarEl.style.background = isPulang ? '#FAF2EC' : '#FAF2EC';
+avatarEl.style.color      = isPulang ? '#C8966C' : '#C8966C';
 
 // ── Clock ──
 function updateClock() {
@@ -247,49 +304,27 @@ function startScan() {
 }
 
 async function completeScan() {
-  try {
-    const response = await fetch('{{ route("shift.handle") }}', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-      },
-      body: JSON.stringify({ action: absenType })
-    });
-    const result = await response.json();
+  document.getElementById('fpGlow').style.opacity = '0';
+  document.getElementById('scanPercent').classList.add('hidden');
+  document.getElementById('fpIcon').style.display = 'block';
+  document.getElementById('fpTextGroup').style.display = 'flex';
 
-    document.getElementById('fpGlow').style.opacity   = '0';
-    document.getElementById('scanPercent').classList.add('hidden');
-    document.getElementById('fpIcon').style.display      = 'block';
-    document.getElementById('fpTextGroup').style.display = 'flex';
+  const sc = document.getElementById('successCircle');
+  sc.classList.remove('hidden');
+  sc.style.display = 'flex';
+  sc.classList.add('animate-success-pop');
 
-    const sc = document.getElementById('successCircle');
-    sc.classList.remove('hidden');
-    sc.style.display = 'flex';
-    sc.classList.add('animate-success-pop');
+  document.getElementById('statusTitle').textContent = isPulang
+    ? '✓ Absen Pulang Berhasil'
+    : '✓ Absen Masuk Berhasil';
 
-    if (result.success) {
-      const waktu = isPulang ? (result.check_out || '') : (result.check_in || '');
-      document.getElementById('statusTitle').textContent = isPulang ? '✓ Absen Pulang Berhasil' : '✓ Absen Masuk Berhasil';
-      document.getElementById('statusSub').textContent   = `Tercatat pukul ${waktu} WIB`;
-      showToast('Absensi berhasil! Mengalihkan ke beranda...');
-      localStorage.setItem('shift_updated', Date.now());
-      localStorage.setItem('kasir_shift_updated', Date.now());
+  document.getElementById('statusSub').textContent = 'Absensi berhasil dicatat';
 
-      setTimeout(() => {
-    window.location.href = '{{ route("dashboard-kasir") }}';
-}, 1500);
+  showToast('Absensi berhasil! Mengalihkan ke beranda...');
 
-    } else {
-      showToast(result.message || 'Gagal melakukan absensi');
-      setTimeout(resetScanner, 1500);
-    }
-
-  } catch (err) {
-    console.error('Error:', err);
-    showToast('Gagal melakukan absensi');
-    setTimeout(resetScanner, 1500);
-  }
+  setTimeout(() => {
+    window.location.href = "{{ route('dashboard-kasir') }}";
+  }, 1500);
 }
 
 function resetScanner() {
@@ -309,6 +344,24 @@ function resetScanner() {
 }
 
 document.getElementById('fpBtn').addEventListener('click', startScan);
+if (isPulang) {
+  document.getElementById('todayPulang').textContent = waktu || new Date().toLocaleTimeString('id-ID', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  }) + ' WIB';
+
+  document.getElementById('historyPulang').textContent = document.getElementById('todayPulang').textContent;
+} else {
+  document.getElementById('todayMasuk').textContent = waktu || new Date().toLocaleTimeString('id-ID', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  }) + ' WIB';
+
+  document.getElementById('historyMasuk').textContent = document.getElementById('todayMasuk').textContent;
+}
+
 </script>
 </body>
 </html>

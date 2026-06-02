@@ -447,8 +447,7 @@ async function confirmBukaShift() {
     localStorage.setItem('kasir_shift_updated', Date.now());
 
     window.location.href = '{{ route("kasir.absensikasir") }}?type=masuk';
-}
-        } else {
+} else {
             // Tutup modal konfirmasi
             closeModal();
             
@@ -595,7 +594,7 @@ async function confirmTutupShift() {
             localStorage.setItem('kasir_shift_updated', Date.now());
 
 setTimeout(() => {
-    window.location.href = '{{ route("dashboard-kasir") }}';
+    window.location.href = '{{ route("kasir.absensikasir") }}?type=pulang';
 }, 1200);
         } else {
             showToast(result.message || 'Gagal menutup shift');
