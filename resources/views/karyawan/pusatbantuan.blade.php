@@ -127,7 +127,7 @@
         <!-- item 3 -->
         <div class="faq-item border-b border-border" data-question="jadwal cuti bersama tahun 2024">
           <button class="faq-trigger w-full flex items-center justify-between gap-3 px-4 py-3 text-left transition" onclick="toggleFaq(this)">
-            <span class="text-xs font-medium text-gray-900 leading-snug">Jadwal cuti bersama tahun 2024?</span>
+            <span class="text-xs font-medium text-gray-900 leading-snug">Jadwal cuti bersama tahun 2026?</span>
             <svg class="faq-chevron flex-shrink-0 text-muted" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
           </button>
           <div class="faq-answer bg-terra-xs">
