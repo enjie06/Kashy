@@ -358,10 +358,10 @@ async function cekStatusShift() {
             document.getElementById('openShiftSection').style.display = 'none';
             document.getElementById('closeShiftSection').style.display = 'block';
             
-            const totalPenjualan = data.shift.total_penjualan || 0;
-            const penjualanTunai = data.shift.penjualan_tunai || 0;
-            const penjualanNonTunai = (data.shift.penjualan_qris || 0) + (data.shift.penjualan_debit || 0);
-            const saldoAwal = data.shift.saldo_awal || 0;
+            const totalPenjualan = Number(data.shift.total_penjualan) || 0;
+            const penjualanTunai = Number(data.shift.penjualan_tunai) || 0;
+            const penjualanNonTunai = Number(data.shift.penjualan_qris || 0) + (data.shift.penjualan_debit || 0);
+            const saldoAwal = Number(data.shift.saldo_awal) || 0;
             const ekspektasiTunai = saldoAwal + penjualanTunai;
             
             document.getElementById('totalCash').innerText = 'Rp ' + penjualanTunai.toLocaleString('id-ID');

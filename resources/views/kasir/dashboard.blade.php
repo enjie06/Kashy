@@ -271,10 +271,10 @@ async function loadShiftStatus() {
             shiftBerakhirElem.innerText = '23:59';
             shiftBtnLabel.innerText = "Tutup Shift";
             
-            const totalPenjualan = data.shift.total_penjualan || 0;
-            const penjualanTunai = data.shift.penjualan_tunai || 0;
-            const penjualanQris = data.shift.penjualan_qris || 0;
-            const penjualanDebit = data.shift.penjualan_debit || 0;
+            const totalPenjualan = Number(data.shift.total_penjualan) || 0;
+const penjualanTunai = Number(data.shift.penjualan_tunai) || 0;
+const penjualanQris = Number(data.shift.penjualan_qris) || 0;
+const penjualanDebit = Number(data.shift.penjualan_debit) || 0;
             
             document.getElementById('penjualanValue').innerText = `Rp ${totalPenjualan.toLocaleString('id-ID')}`;
             document.getElementById('tunaiNominal').innerText = penjualanTunai.toLocaleString('id-ID');
@@ -294,7 +294,7 @@ async function loadShiftStatus() {
             
             shiftMulaiElem.innerText = "--:--";
             shiftBerakhirElem.innerText = "--:--";
-            shiftBtnLabel.innerText = "Buka Shift";
+            shiftBtnLabel.innerText = "Pilih Shift";
             
             document.getElementById('penjualanValue').innerText = "Rp 0";
             document.getElementById('tunaiNominal').innerText = "0";

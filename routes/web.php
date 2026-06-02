@@ -11,8 +11,10 @@ use App\Http\Controllers\StoreController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\StockOpnameController;
 use App\Http\Controllers\OwnerSettingController;
+use App\Http\Controllers\OwnerLaporanController; // ← dari file pertama
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Auth;
+
 /*
 |--------------------------------------------------------------------------
 | LANDING
@@ -32,74 +34,76 @@ Route::get('/', function () {
 
 Route::middleware(['auth'])->group(function () {
 
-    
     Route::get("/owner/dashboard", [DashboardController::class, "index"])
-    ->name("owner.dashboard");
+        ->name("owner.dashboard");
 
     Route::view('/owner/manajemendiskon', 'owner.manajemendiskon')
-    ->middleware('auth')
-    ->name('manajemen.diskon');
+        ->middleware('auth')
+        ->name('manajemen.diskon');
 
-    Route::view('/owner/laporan-keuangan', 'owner.laporankeuangan')
-    ->middleware('auth')
-    ->name('owner.laporan.keuangan');
+    // ── LAPORAN KEUANGAN (MENGGUNAKAN CONTROLLER DARI FILE PERTAMA) ──
+    Route::get('/owner/laporan-keuangan', [OwnerLaporanController::class, 'index'])
+        ->name('owner.laporan.keuangan');
+
+    Route::get('/owner/laporan-keuangan/export', [OwnerLaporanController::class, 'exportCSV'])
+        ->name('owner.laporan.export');
+    // ──────────────────────────────────────────────────────────────
 
     Route::get('/owner/stokopname', [StockOpnameController::class, 'index'])
-    ->middleware('auth')
-    ->name('stokopname');
+        ->middleware('auth')
+        ->name('stokopname');
     
     Route::post('/owner/stokopname', [StockOpnameController::class, 'store'])
-    ->middleware('auth')
-    ->name('stok-opname.store');
+        ->middleware('auth')
+        ->name('stok-opname.store');
 
     Route::delete('/owner/stokopname/{stockOpname}', [StockOpnameController::class, 'destroy'])
-    ->middleware('auth')
-    ->name('stok-opname.destroy');
+        ->middleware('auth')
+        ->name('stok-opname.destroy');
 
     Route::view('/owner/manajemenstaff', 'owner.manajemenstaff')
-    ->middleware('auth')
-    ->name('manajemen.staff');
+        ->middleware('auth')
+        ->name('manajemen.staff');
 
     Route::view('/owner/manajemenproduk', 'owner.manajemenproduk')
-    ->middleware('auth')
-    ->name('manajemen.produk');
+        ->middleware('auth')
+        ->name('manajemen.produk');
 
     Route::middleware(['auth'])->group(function () {
-    Route::get('/owner/pengaturantransaksi', [OwnerSettingController::class, 'index'])
-        ->name('pengaturan.transaksi');
+        Route::get('/owner/pengaturantransaksi', [OwnerSettingController::class, 'index'])
+            ->name('pengaturan.transaksi');
 
-    Route::post('/owner/pengaturantransaksi', [OwnerSettingController::class, 'update'])
-        ->name('owner.pengaturan-tambahan.update');
+        Route::post('/owner/pengaturantransaksi', [OwnerSettingController::class, 'update'])
+            ->name('owner.pengaturan-tambahan.update');
     });
 
     Route::view('/owner/kustomisasitemplatstruk','owner.kustomisasitemplatstruk')
-    ->name('kustomisasi.template.struk');
+        ->name('kustomisasi.template.struk');
 
     Route::view('/owner/konfigurasi-printer', 'owner.konfigurasiprinter')
-    ->name('konfigurasi.printer');
+        ->name('konfigurasi.printer');
 
     Route::view('/owner/pusat-keamanan-data','owner.pusatkeamanandata')
-    ->name('pusat.keamanan.data');
+        ->name('pusat.keamanan.data');
 
     Route::delete('/owner/products/{product}', [ProductController::class, 'destroy'])
-    ->name('owner.products.destroy');
+        ->name('owner.products.destroy');
 
     Route::view('/owner/manajemenkategori', 'owner.manajemenkategori')
-    ->middleware('auth')
-    ->name('manajemen.kategori');
+        ->middleware('auth')
+        ->name('manajemen.kategori');
 
     Route::view('/owner/manajementoko', 'owner.manajementoko')
-    ->middleware('auth')
-    ->name('manajemen.toko');
+        ->middleware('auth')
+        ->name('manajemen.toko');
 
     Route::middleware(['auth'])->group(function () {
-    Route::get('/owner/pengaturan-tambahan', [OwnerSettingController::class, 'index'])
-        ->name('owner.pengaturan-tambahan');
+        Route::get('/owner/pengaturan-tambahan', [OwnerSettingController::class, 'index'])
+            ->name('owner.pengaturan-tambahan');
 
-    Route::post('/owner/pengaturan-tambahan', [OwnerSettingController::class, 'update'])
-        ->name('owner.pengaturan-tambahan.update');
-});
-
+        Route::post('/owner/pengaturan-tambahan', [OwnerSettingController::class, 'update'])
+            ->name('owner.pengaturan-tambahan.update');
+    });
 
     /*
     |--------------------------------------------------------------------------
@@ -141,7 +145,6 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('auth')
         ->name('owner.profile');
     
-    
 });
 
 
@@ -164,13 +167,14 @@ Route::get('/kasir/shiftkasir', function () {
     return view('kasir.shiftkasir');
 })->middleware('auth')->name('kasir.shiftkasir');
 
+// MENGGUNAKAN Route::post DARI KEDUA FILE (SAMA, JADI TIDAK KONFLIK)
 Route::post('/kasir/shift/handle', [ShiftController::class, 'handleAbsensi'])
     ->middleware('auth')
     ->name('shift.handle');
 
 Route::get('/kasir/profil', [ProfileController::class, 'kasirProfile'])
-->middleware('auth')
-->name('kasir.profil');
+    ->middleware('auth')
+    ->name('kasir.profil');
 
 Route::put('/kasir/profil/update', [ProfileController::class, 'updateProfile'])
     ->middleware('auth')
@@ -194,7 +198,7 @@ Route::get('/kasir/riwayattransaksi', function () {
     
 Route::get('/kasir/laporantransaksi', function () {
     return view('kasir.laporantransaksi');
-})->name('kasir.laporantransaksi');
+})->middleware('auth')->name('kasir.laporantransaksi');
 
 Route::get('/kasir/transaksi', [KasirTransactionController::class, 'create'])
     ->middleware('auth')
@@ -209,9 +213,6 @@ Route::post('/kasir/finalize-payment', [KasirTransactionController::class, 'fina
     ->name('kasir.finalize-payment');
 
 Route::middleware(['auth'])->group(function () {
-
-    // Route::get('/kasir/transaksi-baru', [KasirTransactionController::class, 'create'])
-    //     ->name('kasir.transaksi');
 
     Route::post('/kasir/member/store', [KasirTransactionController::class, 'storeMember'])
         ->name('kasir.member.store');
@@ -237,7 +238,6 @@ Route::get('/kasir/transaksi/recent', function() {
         ->orderBy('created_at', 'desc')
         ->get()
         ->map(function($trx) {
-            // Hitung total item terjual dari detail transaksi
             $totalItems = $trx->details->sum('qty');
             
             return [
@@ -245,7 +245,7 @@ Route::get('/kasir/transaksi/recent', function() {
                 'grand_total' => $trx->grand_total,
                 'metode_pembayaran' => $trx->metode_pembayaran == 'cash' ? 'Tunai' : ($trx->metode_pembayaran == 'qris' ? 'QRIS' : 'Transfer'),
                 'time' => $trx->created_at->format('H:i'),
-                'total_items' => $totalItems  // <-- INI YANG DITAMBAH
+                'total_items' => $totalItems
             ];
         });
     return response()->json($transactions);
@@ -258,6 +258,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/kasir/shift/buka', [KasirShiftController::class, 'bukaShift'])->name('kasir.shift.buka');
     Route::post('/kasir/shift/tutup', [KasirShiftController::class, 'tutupShift'])->name('kasir.shift.tutup');
 });
+
 /*
 |--------------------------------------------------------------------------
 | LAPORAN KASIR API
@@ -268,6 +269,7 @@ Route::middleware(['auth'])->group(function () {
 });
 Route::get('/kasir/laporan/hari-ini', [App\Http\Controllers\LaporanController::class, 'getLaporanHariIni'])->name('kasir.laporan.hari-ini');
 Route::get('/kasir/laporan/export-pdf', [App\Http\Controllers\LaporanController::class, 'exportPDF'])->name('kasir.laporan.export-pdf');
+
 /*
 |--------------------------------------------------------------------------
 | KARYAWAN
@@ -276,15 +278,15 @@ Route::get('/kasir/laporan/export-pdf', [App\Http\Controllers\LaporanController:
 
 Route::get('/karyawan/dashboard', function () {
     return view('karyawan.dashboard');
-})->name('dashboard-karyawan');
+})->middleware('auth')->name('dashboard-karyawan');
 
 Route::get('/karyawan/absensi', function () {
     return view('karyawan.absensi');
-})->name('absensi');
+})->middleware('auth')->name('absensi');
 
 Route::get('/karyawan/historyabsensi', function () {
     return view('karyawan.historyabsensi');
-})->name('historyabsensi');
+})->middleware('auth')->name('historyabsensi');
 
 Route::middleware(['auth'])->group(function () {
 
@@ -309,7 +311,6 @@ Route::middleware(['auth'])->group(function () {
 
     Route::put('/karyawan/profile/password', [ProfileController::class, 'updatePassword'])
         ->name('karyawan.password.update');
-
 
     /*
     |--------------------------------------------------------------------------
@@ -339,19 +340,15 @@ Route::middleware(['auth'])->group(function () {
 
 Route::middleware(['auth'])->group(function () {
 
-    // Handle absensi (satu tombol untuk mulai & selesai)
     Route::post('/shift/handle', [ShiftController::class, 'handleAbsensi'])
         ->name('shift.handle');
 
-    // Cek status shift untuk dashboard & absensi
     Route::get('/shift/status', [ShiftController::class, 'cekStatus'])
         ->name('shift.status');
 
-    // Recent history (5 data) untuk halaman absensi
     Route::get('/shift/recent-history', [ShiftController::class, 'getRecentHistory'])
         ->name('shift.recent-history');
 
-    // FULL history + filter + statistik untuk halaman historyabsensi
     Route::get('/shift/full-history', [ShiftController::class, 'getFullHistory'])
         ->name('shift.full-history');
 });
