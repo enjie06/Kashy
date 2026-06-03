@@ -11,7 +11,7 @@ use App\Http\Controllers\StoreController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\StockOpnameController;
 use App\Http\Controllers\OwnerSettingController;
-use App\Http\Controllers\OwnerLaporanController; // ← dari file pertama
+use App\Http\Controllers\OwnerLaporanController;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Auth;
 
@@ -41,7 +41,7 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('auth')
         ->name('manajemen.diskon');
 
-    // ── LAPORAN KEUANGAN (MENGGUNAKAN CONTROLLER DARI FILE PERTAMA) ──
+    // ── LAPORAN KEUANGAN ──
     Route::get('/owner/laporan-keuangan', [OwnerLaporanController::class, 'index'])
         ->name('owner.laporan.keuangan');
 
@@ -52,7 +52,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/owner/stokopname', [StockOpnameController::class, 'index'])
         ->middleware('auth')
         ->name('stokopname');
-    
+
     Route::post('/owner/stokopname', [StockOpnameController::class, 'store'])
         ->middleware('auth')
         ->name('stok-opname.store');
@@ -77,13 +77,13 @@ Route::middleware(['auth'])->group(function () {
             ->name('owner.pengaturan-tambahan.update');
     });
 
-    Route::view('/owner/kustomisasitemplatstruk','owner.kustomisasitemplatstruk')
+    Route::view('/owner/kustomisasitemplatstruk', 'owner.kustomisasitemplatstruk')
         ->name('kustomisasi.template.struk');
 
     Route::view('/owner/konfigurasi-printer', 'owner.konfigurasiprinter')
         ->name('konfigurasi.printer');
 
-    Route::view('/owner/pusat-keamanan-data','owner.pusatkeamanandata')
+    Route::view('/owner/pusat-keamanan-data', 'owner.pusatkeamanandata')
         ->name('pusat.keamanan.data');
 
     Route::delete('/owner/products/{product}', [ProductController::class, 'destroy'])
@@ -141,7 +141,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/owner/profile', [ProfileController::class, 'ownerProfile'])
         ->middleware('auth')
         ->name('owner.profile');
-    
+
 });
 
 
@@ -151,68 +151,56 @@ Route::middleware(['auth'])->group(function () {
 |--------------------------------------------------------------------------
 */
 
-// kasir
-Route::get('/kasir/dashboard', function () {
-    return view('kasir.dashboard');
-})->middleware('auth')->name('dashboard-kasir');
-
-Route::get('/kasir/absensikasir', function () {
-    return view('kasir.absensikasir');
-})->middleware('auth')->name('kasir.absensikasir');
-
-Route::get('/kasir/shiftkasir', function () {
-    return view('kasir.shiftkasir');
-})->middleware('auth')->name('kasir.shiftkasir');
-
-// MENGGUNAKAN Route::post DARI KEDUA FILE (SAMA, JADI TIDAK KONFLIK)
-Route::post('/kasir/shift/handle', [ShiftController::class, 'handleAbsensi'])
-    ->middleware('auth')
-    ->name('shift.handle');
-
-Route::get('/kasir/profil', [ProfileController::class, 'kasirProfile'])
-    ->middleware('auth')
-    ->name('kasir.profil');
-
-Route::put('/kasir/profil/update', [ProfileController::class, 'updateProfile'])
-    ->middleware('auth')
-    ->name('kasir.profile.update');
-
-Route::put('/kasir/profil/password', [ProfileController::class, 'updatePassword'])
-    ->middleware('auth')
-    ->name('kasir.password.update');
-
-Route::get('/kasir/riwayattransaksi', function () {
-    $transactions = Transaction::with('details')
-        ->where('kasir_id', Auth::id())
-        ->orderBy('created_at', 'desc')
-        ->get()
-        ->groupBy(function($transaction) {
-            return $transaction->created_at->translatedFormat('d F Y');
-        });
-    
-    return view('kasir.riwayattransaksi', compact('transactions'));
-})->middleware('auth')->name('kasir.riwayattransaksi');
-    
-Route::get('/kasir/laporantransaksi', function () {
-    return view('kasir.laporantransaksi');
-})->middleware('auth')->name('kasir.laporantransaksi');
-
-Route::get('/kasir/transaksi', [KasirTransactionController::class, 'create'])
-    ->middleware('auth')
-    ->name('kasir.transaksi');
-
-    Route::get('/shift/status', [App\Http\Controllers\ShiftController::class, 'cekStatus'])->name('shift.status');
-    Route::get('/shift/full-history', [App\Http\Controllers\ShiftController::class, 'getFullHistory'])->name('shift.full-history');
-
-Route::get('/kasir/pembayaran', [KasirTransactionController::class, 'pembayaran'])
-    ->middleware('auth')
-    ->name('kasir.pembayaran');
-
-Route::post('/kasir/finalize-payment', [KasirTransactionController::class, 'finalizePayment'])
-    ->middleware('auth')
-    ->name('kasir.finalize-payment');
-
 Route::middleware(['auth'])->group(function () {
+
+    Route::get('/kasir/dashboard', function () {
+        return view('kasir.dashboard');
+    })->name('dashboard-kasir');
+
+    Route::get('/kasir/absensikasir', function () {
+        return view('kasir.absensikasir');
+    })->name('kasir.absensikasir');
+
+    Route::get('/kasir/shiftkasir', function () {
+        return view('kasir.shiftkasir');
+    })->name('kasir.shiftkasir');
+
+    Route::get('/kasir/historyabsensi', function () {
+        return view('kasir.historyabsensikasir');
+    })->name('kasir.historyabsensi');
+
+    Route::get('/kasir/profil', [ProfileController::class, 'kasirProfile'])
+        ->name('kasir.profil');
+
+    Route::put('/kasir/profil/update', [ProfileController::class, 'updateProfile'])
+        ->name('kasir.profile.update');
+
+    Route::put('/kasir/profil/password', [ProfileController::class, 'updatePassword'])
+        ->name('kasir.password.update');
+
+    Route::get('/kasir/riwayattransaksi', function () {
+        $transactions = Transaction::with('details')
+            ->where('kasir_id', Auth::id())
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->groupBy(function ($transaction) {
+                return $transaction->created_at->translatedFormat('d F Y');
+            });
+        return view('kasir.riwayattransaksi', compact('transactions'));
+    })->name('kasir.riwayattransaksi');
+
+    Route::get('/kasir/laporantransaksi', function () {
+        return view('kasir.laporantransaksi');
+    })->name('kasir.laporantransaksi');
+
+    Route::get('/kasir/transaksi', [KasirTransactionController::class, 'create'])
+        ->name('kasir.transaksi');
+
+    Route::get('/kasir/pembayaran', [KasirTransactionController::class, 'pembayaran'])
+        ->name('kasir.pembayaran');
+
+    Route::post('/kasir/finalize-payment', [KasirTransactionController::class, 'finalizePayment'])
+        ->name('kasir.finalize-payment');
 
     Route::post('/kasir/member/store', [KasirTransactionController::class, 'storeMember'])
         ->name('kasir.member.store');
@@ -220,59 +208,38 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/kasir/transaksi/session', [KasirTransactionController::class, 'saveTransactionSession'])
         ->name('kasir.transaksi.session');
 
+    // ── Shift Kas (buka/tutup) ──
+    Route::get('/kasir/shift/status',    [KasirShiftController::class, 'cekStatus'])   ->name('kasir.shift.status');
+    Route::get('/kasir/shift/min-saldo', [KasirShiftController::class, 'getMinSaldo']) ->name('kasir.shift.minSaldo');
+    Route::post('/kasir/shift/buka',     [KasirShiftController::class, 'bukaShift'])   ->name('kasir.shift.buka');
+    Route::post('/kasir/shift/tutup',    [KasirShiftController::class, 'tutupShift'])  ->name('kasir.shift.tutup');
+
+    // ── Recent transactions ──
+    Route::get('/kasir/transaksi/recent', function () {
+        $user         = Auth::user();
+        $transactions = App\Models\Transaction::with('details')
+            ->where('kasir_id', $user->id)
+            ->whereDate('created_at', today())
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($trx) {
+                return [
+                    'invoice_number'    => $trx->invoice_number,
+                    'grand_total'       => $trx->grand_total,
+                    'metode_pembayaran' => $trx->metode_pembayaran == 'cash' ? 'Tunai' : ($trx->metode_pembayaran == 'qris' ? 'QRIS' : 'Transfer'),
+                    'time'              => $trx->created_at->format('H:i'),
+                    'total_items'       => $trx->details->sum('qty'),
+                ];
+            });
+        return response()->json($transactions);
+    })->name('kasir.transaksi.recent');
+
+    // ── Laporan kasir ──
+    Route::get('/kasir/laporan/hari-ini',   [App\Http\Controllers\LaporanController::class, 'getLaporanHariIni'])->name('kasir.laporan.hari-ini');
+    Route::get('/kasir/laporan/export-pdf', [App\Http\Controllers\LaporanController::class, 'exportPDF'])        ->name('kasir.laporan.export-pdf');
+
 });
 
-
-/*
-|--------------------------------------------------------------------------
-| SHIFT KASIR API (TAMBAHAN)
-|--------------------------------------------------------------------------
-*/
-
-// Recent transactions untuk dashboard kasir
-Route::get('/kasir/transaksi/recent', function() {
-    $user = Auth::user();
-    $transactions = App\Models\Transaction::with('details')
-        ->where('kasir_id', $user->id)
-        ->whereDate('created_at', today())
-        ->orderBy('created_at', 'desc')
-        ->get()
-        ->map(function($trx) {
-            $totalItems = $trx->details->sum('qty');
-            
-            return [
-                'invoice_number' => $trx->invoice_number,
-                'grand_total' => $trx->grand_total,
-                'metode_pembayaran' => $trx->metode_pembayaran == 'cash' ? 'Tunai' : ($trx->metode_pembayaran == 'qris' ? 'QRIS' : 'Transfer'),
-                'time' => $trx->created_at->format('H:i'),
-                'total_items' => $totalItems
-            ];
-        });
-    return response()->json($transactions);
-})->middleware('auth')->name('kasir.transaksi.recent');
-
-// ========== SHIFT KASIR API ==========
-Route::middleware(['auth'])->group(function () {
-    Route::get('/kasir/shift/status', [KasirShiftController::class, 'cekStatus'])->name('kasir.shift.status');
-    Route::get('/kasir/shift/min-saldo', [KasirShiftController::class, 'getMinSaldo'])->name('kasir.shift.minSaldo');
-    Route::post('/kasir/shift/buka', [KasirShiftController::class, 'bukaShift'])->name('kasir.shift.buka');
-    Route::post('/kasir/shift/tutup', [KasirShiftController::class, 'tutupShift'])->name('kasir.shift.tutup');
-
-    Route::get('/shift/status', [App\Http\Controllers\ShiftController::class, 'cekStatusAbsensi'])->name('shift.status');
-    Route::get('/shift/full-history', [App\Http\Controllers\ShiftController::class, 'getFullHistory'])->name('shift.full-history');
-});
-
-
-/*
-|--------------------------------------------------------------------------
-| LAPORAN KASIR API
-|--------------------------------------------------------------------------
-*/
-Route::middleware(['auth'])->group(function () {
-    Route::get('/kasir/laporan/hari-ini', [App\Http\Controllers\LaporanController::class, 'getLaporanHariIni'])->name('kasir.laporan.hari-ini');
-});
-Route::get('/kasir/laporan/hari-ini', [App\Http\Controllers\LaporanController::class, 'getLaporanHariIni'])->name('kasir.laporan.hari-ini');
-Route::get('/kasir/laporan/export-pdf', [App\Http\Controllers\LaporanController::class, 'exportPDF'])->name('kasir.laporan.export-pdf');
 
 /*
 |--------------------------------------------------------------------------
@@ -333,28 +300,36 @@ Route::middleware(['auth'])->group(function () {
 
     Route::delete('/profile/photo', [ProfileController::class, 'deletePhoto'])
         ->name('profile.deletePhoto');
+
 });
 
 
 /*
 |--------------------------------------------------------------------------
-| SHIFT / ABSENSI (UPDATED)
+| SHIFT / ABSENSI
+| (1 definisi per route — tidak ada duplikat)
 |--------------------------------------------------------------------------
 */
 
 Route::middleware(['auth'])->group(function () {
 
+    // Absensi masuk/pulang (karyawan & kasir pakai method yang sama,
+    // controller bedakan berdasarkan $user->role)
     Route::post('/shift/handle', [ShiftController::class, 'handleAbsensi'])
         ->name('shift.handle');
 
+    // Cek status absensi hari ini
     Route::get('/shift/status', [ShiftController::class, 'cekStatus'])
         ->name('shift.status');
 
+    // Riwayat singkat (untuk widget di halaman absensi)
     Route::get('/shift/recent-history', [ShiftController::class, 'getRecentHistory'])
         ->name('shift.recent-history');
 
+    // Riwayat lengkap + stats (untuk halaman history)
     Route::get('/shift/full-history', [ShiftController::class, 'getFullHistory'])
         ->name('shift.full-history');
+
 });
 
 
@@ -364,18 +339,18 @@ Route::middleware(['auth'])->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::get('/server-time', function() {
+Route::get('/server-time', function () {
     return response()->json([
         'server_time' => now()->toIso8601String(),
-        'timezone' => config('app.timezone')
+        'timezone'    => config('app.timezone'),
     ]);
 })->name('server.time');
 
-Route::get('/test-time', function() {
+Route::get('/test-time', function () {
     return [
-        'server_time' => now()->format('Y-m-d H:i:s'),
-        'timezone' => config('app.timezone'),
-        'php_timezone' => date_default_timezone_get()
+        'server_time'    => now()->format('Y-m-d H:i:s'),
+        'timezone'       => config('app.timezone'),
+        'php_timezone'   => date_default_timezone_get(),
     ];
 });
 
@@ -385,18 +360,19 @@ Route::get('/test-time', function() {
 | PELANGGAN
 |--------------------------------------------------------------------------
 */
+
 Route::get('/api/products-all', [ProductController::class, 'getProductsJson'])
-->name('api.products.all');
+    ->name('api.products.all');
 
 Route::get('/katalog', [ProductController::class, 'katalog'])
-->name('katalog');
+    ->name('katalog');
 
 Route::get('/daftarproduk', function () {
     return view('pelanggan.daftarproduk');
 })->name('daftar-produk');
 
 Route::get('/detail-produk/{id}', [ProductController::class, 'detail'])
-->name('detail-produk');
+    ->name('detail-produk');
 
 
 /*
@@ -426,6 +402,7 @@ Route::middleware('auth')->group(function () {
 
     Route::delete('/profile', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
+
 });
 
 
