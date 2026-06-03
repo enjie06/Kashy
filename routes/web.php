@@ -207,6 +207,16 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/kasir/transaksi/session', [KasirTransactionController::class, 'saveTransactionSession'])
         ->name('kasir.transaksi.session');
+     // ── Shift Kas (buka/tutup) ──
+     Route::get('/kasir/shift/status',    [KasirShiftController::class, 'cekStatus'])->name('kasir.shift.status');
+     Route::get('/kasir/shift/min-saldo', [KasirShiftController::class, 'getMinSaldo'])->name('kasir.shift.minSaldo');
+     Route::post('/kasir/shift/buka',     [KasirShiftController::class, 'bukaShift'])->name('kasir.shift.buka');
+     Route::post('/kasir/shift/tutup',    [KasirShiftController::class, 'tutupShift'])->name('kasir.shift.tutup');
+
+    // ── Absensi / Shift Handle ──
+Route::post('/shift/handle', [App\Http\Controllers\ShiftController::class, 'handleAbsensi'])->name('shift.handle');
+Route::get('/shift/status', [App\Http\Controllers\ShiftController::class, 'cekStatusAbsensi'])->name('shift.status');
+Route::get('/shift/full-history', [App\Http\Controllers\ShiftController::class, 'getFullHistory'])->name('shift.full-history');
 
     // ── Shift Kas (buka/tutup) ──
     Route::get('/kasir/shift/status',    [KasirShiftController::class, 'cekStatus'])   ->name('kasir.shift.status');

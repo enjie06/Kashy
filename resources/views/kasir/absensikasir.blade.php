@@ -261,26 +261,6 @@
   </div>
 </main>
 
-<!-- Modal: Belum Buka Shift Kas -->
-<div id="needShiftOverlay" class="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-  <div id="needShiftDialog" class="w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden">
-    <div class="h-1 w-full bg-gradient-to-r from-terra via-terra-l via-terra-ll to-terra bg-[length:200%] animate-shimmer-slow"></div>
-    <div class="px-5 pt-5 pb-6 text-center">
-      <div class="w-12 h-12 rounded-xl bg-terra-xs flex items-center justify-center mx-auto mb-3">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C8966C" stroke-width="2">
-          <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
-          <path d="m9 16 2 2 4-4"/>
-        </svg>
-      </div>
-      <h3 class="font-poppins text-lg font-bold text-gray-900 mb-1">Buka Shift Terlebih Dahulu</h3>
-      <p class="text-xs text-muted">Kamu belum membuka shift kas hari ini. Buka shift di dashboard sebelum absen masuk.</p>
-      <div class="flex gap-3 mt-5">
-        <button onclick="closeNeedShiftModal()" class="flex-1 py-2.5 rounded-lg border border-border text-xs font-semibold text-muted hover:bg-stone-50 transition-colors">Nanti</button>
-        <button onclick="window.location.href='{{ route('dashboard-kasir') }}'" class="flex-1 py-2.5 rounded-lg text-white text-xs font-semibold transition-colors bg-terra hover:bg-terra-l">Buka Shift</button>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- Modal Konfirmasi Absen Pulang -->
 <div id="pulangOverlay" class="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
@@ -437,15 +417,6 @@ function updateUIByStatus() {
   absenType = 'masuk';
 }
 
-// ── Modal: Belum buka shift kas ──
-function openNeedShiftModal() {
-  document.getElementById('needShiftOverlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-function closeNeedShiftModal() {
-  document.getElementById('needShiftOverlay').classList.remove('open');
-  document.body.style.overflow = '';
-}
 
 // ── Modal pulang ──
 function openPulangModal() {
@@ -548,6 +519,7 @@ async function loadData() {
 async function completeScan() {
   try {
     const shift = selectedShift || getShiftFromStorage();
+    console.log('Sending data:', { action: absenType, shift_type: shift });
     const response = await fetch('{{ route("shift.handle") }}', {
       method: 'POST',
       headers: {
@@ -556,12 +528,14 @@ async function completeScan() {
       },
       body: JSON.stringify({ action: absenType, shift_type: shift })
     });
+     console.log('Response status:', response.status);
     const result = await response.json();
+    console.log('Response data:', result);
 
     // Kasir belum buka shift
     if (!result.success && result.need_open_shift) {
       resetScanner();
-      openNeedShiftModal();
+      // openNeedShiftModal();
       return;
     }
 
@@ -579,7 +553,7 @@ async function completeScan() {
         document.getElementById('todayMasuk').textContent  = waktu + ' WIB';
         showToast(result.message);
         localStorage.setItem('kasir_shift_updated', Date.now());
-        setTimeout(() => { window.location.href = '{{ route("dashboard-kasir") }}'; }, 1400);
+        setTimeout(() => { window.location.href = '{{ route("kasir.shiftkasir") }}'; }, 1400);
       } else if (absenType === 'pulang') {
         const waktu = result.check_out;
         document.getElementById('statusTitle').textContent = '✓ Absen pulang berhasil';
@@ -670,10 +644,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('pulangOverlay').addEventListener('click', function(e) {
     if (e.target === this) closePulangModal();
   });
-  document.getElementById('needShiftOverlay').addEventListener('click', function(e) {
-    if (e.target === this) closeNeedShiftModal();
-  });
-
+ 
   document.getElementById('fpBtn').addEventListener('click', () => {
     if (scanState !== 'idle') return;
 
