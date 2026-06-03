@@ -233,6 +233,9 @@ Route::middleware(['auth'])->group(function () {
             });
         return response()->json($transactions);
     })->name('kasir.transaksi.recent');
+    Route::get('/kasir/pusatbantuan', function () {
+    return view('kasir.pusatbantuankasir');
+})->name('kasir.pusatbantuan');
 
     // ── Laporan kasir ──
     Route::get('/kasir/laporan/hari-ini',   [App\Http\Controllers\LaporanController::class, 'getLaporanHariIni'])->name('kasir.laporan.hari-ini');
