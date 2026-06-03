@@ -285,15 +285,53 @@
     <div class="filter-group">
       <p>Rentang Tanggal</p>
       <div class="filter-chips-row" data-group="tanggal">
-        <button class="fchip selected" onclick="selectChip(this)">Hari Ini</button>
-        <button class="fchip" onclick="selectChip(this)">7 Hari</button>
-        <button class="fchip" onclick="selectChip(this)">Bulan Ini</button>
-        <button class="fchip" onclick="selectChip(this)">Custom</button>
+          <button class="fchip selected" onclick="selectChip(this)">Hari Ini</button>
+          <button class="fchip" onclick="selectChip(this)">7 Hari</button>
+          <button class="fchip" onclick="selectChip(this)">Bulan Ini</button>
+          <button class="fchip" onclick="selectChip(this); showCustomDate()">Custom</button>
       </div>
-    </div>
+      <div id="customDateBox" class="hidden mt-3">
+          <div class="grid grid-cols-2 gap-3">
+              <div>
+                  <label class="text-xs text-gray-500">Dari</label>
+                  <input
+                      type="date"
+                      id="startDate"
+                      class="w-full mt-1 px-3 py-2 border border-[#EAE0D6] rounded-xl">
+              </div>
+              <div>
+                  <label class="text-xs text-gray-500">Sampai</label>
+                  <input
+                      type="date"
+                      id="endDate"
+                      class="w-full mt-1 px-3 py-2 border border-[#EAE0D6] rounded-xl" >
+              </div>
+          </div>
+      </div>
     <div class="filter-modal-footer">
       <button class="apply-btn" onclick="applyFilter()">Terapkan Filter</button>
     </div>
+    <div id="customDateBox" class="hidden mt-3">
+    <div class="grid grid-cols-2 gap-3">
+        <div>
+            <label class="text-xs text-gray-500">Dari</label>
+            <input
+                type="date"
+                id="startDate"
+                class="w-full mt-1 px-3 py-2 border border-[#EAE0D6] rounded-xl"
+            >
+        </div>
+
+        <div>
+            <label class="text-xs text-gray-500">Sampai</label>
+            <input
+                type="date"
+                id="endDate"
+                class="w-full mt-1 px-3 py-2 border border-[#EAE0D6] rounded-xl"
+            >
+        </div>
+    </div>
+</div>
   </div>
 </div>
 
@@ -322,6 +360,19 @@
 
     if (metode !== 'semua') {
       params.set('metode', metode);
+    }
+
+    if (tanggal === 'custom') {
+      const startDate = document.getElementById('startDate')?.value;
+      const endDate = document.getElementById('endDate')?.value;
+
+      if (startDate) {
+        params.set('start_date', startDate);
+      }
+
+      if (endDate) {
+        params.set('end_date', endDate);
+      }
     }
 
     window.location.href = currentUrl + '?' + params.toString();
@@ -355,6 +406,10 @@
 
     setSelectedChip('tanggal', selectedTanggal);
     setSelectedChip('metode', selectedMetode);
+  }
+
+  function showCustomDate() {
+    document.getElementById('customDateBox').classList.remove('hidden');
   }
 
   function closeFilterOutside(e) {
@@ -400,6 +455,8 @@
       tanggal = 'minggu';
     } else if (tanggalText === 'bulan ini') {
       tanggal = 'bulan';
+    } else if (tanggalText === 'custom') {
+      tanggal = 'custom';
     } else {
       tanggal = 'hariini';
     }

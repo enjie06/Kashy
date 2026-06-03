@@ -26,13 +26,27 @@ class KasirRiwayatController extends Controller
         // Filter tanggal
         $tanggal = $request->tanggal ?? 'hariini';
 
-        if ($tanggal === 'hariini') {
-            $query->whereDate('created_at', now()->toDateString());
+       if ($tanggal === 'hariini') {
+        $query->whereDate('created_at', now()->toDateString());
+
         } elseif ($tanggal === 'minggu') {
             $query->whereDate('created_at', '>=', now()->subDays(7)->toDateString());
+
         } elseif ($tanggal === 'bulan') {
             $query->whereMonth('created_at', now()->month)
-                  ->whereYear('created_at', now()->year);
+                ->whereYear('created_at', now()->year);
+
+        } elseif ($tanggal === 'custom') {
+            if ($request->filled('start_date') && $request->filled('end_date')) {
+                $query->whereBetween('created_at', [
+                    $request->start_date . ' 00:00:00',
+                    $request->end_date . ' 23:59:59',
+                ]);
+            } elseif ($request->filled('start_date')) {
+                $query->whereDate('created_at', '>=', $request->start_date);
+            } elseif ($request->filled('end_date')) {
+                $query->whereDate('created_at', '<=', $request->end_date);
+            }
         }
 
         // Filter metode pembayaran

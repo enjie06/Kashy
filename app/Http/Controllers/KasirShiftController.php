@@ -15,39 +15,39 @@ class KasirShiftController extends Controller
     public function cekStatus()
     {
         $user = Auth::user();
-        
+
         $shiftAktif = Shift::where('kasir_id', $user->id)
-                           ->where('status', 'open')
-                           ->first();
-        
+            ->where('status', 'open')
+            ->first();
+
         if (!$shiftAktif) {
             return response()->json([
                 'shift_active' => false,
                 'shift' => null
             ]);
         }
-        
-        // Hitung total penjualan hari ini
-        $totalPenjualan = Transaction::where('kasir_id', $user->id)
-                                     ->whereDate('created_at', today())
-                                     ->sum('grand_total');
-        
-        // Hitung penjualan per metode
-        $penjualanTunai = Transaction::where('kasir_id', $user->id)
-                                     ->whereDate('created_at', today())
-                                     ->where('metode_pembayaran', 'cash')
-                                     ->sum('grand_total');
-        
-        $penjualanQris = Transaction::where('kasir_id', $user->id)
-                                    ->whereDate('created_at', today())
-                                    ->where('metode_pembayaran', 'qris')
-                                    ->sum('grand_total');
-        
-        $penjualanDebit = Transaction::where('kasir_id', $user->id)
-                                     ->whereDate('created_at', today())
-                                     ->where('metode_pembayaran', 'transfer')
-                                     ->sum('grand_total');
-        
+
+        $transactions = Transaction::where('kasir_id', $user->id)
+            ->whereBetween('created_at', [
+                $shiftAktif->waktu_buka,
+                now()
+            ])
+            ->get();
+
+        $totalPenjualan = $transactions->sum('grand_total');
+
+        $penjualanTunai = $transactions
+            ->whereIn('metode_pembayaran', ['tunai', 'cash'])
+            ->sum('grand_total');
+
+        $penjualanQris = $transactions
+            ->where('metode_pembayaran', 'qris')
+            ->sum('grand_total');
+
+        $penjualanDebit = $transactions
+            ->where('metode_pembayaran', 'debit')
+            ->sum('grand_total');
+
         return response()->json([
             'shift_active' => true,
             'shift' => [
@@ -138,21 +138,22 @@ class KasirShiftController extends Controller
         }
         
         // Hitung total penjualan
-        $totalPenjualan = Transaction::where('kasir_id', $user->id)
-                                     ->whereDate('created_at', today())
-                                     ->sum('grand_total');
-        
-        // Hitung penjualan tunai
-        $penjualanTunai = Transaction::where('kasir_id', $user->id)
-                                     ->whereDate('created_at', today())
-                                     ->where('metode_pembayaran', 'cash')
-                                     ->sum('grand_total');
-        
-        // Hitung penjualan non-tunai
-        $penjualanNonTunai = Transaction::where('kasir_id', $user->id)
-                                        ->whereDate('created_at', today())
-                                        ->whereIn('metode_pembayaran', ['qris', 'transfer'])
-                                        ->sum('grand_total');
+        $transactions = Transaction::where('kasir_id', $user->id)
+    ->whereBetween('created_at', [
+        $shift->waktu_buka,
+        now()
+    ])
+    ->get();
+
+        $totalPenjualan = $transactions->sum('grand_total');
+
+        $penjualanTunai = $transactions
+            ->whereIn('metode_pembayaran', ['tunai', 'cash'])
+            ->sum('grand_total');
+
+        $penjualanNonTunai = $transactions
+            ->whereIn('metode_pembayaran', ['qris', 'debit'])
+            ->sum('grand_total');
         
         $ekspektasiTunai = $shift->saldo_awal + $penjualanTunai;
         $selisih = $request->uang_tunai_aktual - $ekspektasiTunai;

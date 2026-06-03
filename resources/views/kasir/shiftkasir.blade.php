@@ -138,7 +138,7 @@
               </svg>
             </div>
             <div>
-              <p class="font-semibold text-gray-800">Cash</p>
+              <p class="font-semibold text-gray-800">Tunai</p>
               <p class="text-xs text-muted">Tunai</p>
             </div>
           </div>
