@@ -20,7 +20,8 @@ return new class extends Migration
         $table->integer('grand_total');
         $table->integer('bayar');
         $table->integer('kembalian')->default(0);
-        $table->enum('metode_pembayaran', ['cash', 'qris', 'transfer']);
+        // $table->enum('metode_pembayaran', ['cash', 'qris', 'transfer']);
+        $table->enum('metode_pembayaran', ['tunai', 'qris', 'transfer']);
         $table->timestamps();
     });
 }

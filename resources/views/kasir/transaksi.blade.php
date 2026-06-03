@@ -521,27 +521,30 @@
     renderCart();
     showToast('Item dihapus dari keranjang');
   }
+
   function calculateTotal() {
-    let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-    let discountAmount = subtotal * (currentDiscountPercent / 100);
-    let afterDiscount = subtotal - discountAmount;
-    const total = afterDiscount * 1.11; // pajak 11%
-    
-    document.getElementById('subtotal').textContent = formatRupiah(subtotal);
-    document.getElementById('total').textContent = formatRupiah(Math.round(total));
-    
-    const discountRow = document.getElementById('discountRow');
-    const discountPercentLabel = document.getElementById('discountPercentLabel');
-    const discountAmountSpan = document.getElementById('discountAmount');
-    
-    if (currentDiscountPercent > 0) {
-      discountRow.classList.remove('hidden');
-      discountPercentLabel.textContent = `(${currentDiscountPercent}%)`;
-      discountAmountSpan.textContent = formatRupiah(Math.round(discountAmount));
-    } else {
-      discountRow.classList.add('hidden');
-    }
+      let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+      let discountAmount = subtotal * (currentDiscountPercent / 100);
+
+      let total = subtotal - discountAmount;
+
+      document.getElementById('subtotal').textContent = formatRupiah(subtotal);
+      document.getElementById('total').textContent = formatRupiah(Math.round(total));
+
+      const discountRow = document.getElementById('discountRow');
+      const discountPercentLabel = document.getElementById('discountPercentLabel');
+      const discountAmountSpan = document.getElementById('discountAmount');
+
+      if (currentDiscountPercent > 0) {
+          discountRow.classList.remove('hidden');
+          discountPercentLabel.textContent = `(${currentDiscountPercent}%)`;
+          discountAmountSpan.textContent = formatRupiah(Math.round(discountAmount));
+      } else {
+          discountRow.classList.add('hidden');
+      }
   }
+
   function addProductToCart(product) {
     const existing = cart.find(item => item.name === product.name);
     if (existing) existing.qty += 1;
@@ -638,8 +641,7 @@
 
     let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
     let discountAmount = subtotal * (currentDiscountPercent / 100);
-    let afterDiscount = subtotal - discountAmount;
-    let total = Math.round(afterDiscount * 1.11);
+    let total = Math.round(subtotal - discountAmount);
 
     fetch("{{ route('kasir.transaksi.session') }}", {
       method: "POST",
