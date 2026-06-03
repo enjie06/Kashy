@@ -138,11 +138,30 @@
 <body class="bg-bg min-h-screen flex flex-col">
 
 <!-- TOPBAR -->
-<nav class="sticky top-0 z-50 bg-gray-900 flex items-center justify-center px-5 shadow-md h-12">
-  <div class="absolute left-1/2 -translate-x-1/2">
-    <span class="font-bold text-white text-lg tracking-wider">Kashy</span>
-  </div>
-</nav>
+<header class="sticky top-0 z-50 bg-gray-900 shadow-sm h-12 px-4 flex items-center justify-between">
+    <div class="w-6"></div>
+    <div class="absolute left-1/2 -translate-x-1/2">
+        <span class="font-bold text-white text-lg tracking-wider">
+            Kashy
+        </span>
+    </div>
+    <a href="{{ route('kasir.profil') }}"
+       class="flex items-center gap-2 hover:opacity-80 transition">
+
+        <span class="text-white text-xs font-medium max-w-[90px] truncate">
+            {{ Auth::user()->name }}
+        </span>
+        @if (Auth::user()->profile_photo)
+            <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}"
+                 alt="Foto Profil"
+                 class="w-7 h-7 rounded-full object-cover border border-white/30">
+        @else
+            <div class="w-7 h-7 rounded-full bg-[#C8966C] flex items-center justify-center text-white font-semibold text-xs">
+                {{ strtoupper(substr(Auth::user()->name ?? 'K', 0, 1)) }}
+            </div>
+        @endif
+    </a>
+</header>
 
 <main class="flex-1 overflow-y-auto hide-scroll pb-28">
   <div class="max-w-md mx-auto px-4 pt-5 space-y-5">
