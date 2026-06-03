@@ -204,6 +204,9 @@ Route::get('/kasir/transaksi', [KasirTransactionController::class, 'create'])
     ->middleware('auth')
     ->name('kasir.transaksi');
 
+    Route::get('/shift/status', [App\Http\Controllers\ShiftController::class, 'cekStatus'])->name('shift.status');
+    Route::get('/shift/full-history', [App\Http\Controllers\ShiftController::class, 'getFullHistory'])->name('shift.full-history');
+
 Route::get('/kasir/pembayaran', [KasirTransactionController::class, 'pembayaran'])
     ->middleware('auth')
     ->name('kasir.pembayaran');
