@@ -156,14 +156,21 @@
           <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
       </span>
-      <input type="text" id="searchInput" class="search-input" placeholder="Cari transaksi..." oninput="filterCards()">
+        <input 
+        type="text" 
+        id="searchInput" 
+        class="search-input" 
+        placeholder="Cari invoice / nama pelanggan..."
+        value="{{ request('search') }}">
     </div>
 
     <!-- Quick filter -->
     <div class="flex gap-2 overflow-x-auto scrollbar-hide fade-up delay-2">
-      <button class="qf-btn active" onclick="setQuickFilter('hariini', this)">Hari Ini</button>
-      <button class="qf-btn" onclick="setQuickFilter('minggu', this)">7 Hari</button>
-      <button class="qf-btn" onclick="setQuickFilter('bulan', this)">Bulan Ini</button>
+      <button class="qf-btn {{ request('tanggal', 'hariini') == 'hariini' ? 'active' : '' }}" onclick="setQuickFilter('hariini')">Hari Ini</button>
+
+      <button class="qf-btn {{ request('tanggal') == 'minggu' ? 'active' : '' }}" onclick="setQuickFilter('minggu')">7 Hari</button>
+
+      <button class="qf-btn {{ request('tanggal') == 'bulan' ? 'active' : '' }}" onclick="setQuickFilter('bulan')">Bulan Ini</button>
       <button class="qf-btn" onclick="openFilter()">
         <span style="display:flex;align-items:center;gap:6px;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -272,7 +279,7 @@
         <button class="fchip selected" onclick="selectChip(this)">Semua</button>
         <button class="fchip" onclick="selectChip(this)">Tunai</button>
         <button class="fchip" onclick="selectChip(this)">QRIS</button>
-        <button class="fchip" onclick="selectChip(this)">Transfer</button>
+        <button class="fchip" onclick="selectChip(this)">Debit</button>
       </div>
     </div>
     <div class="filter-group">
@@ -291,39 +298,133 @@
 </div>
 
 <script>
-  function toggleDetail(header) { header.nextElementSibling.classList.toggle('open'); }
+  function toggleDetail(header) {
+    header.nextElementSibling.classList.toggle('open');
+  }
 
-  function filterCards() {
-    const q = document.getElementById('searchInput').value.toLowerCase();
-    document.querySelectorAll('.trx-card').forEach(card => {
-      const id   = (card.dataset.id || '').toLowerCase();
-      const name = card.querySelector('.trx-name')?.textContent.toLowerCase() || '';
-      card.style.display = (!q || id.includes(q) || name.includes(q)) ? '' : 'none';
-    });
-    document.querySelectorAll('.trx-group').forEach(group => {
-      const hasVisible = [...group.querySelectorAll('.trx-card')].some(c => c.style.display !== 'none');
-      group.style.display = hasVisible ? '' : 'none';
+  const currentUrl = "{{ url()->current() }}";
+  let selectedTanggal = "{{ request('tanggal', 'hariini') }}";
+  let selectedMetode = "{{ request('metode', 'semua') }}";
+
+  function goFilter(paramsObj = {}) {
+    const params = new URLSearchParams();
+
+    const search = document.getElementById('searchInput').value.trim();
+
+    if (search) {
+      params.set('search', search);
+    }
+
+    const tanggal = paramsObj.tanggal || selectedTanggal || 'hariini';
+    params.set('tanggal', tanggal);
+
+    const metode = paramsObj.metode || selectedMetode || 'semua';
+
+    if (metode !== 'semua') {
+      params.set('metode', metode);
+    }
+
+    window.location.href = currentUrl + '?' + params.toString();
+  }
+
+  function setQuickFilter(key) {
+    selectedTanggal = key;
+    goFilter({
+      tanggal: key
     });
   }
 
-  function setQuickFilter(key, btn) {
-    document.querySelectorAll('.qf-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+  let searchTimer;
+  document.getElementById('searchInput').addEventListener('input', function () {
+    clearTimeout(searchTimer);
+
+    searchTimer = setTimeout(() => {
+      goFilter();
+    }, 600);
+  });
+
+  document.getElementById('searchInput').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      clearTimeout(searchTimer);
+      goFilter();
+    }
+  });
+
+  function openFilter() {
+    document.getElementById('filterOverlay').classList.add('show');
+
+    setSelectedChip('tanggal', selectedTanggal);
+    setSelectedChip('metode', selectedMetode);
   }
 
-  function openFilter()  { document.getElementById('filterOverlay').classList.add('show'); }
-  function applyFilter() { document.getElementById('filterOverlay').classList.remove('show'); }
-  function closeFilterOutside(e) { document.getElementById('filterOverlay').classList.remove('show'); }
+  function closeFilterOutside(e) {
+    document.getElementById('filterOverlay').classList.remove('show');
+  }
 
   function selectChip(el) {
     el.parentElement.querySelectorAll('.fchip').forEach(c => c.classList.remove('selected'));
     el.classList.add('selected');
   }
 
-  function resetFilter() {
-    document.querySelectorAll('[data-group]').forEach(group => {
-      group.querySelectorAll('.fchip').forEach((c, i) => c.classList.toggle('selected', i === 0));
+  function setSelectedChip(group, value) {
+    const chips = document.querySelectorAll(`[data-group="${group}"] .fchip`);
+
+    chips.forEach(chip => {
+      const text = chip.textContent.trim().toLowerCase();
+
+      chip.classList.remove('selected');
+
+      if (group === 'tanggal') {
+        if (value === 'hariini' && text === 'hari ini') chip.classList.add('selected');
+        if (value === 'minggu' && text === '7 hari') chip.classList.add('selected');
+        if (value === 'bulan' && text === 'bulan ini') chip.classList.add('selected');
+      }
+
+      if (group === 'metode') {
+        if (value === 'semua' && text === 'semua') chip.classList.add('selected');
+        if (value === 'tunai' && text === 'tunai') chip.classList.add('selected');
+        if (value === 'qris' && text === 'qris') chip.classList.add('selected');
+        if (value === 'debit' && text === 'debit') chip.classList.add('selected');
+      }
     });
+  }
+
+  function applyFilter() {
+    const tanggalText = document.querySelector('[data-group="tanggal"] .fchip.selected')?.textContent.trim().toLowerCase();
+    const metodeText = document.querySelector('[data-group="metode"] .fchip.selected')?.textContent.trim().toLowerCase();
+
+    let tanggal = 'hariini';
+    let metode = 'semua';
+
+    if (tanggalText === '7 hari') {
+      tanggal = 'minggu';
+    } else if (tanggalText === 'bulan ini') {
+      tanggal = 'bulan';
+    } else {
+      tanggal = 'hariini';
+    }
+
+    if (metodeText === 'tunai') {
+      metode = 'tunai';
+    } else if (metodeText === 'qris') {
+      metode = 'qris';
+    } else if (metodeText === 'debit') {
+      metode = 'debit';
+    } else {
+      metode = 'semua';
+    }
+
+    selectedTanggal = tanggal;
+    selectedMetode = metode;
+
+    goFilter({
+      tanggal: tanggal,
+      metode: metode
+    });
+  }
+
+  function resetFilter() {
+    window.location.href = currentUrl + '?tanggal=hariini';
   }
 
   function cetakStruk(id) {
