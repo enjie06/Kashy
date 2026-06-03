@@ -46,7 +46,6 @@
       <path d="M19 12H5M12 5l-7 7 7 7"/>
     </svg>
   </button>
-  <span class="font-bold text-white text-lg tracking-wide">Riwayat Absensi</span>
 </nav>
 
 <main class="flex-1 overflow-y-auto pb-10">
