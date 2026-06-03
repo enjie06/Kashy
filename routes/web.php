@@ -12,6 +12,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\StockOpnameController;
 use App\Http\Controllers\OwnerSettingController;
 use App\Http\Controllers\OwnerLaporanController;
+use App\Http\Controllers\KasirRiwayatController;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Auth;
 
@@ -178,16 +179,8 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/kasir/profil/password', [ProfileController::class, 'updatePassword'])
         ->name('kasir.password.update');
 
-    Route::get('/kasir/riwayattransaksi', function () {
-        $transactions = Transaction::with('details')
-            ->where('kasir_id', Auth::id())
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->groupBy(function ($transaction) {
-                return $transaction->created_at->translatedFormat('d F Y');
-            });
-        return view('kasir.riwayattransaksi', compact('transactions'));
-    })->name('kasir.riwayattransaksi');
+    Route::get('/kasir/riwayattransaksi', [KasirRiwayatController::class, 'index'])
+    ->name('kasir.riwayattransaksi');
 
     Route::get('/kasir/laporantransaksi', function () {
         return view('kasir.laporantransaksi');
