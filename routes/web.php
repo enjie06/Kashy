@@ -37,7 +37,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get("/owner/dashboard", [DashboardController::class, "index"])
         ->name("owner.dashboard");
 
-    Route::view('/owner/manajemendiskon', 'owner.manajemendiskon')
+    Route::get('/owner/manajemendiskon', [DiscountController::class, 'index'])
         ->middleware('auth')
         ->name('manajemen.diskon');
 
@@ -65,7 +65,7 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('auth')
         ->name('manajemen.staff');
 
-    Route::view('/owner/manajemenproduk', 'owner.manajemenproduk')
+    Route::get('/owner/manajemenproduk', [ProductController::class, 'ownerIndex'])
         ->middleware('auth')
         ->name('manajemen.produk');
 
@@ -381,18 +381,18 @@ Route::get('/test-time', function() {
 | PELANGGAN
 |--------------------------------------------------------------------------
 */
+Route::get('/api/products-all', [ProductController::class, 'getProductsJson'])
+->name('api.products.all');
 
-Route::get('/katalog', function () {
-    return view('pelanggan.katalog');
-})->name('katalog');
+Route::get('/katalog', [ProductController::class, 'katalog'])
+->name('katalog');
 
 Route::get('/daftarproduk', function () {
     return view('pelanggan.daftarproduk');
 })->name('daftar-produk');
 
-Route::get('/detail-produk/{id}', function ($id) {
-    return view('pelanggan.detailproduk', ['id' => $id]);
-})->name('detail-produk');
+Route::get('/detail-produk/{id}', [ProductController::class, 'detail'])
+->name('detail-produk');
 
 
 /*

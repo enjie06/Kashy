@@ -41,7 +41,7 @@
   .cat-btn.active .cat-label { color: #C8966C; font-weight: 600; }
 
   /* Hamburger dropdown */
-  #hamburger-menu {
+    #hamburger-menu {
     display: none;
     position: absolute;
     top: calc(100% + 8px);
@@ -64,6 +64,20 @@
   .hb-item:last-child { border-bottom: none; }
   .hb-item:hover { background: rgba(200,150,108,0.15); color: #C8966C; }
   .hb-item.active { color: #C8966C; font-weight: 600; }
+
+  /* Dropdown kategori */
+  #categoryDropdown {
+    transition: all 0.2s ease;
+  }
+  #categoryDropdown.show {
+    display: block;
+    animation: fadeUp 0.2s ease;
+  }
+  .dropdown-item.active {
+    background-color: #FAF2EC;
+    color: #C8966C;
+    font-weight: 600;
+  }
 </style>
 </head>
 <body class="bg-bg min-h-screen flex flex-col">
@@ -81,7 +95,6 @@
   <!-- Tengah -->
   <div class="absolute left-1/2 -translate-x-1/2 text-center">
     <span class="font-sans text-xl font-bold text-white tracking-normal">SND STORE</span>
-
   </div>
 
   <!-- Kanan: hamburger -->
@@ -119,6 +132,49 @@
     <span class="inline-block bg-terra text-white text-xs font-bold tracking-wider px-3 py-1 rounded-full mb-2 w-fit uppercase">New Arrival!!</span>
     <div class="text-xl font-semibold text-white mb-1">Promo koleksi kemeja terbaru</div>
     <div class="text-sm text-white/70">Buruan dibeli sebelum habis!!!</div>
+  </div>
+</div>
+
+<!-- ════ FILTER KATEGORI & SEARCH ════ -->
+<div class="flex items-center justify-between gap-3 px-4 mt-2 mb-4">
+  <!-- Search Bar -->
+  <div class="flex-1 relative">
+    <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/>
+      <path d="m21 21-4.35-4.35"/>
+    </svg>
+    <input type="text" id="searchInput" placeholder="Cari produk..." 
+      class="w-full pl-9 pr-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-terra">
+  </div>
+
+  <!-- Filter Kategori Dropdown -->
+  <div class="relative">
+    <button id="filterBtn" onclick="toggleCategoryDropdown()" 
+      class="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:border-terra transition">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="4" y1="6" x2="20" y2="6"/>
+        <line x1="8" y1="12" x2="16" y2="12"/>
+        <line x1="10" y1="18" x2="14" y2="18"/>
+      </svg>
+      <span id="selectedCategoryText">Semua Kategori</span>
+      <svg class="transition-transform duration-200" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </button>
+
+    <!-- Dropdown Kategori (data dari database) -->
+    <div id="categoryDropdown" class="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-30 hidden">
+      <div class="py-2">
+        <button onclick="filterByCategory('all', 'Semua Kategori')" class="dropdown-item w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-terra-xs transition" data-cat="all">
+          Semua Kategori
+        </button>
+        @foreach($categories as $category)
+        <button onclick="filterByCategory({{ $category->id }}, '{{ $category->nama_kategori }}')" class="dropdown-item w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-terra-xs transition" data-cat="{{ $category->id }}">
+          {{ $category->nama_kategori }}
+        </button>
+        @endforeach
+      </div>
+    </div>
   </div>
 </div>
 
@@ -217,88 +273,217 @@
 // ── Hamburger toggle ──
 function toggleMenu() {
   const menu = document.getElementById('hamburger-menu');
-  menu.classList.toggle('open');
+  if (menu) {
+    menu.classList.toggle('open');
+  }
 }
+
 document.addEventListener('click', function(e) {
-  const btn  = document.getElementById('hamburger-btn');
+  const btn = document.getElementById('hamburger-btn');
   const menu = document.getElementById('hamburger-menu');
-  if (!btn.contains(e.target) && !menu.contains(e.target)) {
+  if (btn && menu && !btn.contains(e.target) && !menu.contains(e.target)) {
     menu.classList.remove('open');
   }
 });
 
-// ── Products ──
-const PRODUCTS = [
-  { id:1,  name:'Kulot Modis',      cat:'celana',   price:'Rp 76.000',  old:'',           badge:'new',     bg:'linear-gradient(135deg,#e8ddd4,#d4c5b4)' },
-  { id:2,  name:'Kemeja Cokelat',   cat:'kemeja',   price:'Rp 52.000',  old:'',           badge:'',        bg:'linear-gradient(135deg,#d4c9bc,#c4b8a8)' },
-  { id:3,  name:'Rok Putih Layer',  cat:'rok',      price:'Rp 70.000',  old:'',           badge:'new',     bg:'linear-gradient(135deg,#ede0d4,#ddd0c4)' },
-  { id:4,  name:'Cardigan Rajut',   cat:'cardigan', price:'Rp 47.000',  old:'',           badge:'',        bg:'linear-gradient(135deg,#e0d4c9,#d0c4b9)' },
-  { id:5,  name:'Kemeja Flannel',   cat:'kemeja',   price:'Rp 85.000',  old:'',           badge:'branded', bg:'linear-gradient(135deg,#d9cfc4,#c9bfb4)' },
-  { id:6,  name:'Celana Cargo',     cat:'celana',   price:'Rp 120.000', old:'',           badge:'branded', bg:'linear-gradient(135deg,#cfc4b9,#bfb4a9)' },
-  { id:7,  name:'Jaket Denim',      cat:'jaket',    price:'Rp 150.000', old:'',           badge:'',        bg:'linear-gradient(135deg,#c9cfe0,#b9c2d4)' },
-  { id:8,  name:'Rok Mini Plaid',   cat:'rok',      price:'Rp 95.000',  old:'Rp 120.000', badge:'sale',    bg:'linear-gradient(135deg,#e0c9c9,#d0b9b9)' },
-  { id:9,  name:'Kaos Cream Pita',  cat:'kemeja',   price:'Rp 27.000',  old:'Rp 37.000',  badge:'sale',    bg:'linear-gradient(135deg,#ede0d4,#d9c5b0)' },
-  { id:10, name:'Cardigan Krem Rajut', cat:'cardigan', price:'Rp 42.000', old:'Rp 70.000', badge:'sale',   bg:'linear-gradient(135deg,#e0d4c9,#ccbfb0)' },
+// ── Filter Kategori Dropdown ──
+function toggleCategoryDropdown() {
+  const dropdown = document.getElementById('categoryDropdown');
+  if (dropdown) {
+    dropdown.classList.toggle('show');
+  }
+}
+
+function closeCategoryDropdown() {
+  const dropdown = document.getElementById('categoryDropdown');
+  if (dropdown) {
+    dropdown.classList.remove('show');
+  }
+}
+
+document.addEventListener('click', function(e) {
+  const filterBtn = document.getElementById('filterBtn');
+  const dropdown = document.getElementById('categoryDropdown');
+  if (filterBtn && dropdown && !filterBtn.contains(e.target) && !dropdown.contains(e.target)) {
+    dropdown.classList.remove('show');
+  }
+});
+
+function filterByCategory(categoryId, categoryName) {
+  currentCategory = categoryId;
+  const selectedText = document.getElementById('selectedCategoryText');
+  if (selectedText) {
+    selectedText.textContent = categoryName;
+  }
+  closeCategoryDropdown();
+  render();
+  renderDiskon();
+}
+
+// ── Fungsi Search ──
+function setupSearch() {
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      currentSearch = e.target.value;
+      render();
+      renderDiskon();
+    });
+  }
+}
+
+// ── Escape HTML untuk keamanan ──
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>]/g, function(m) {
+    if (m === '&') return '&amp;';
+    if (m === '<') return '&lt;';
+    if (m === '>') return '&gt;';
+    return m;
+  });
+}
+
+// ========== DATA PRODUK & KATEGORI DARI DATABASE ==========
+const productsFromDB = @json($products);
+const categoriesFromDB = @json($categories);
+
+// Mapping icon berdasarkan kategori
+const CAT_ICONS = {
+  'Pakaian': '<path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/>',
+  'Aksesoris': '<path d="M4 4h16v2H4V4zm2 4h12v2H6V8zm0 4h8v2H6v-2z"/>',
+  'Sepatu': '<path d="M6 2h12v4l-3 16H9L6 6V2z"/><path d="M6 6h12M12 6v4"/>',
+  'Tas': '<rect x="7" y="2" width="10" height="4" rx="1"/><path d="M7 6 4 20h16L17 6"/>',
+  'Jaket': '<path d="M3 7 7 3h2.5L12 6l2.5-3H17l4 4-2.5 2L17 7v13a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V7L4.5 9 3 7z"/><path d="M12 6v14"/>',
+  'Kemeja': '<path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/>',
+  'Cardigan': '<path d="M3 6.5 7.5 3h3L12 5l1.5-2h3L21 6.5l-3 2.5v11a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V9L3 6.5z"/><path d="M12 5v15"/>',
+  'Rok': '<rect x="7" y="2" width="10" height="4" rx="1"/><path d="M7 6 4 20h16L17 6"/>',
+  'Celana': '<path d="M6 2h12v4l-3 16H9L6 6V2z"/><path d="M6 6h12M12 6v4"/>',
+  'default': '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>'
+};
+
+// Warna background untuk card
+const BG_COLORS = [
+  'linear-gradient(135deg,#e8ddd4,#d4c5b4)',
+  'linear-gradient(135deg,#d4c9bc,#c4b8a8)',
+  'linear-gradient(135deg,#ede0d4,#ddd0c4)',
+  'linear-gradient(135deg,#e0d4c9,#d0c4b9)',
+  'linear-gradient(135deg,#d9cfc4,#c9bfb4)',
+  'linear-gradient(135deg,#cfc4b9,#bfb4a9)',
+  'linear-gradient(135deg,#c9cfe0,#b9c2d4)',
+  'linear-gradient(135deg,#e0c9c9,#d0b9b9)'
 ];
 
-const ICONS = {
-  kemeja:   `<path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/>`,
-  celana:   `<path d="M6 2h12v4l-3 16H9L6 6V2z"/><path d="M6 6h12M12 6v4"/>`,
-  rok:      `<rect x="7" y="2" width="10" height="4" rx="1"/><path d="M7 6 4 20h16L17 6"/>`,
-  cardigan: `<path d="M3 6.5 7.5 3h3L12 5l1.5-2h3L21 6.5l-3 2.5v11a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V9L3 6.5z"/><path d="M12 5v15"/>`,
-  jaket:    `<path d="M3 7 7 3h2.5L12 6l2.5-3H17l4 4-2.5 2L17 7v13a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V7L4.5 9 3 7z"/><path d="M12 6v14"/>`,
-};
-const BADGE_LABELS  = { new:'New', branded:'Branded', sale:'Sale' };
-const BADGE_CLASSES = { new:'bg-gray-900 text-white', branded:'bg-terra text-white', sale:'bg-red-500 text-white' };
+// ── Variabel filter ──
+let currentCategory = 'all';
+let currentSearch = '';
 
+// ── Render produk (dengan filter) ──
 function render() {
   const grid = document.getElementById('productGrid');
-  grid.innerHTML = PRODUCTS.map((p, i) => {
-    const icon = ICONS[p.cat] || '';
-    const badge = p.badge ? `<span class="absolute top-2 right-2 z-20 text-[10px] font-bold px-2 py-0.5 rounded-full ${BADGE_CLASSES[p.badge]}">${BADGE_LABELS[p.badge]}</span>` : '';
+  if (!grid) return;
+  
+  let filteredProducts = [...productsFromDB];
+  
+  // Filter by category
+  if (currentCategory !== 'all') {
+    filteredProducts = filteredProducts.filter(p => p.category_id === currentCategory);
+  }
+  
+  // Filter by search
+  if (currentSearch.trim() !== '') {
+    const searchLower = currentSearch.toLowerCase();
+    filteredProducts = filteredProducts.filter(p => 
+      (p.nama_produk && p.nama_produk.toLowerCase().includes(searchLower)) ||
+      (p.brand && p.brand.toLowerCase().includes(searchLower))
+    );
+  }
+  
+  if (filteredProducts.length === 0) {
+    grid.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500">Tidak ada produk yang sesuai.</div>';
+    return;
+  }
+  
+  grid.innerHTML = filteredProducts.map((p, i) => {
+    const catName = p.category?.nama_kategori || 'default';
+    const icon = CAT_ICONS[catName] || CAT_ICONS['default'];
+    const formattedPrice = 'Rp ' + new Intl.NumberFormat('id-ID').format(p.harga);
+    const bgColor = BG_COLORS[i % BG_COLORS.length];
+    
+    let badge = '';
+    if (p.stok <= 0) {
+      badge = '<span class="absolute top-2 right-2 z-20 text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500 text-white">Habis</span>';
+    } else if (p.is_discount) {
+      badge = '<span class="absolute top-2 right-2 z-20 text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500 text-white">Sale</span>';
+    }
+    
     return `
-    <div class="relative bg-white rounded-2xl overflow-hidden shadow-sm cursor-pointer border-2 border-transparent transition-all duration-200 hover:-translate-y-1 hover:shadow-md hover:border-terra-l" style="animation:fadeUp .35s ease ${i*.05}s both" onclick="window.location.href='/detail-produk/${p.id}'">
+    <div class="relative bg-white rounded-2xl overflow-hidden shadow-sm cursor-pointer border-2 border-transparent transition-all duration-200 hover:-translate-y-1 hover:shadow-md hover:border-terra-l" style="animation:fadeUp .35s ease ${i*0.05}s both" onclick="window.location.href='/detail-produk/${p.id}'">
       ${badge}
-      <div class="relative w-full" style="aspect-ratio:1/1; background:${p.bg}">
+      <div class="relative w-full" style="aspect-ratio:1/1; background:${bgColor}">
         <div class="w-full h-full flex items-center justify-center">
           <svg style="width:48%;height:48%" viewBox="0 0 24 24" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${icon}</svg>
         </div>
       </div>
       <div class="p-2.5 pb-3">
-        <div class="text-xs font-semibold text-gray-900 mb-1 leading-tight">${p.name}</div>
+        <div class="text-xs font-semibold text-gray-900 mb-1 leading-tight">${escapeHtml(p.nama_produk)}</div>
         <div class="flex items-baseline gap-1.5 flex-wrap">
-          <span class="text-sm font-bold text-terra">${p.price}</span>
-          ${p.old ? `<span class="text-xs text-muted line-through">${p.old}</span>` : ''}
+          <span class="text-sm font-bold text-terra">${formattedPrice}</span>
         </div>
       </div>
     </div>`;
   }).join('');
 }
 
+// ── Render produk diskon ──
 function renderDiskon() {
-  const row  = document.getElementById('diskonRow');
-  const sale = PRODUCTS.filter(p => p.badge === 'sale');
-  row.innerHTML = sale.map(p => {
-    const icon = ICONS[p.cat] || '';
+  const row = document.getElementById('diskonRow');
+  if (!row) return;
+  
+  let filteredProducts = [...productsFromDB];
+  if (currentCategory !== 'all') {
+    filteredProducts = filteredProducts.filter(p => p.category_id === currentCategory);
+  }
+  if (currentSearch.trim() !== '') {
+    const searchLower = currentSearch.toLowerCase();
+    filteredProducts = filteredProducts.filter(p => 
+      (p.nama_produk && p.nama_produk.toLowerCase().includes(searchLower)) ||
+      (p.brand && p.brand.toLowerCase().includes(searchLower))
+    );
+  }
+  
+  const discountedProducts = filteredProducts.filter(p => p.is_discount === 1 && p.stok > 0);
+  
+  if (discountedProducts.length === 0) {
+    row.innerHTML = '<div class="text-center text-gray-500 py-4 w-full">Tidak ada produk diskon yang sesuai.</div>';
+    return;
+  }
+  
+  row.innerHTML = discountedProducts.map((p, idx) => {
+    const catName = p.category?.nama_kategori || 'default';
+    const icon = CAT_ICONS[catName] || CAT_ICONS['default'];
+    const formattedPrice = 'Rp ' + new Intl.NumberFormat('id-ID').format(p.harga);
+    const bgColor = BG_COLORS[idx % BG_COLORS.length];
+    
     return `
     <div onclick="window.location.href='/detail-produk/${p.id}'" class="flex-shrink-0 w-36 bg-white rounded-2xl overflow-hidden shadow-sm cursor-pointer border-2 border-transparent hover:-translate-y-1 hover:shadow-md hover:border-terra-l transition-all duration-200">
-      <div class="w-full h-28 flex items-center justify-center relative" style="background:${p.bg}">
+      <div class="w-full h-28 flex items-center justify-center relative" style="background:${bgColor}">
         <svg class="w-12 h-12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.5" stroke-linecap="round">${icon}</svg>
         <span class="absolute bottom-1.5 left-1.5 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded">Sale</span>
       </div>
       <div class="p-2.5 pb-3">
-        <div class="text-xs font-medium text-gray-900 mb-1 leading-tight">${p.name}</div>
+        <div class="text-xs font-medium text-gray-900 mb-1 leading-tight">${escapeHtml(p.nama_produk)}</div>
         <div class="flex items-baseline gap-1.5 flex-wrap">
-          <span class="text-sm font-bold text-terra">${p.price}</span>
-          <span class="text-xs text-muted line-through">${p.old}</span>
+          <span class="text-sm font-bold text-terra">${formattedPrice}</span>
         </div>
       </div>
     </div>`;
   }).join('');
 }
 
-render();
-renderDiskon();
+// ── INITIALISASI ──
+document.addEventListener('DOMContentLoaded', function() {
+  setupSearch();
+  render();
+  renderDiskon();
+});
 </script>
-</body>
-</html>
