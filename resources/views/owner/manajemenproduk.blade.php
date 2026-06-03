@@ -69,13 +69,6 @@
     .nav-item.active { background:#F7EFE5; color:#7B4F2E; font-weight:600; }
     .nav-item.active svg { stroke:#7B4F2E; }
 
-    .tab-btn {
-      padding:10px 4px; font-size:13px; font-weight:600; color:#8A7968;
-      border-bottom:2px solid transparent; cursor:pointer;
-      transition:all .2s; background:none;
-    }
-    .tab-btn.active { color:#1a1a1a; border-bottom-color:#C49A6C; }
-
     .form-input {
       width:100%; padding:12px 14px; border:1.5px solid #E0D8CE;
       border-radius:12px; font-size:13px; font-family:'Poppins',sans-serif;
@@ -212,19 +205,24 @@
       </button>
     </div>
 
-    <div class="fade-up d2 flex gap-4 border-b border-kashy-border mb-4 overflow-x-auto whitespace-nowrap pb-0">
-      <button class="tab-btn active" onclick="filterTab('semua', this)">Semua <span id="countSemua">(0)</span></button>
-      @foreach($categories as $category)
-      <button class="tab-btn" onclick="filterTab('{{ $category->nama_kategori }}', this)">{{ $category->nama_kategori }}</button>
-      @endforeach
-    </div>
-
+    <!-- Filter: Search + Dropdown Kategori -->
     <div class="fade-up d2 mb-4">
-      <div class="relative">
-        <span class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8A7968" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        </span>
-        <input type="text" id="searchProduct" class="form-input py-2.5 text-sm" style="padding-left:36px;" placeholder="Cari nama produk..."/>
+      <div class="flex gap-3">
+        <div class="relative flex-1">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8A7968" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </span>
+          <input type="text" id="searchProduct" class="form-input py-2.5 text-sm" style="padding-left:36px;" placeholder="Cari nama produk..."/>
+        </div>
+        <div class="relative w-40">
+          <select id="categoryFilter" class="form-input form-select py-2.5 pr-8 text-sm bg-white cursor-pointer">
+            <option value="semua">Semua Kategori</option>
+            @foreach($categories as $category)
+            <option value="{{ $category->nama_kategori }}">{{ $category->nama_kategori }}</option>
+            @endforeach
+          </select>
+          <svg class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8A7968" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
       </div>
     </div>
     
@@ -360,35 +358,36 @@
     return f;
   }
 
-  function updateCounters() { 
-    document.getElementById("countSemua").innerHTML = `(${products.length})`; 
-  }
-
   function renderCategoryStats() {
     const filtered = getFiltered();
     const habis = filtered.filter(p => p.stok === 0).length;
     const menipis = filtered.filter(p => p.stok > 0 && p.stok <= 5).length;
-    document.getElementById('categoryStatsGrid').innerHTML = `
-      <div class="bg-white rounded-xl p-1 shadow-card border border-kashy-border">
-        <div class="grid grid-cols-2 gap-2">
-          <div class="rounded-lg bg-red-50 border border-red-200 p-1.5 text-center">
-            <p class="text-[9px] text-red-500 font-semibold">Stok Habis</p>
-            <p class="text-base font-extrabold text-red-600">${habis}</p>
-          </div>
-          <div class="rounded-lg bg-orange-50 border border-orange-200 p-1.5 text-center">
-            <p class="text-[9px] text-orange-500 font-semibold">Stok Menipis</p>
-            <p class="text-base font-extrabold text-orange-600">${menipis}</p>
+    const statsGrid = document.getElementById('categoryStatsGrid');
+    if (statsGrid) {
+      statsGrid.innerHTML = `
+        <div class="bg-white rounded-xl p-1 shadow-card border border-kashy-border">
+          <div class="grid grid-cols-2 gap-2">
+            <div class="rounded-lg bg-red-50 border border-red-200 p-1.5 text-center">
+              <p class="text-[9px] text-red-500 font-semibold">Stok Habis</p>
+              <p class="text-base font-extrabold text-red-600">${habis}</p>
+            </div>
+            <div class="rounded-lg bg-orange-50 border border-orange-200 p-1.5 text-center">
+              <p class="text-[9px] text-orange-500 font-semibold">Stok Menipis</p>
+              <p class="text-base font-extrabold text-orange-600">${menipis}</p>
+            </div>
           </div>
         </div>
-      </div>
-    `;
+      `;
+    }
   }
 
   function renderPagination(total) {
     const totalPages = Math.max(1, Math.ceil(total / perPage));
     if (currentPage > totalPages) currentPage = totalPages;
-    document.getElementById('pageInfo').innerHTML = total ? `Halaman ${currentPage} dari ${totalPages}` : '';
+    const pageInfo = document.getElementById('pageInfo');
+    if (pageInfo) pageInfo.innerHTML = total ? `Halaman ${currentPage} dari ${totalPages}` : '';
     const pgDiv = document.getElementById('pagination');
+    if (!pgDiv) return;
     if (totalPages <= 1) { pgDiv.innerHTML = ''; return; }
     let pages = [];
     if (totalPages <= 7) for (let i=1; i<=totalPages; i++) pages.push(i);
@@ -430,6 +429,8 @@
     const start = (currentPage-1)*perPage;
     const paged = filtered.slice(start, start+perPage);
     const container = document.getElementById('productContainer');
+    if (!container) return;
+    
     if (paged.length === 0) {
       container.innerHTML = `<div class="col-span-2 bg-white rounded-2xl p-6 text-center shadow-card"><p class="text-kashy-muted text-sm">Tidak ada produk ditemukan.</p></div>`;
     } else {
@@ -469,17 +470,8 @@
         `;
       }).join('');
     }
-    updateCounters();
     renderCategoryStats();
     renderPagination(total);
-  }
-
-  function filterTab(tab, btn) {
-    currentFilter = tab;
-    currentPage = 1;
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    renderProducts();
   }
 
   function editProduct(id) {
@@ -488,6 +480,7 @@
 
   function openProductModal(id = null) {
     const modal = document.getElementById('productModal');
+    if (!modal) return;
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
     if (id) {
@@ -529,35 +522,50 @@
 
   function closeProductModal() {
     const modal = document.getElementById('productModal');
-    modal.classList.add('hidden');
+    if (modal) modal.classList.add('hidden');
     document.body.style.overflow = '';
   }
 
+  let deleteId = null;
   function deleteProduct(id) {
-    if (confirm('Yakin ingin menghapus produk ini?')) {
-      fetch(`/owner/produk/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'X-CSRF-TOKEN': csrfToken,
-          'Accept': 'application/json'
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          showToast(data.message);
-          location.reload();
-        } else {
-          showToast(data.message, false);
-        }
-      })
-      .catch(error => {
-        showToast('Terjadi kesalahan', false);
-      });
-    }
+    deleteId = id;
+    const modal = document.getElementById('confirmDeleteModal');
+    if (modal) modal.classList.add('show');
   }
 
-  document.getElementById('saveProductBtn').addEventListener('click', function() {
+  document.getElementById('deleteConfirmBtn')?.addEventListener('click', function() {
+    if (!deleteId) return;
+    fetch(`/owner/produk/${deleteId}`, {
+      method: 'DELETE',
+      headers: {
+        'X-CSRF-TOKEN': csrfToken,
+        'Accept': 'application/json'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        showToast(data.message);
+        location.reload();
+      } else {
+        showToast(data.message, false);
+      }
+    })
+    .catch(error => {
+      showToast('Terjadi kesalahan', false);
+    })
+    .finally(() => {
+      document.getElementById('confirmDeleteModal')?.classList.remove('show');
+      deleteId = null;
+    });
+  });
+
+  document.getElementById('deleteCancelBtn')?.addEventListener('click', function() {
+    document.getElementById('confirmDeleteModal')?.classList.remove('show');
+    deleteId = null;
+  });
+
+  document.getElementById('saveProductBtn')?.addEventListener('click', function() {
     const id = document.getElementById('editId').value;
     const formData = new FormData();
     formData.append('nama_produk', document.getElementById('prodName').value);
@@ -599,11 +607,24 @@
     });
   });
 
-  document.getElementById('searchProduct').addEventListener('input', e => { searchKeyword = e.target.value; currentPage = 1; renderProducts(); });
-  document.getElementById('perPageSelect').addEventListener('change', changePerPage);
+  // Event listeners
+  document.getElementById('searchProduct')?.addEventListener('input', e => { 
+    searchKeyword = e.target.value; 
+    currentPage = 1; 
+    renderProducts(); 
+  });
+  
+  document.getElementById('perPageSelect')?.addEventListener('change', changePerPage);
+  
+  document.getElementById('categoryFilter')?.addEventListener('change', function(e) {
+    currentFilter = e.target.value;
+    currentPage = 1;
+    renderProducts();
+  });
 
   function showToast(msg, success=true) {
     const toast = document.getElementById('toast');
+    if (!toast) return;
     document.getElementById('toastMsg').innerText = msg;
     toast.style.background = success ? '#1c1c1c' : '#ef4444';
     toast.classList.add('show');
@@ -617,13 +638,18 @@
   }
   
   function parseRupiahToNumber(str) { return parseInt(str.replace(/[^0-9]/g, '')) || 0; }
-  function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' })[m]); }
+  
+  function escapeHtml(str) { 
+    if (!str) return ''; 
+    return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' })[m]); 
+  }
 
   function previewImage(input) {
     if (!input.files[0]) return;
     const reader = new FileReader();
     reader.onload = e => {
       const dz = document.getElementById('imgDropzone');
+      if (!dz) return;
       dz.innerHTML = `<img src="${e.target.result}" alt="preview"/><div class="dropzone-overlay"><span class="text-white text-xs font-semibold bg-black/50 px-3 py-1.5 rounded-lg">Ganti Gambar</span></div><input type="file" id="prodImage" accept="image/*" class="hidden" onchange="previewImage(this)"/>`;
       dz.classList.add('has-image');
       dz.onclick = () => document.getElementById('prodImage').click();
@@ -633,6 +659,7 @@
   
   function resetDropzone() {
     const dz = document.getElementById('imgDropzone');
+    if (!dz) return;
     dz.classList.remove('has-image');
     dz.innerHTML = `<input type="file" id="prodImage" accept="image/*" class="hidden" onchange="previewImage(this)"/><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#C49A6C" stroke-width="1.6" class="mx-auto mb-2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><p class="text-sm font-semibold text-kashy-muted">Pilih atau seret gambar</p><p class="text-xs text-kashy-muted mt-1">JPG, PNG — maks 5MB</p>`;
     dz.onclick = () => document.getElementById('prodImage').click();
@@ -641,3 +668,5 @@
   // Render awal
   renderProducts();
 </script>
+</body>
+</html>

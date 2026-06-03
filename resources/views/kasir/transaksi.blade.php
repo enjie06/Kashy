@@ -525,7 +525,7 @@
     let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
     let discountAmount = subtotal * (currentDiscountPercent / 100);
     let afterDiscount = subtotal - discountAmount;
-    const total = afterDiscount * 1.11; // pajak 11%
+    const total = afterDiscount;
     
     document.getElementById('subtotal').textContent = formatRupiah(subtotal);
     document.getElementById('total').textContent = formatRupiah(Math.round(total));
@@ -639,7 +639,7 @@
     let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
     let discountAmount = subtotal * (currentDiscountPercent / 100);
     let afterDiscount = subtotal - discountAmount;
-    let total = Math.round(afterDiscount * 1.11);
+    let total = afterDiscount;
 
     fetch("{{ route('kasir.transaksi.session') }}", {
       method: "POST",
