@@ -74,6 +74,7 @@ class KasirTransactionController extends Controller
     public function finalizePayment(Request $request)
     {
         
+    
         // LOG 1: Cek request
         \Log::info('=== FINALIZE PAYMENT ===');
         \Log::info('Request data:', $request->all());

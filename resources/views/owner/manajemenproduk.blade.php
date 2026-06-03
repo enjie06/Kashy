@@ -6,6 +6,7 @@
   <title>Kashy – Manajemen Produk & Stok</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <script>
     tailwind.config = {
       theme: {
@@ -35,7 +36,6 @@
     * { font-family:'Poppins',sans-serif; box-sizing:border-box; }
     body { background:#F5F0EB; margin:0; }
 
-    /* Sidebar */
     #sidebar {
       position:fixed; top:0; left:0; height:100vh; width:280px;
       background:#fff; box-shadow:2px 0 24px rgba(60,40,10,.12);
@@ -111,11 +111,6 @@
       font-size:10px; font-weight:600;
       background:#F5F0EB; color:#8A7968; border:1px solid #E0D8CE;
     }
-    .chip-remove {
-      background:none; border:none; cursor:pointer;
-      color:#8A7968; font-size:12px; line-height:1;
-      padding:0;
-    }
     .line-clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
     .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
@@ -126,8 +121,6 @@
       background: #1a1a1a; color: white;
     }
     .badge-sale { background: #ef4444; }
-    .badge-new { background: #3a9e6f; }
-    .badge-branded { background: #c49a6c; }
 
     .img-dropzone {
       width:100%; border:2px dashed #E0D8CE; border-radius:14px;
@@ -181,9 +174,7 @@
     .modal-btn { flex: 1; padding: 12px; border-radius: 40px; font-weight: 700; font-size: 14px;
       cursor: pointer; transition: all 0.2s; border: none; }
     .modal-btn-cancel { background: #F5F0EB; color: #1a1a1a; }
-    .modal-btn-confirm { background: #D94F4F; color: white; box-shadow: 0 4px 10px rgba(58,158,111,0.3); }
-    .modal-btn-confirm:hover { background: #FEF2F2; transform: scale(0.97); }
-    .modal-btn-cancel:hover { background: #EDE5DB; transform: scale(0.97); }
+    .modal-btn-confirm { background: #D94F4F; color: white; }
 
     .pg-btn {
       width: 36px; height: 36px; border-radius: 12px;
@@ -195,7 +186,6 @@
     .pg-btn:hover { border-color: #C49A6C; color: #C49A6C; background: #FDF9F5; }
     .pg-btn.active { background: #1a1a1a; border-color: #1a1a1a; color: white; font-weight: 600; }
     .pg-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    /* Hilangkan panah bawaan select */
     .no-arrow-select {
       appearance: none;
       background-image: none;
@@ -224,11 +214,9 @@
 
     <div class="fade-up d2 flex gap-4 border-b border-kashy-border mb-4 overflow-x-auto whitespace-nowrap pb-0">
       <button class="tab-btn active" onclick="filterTab('semua', this)">Semua <span id="countSemua">(0)</span></button>
-      <button class="tab-btn" onclick="filterTab('Dress', this)">Dress</button>
-      <button class="tab-btn" onclick="filterTab('Cardigan', this)">Cardigan</button>
-      <button class="tab-btn" onclick="filterTab('Kemeja', this)">Kemeja</button>
-      <button class="tab-btn" onclick="filterTab('Celana', this)">Celana</button>
-      <button class="tab-btn" onclick="filterTab('Aksesoris', this)">Aksesoris</button>
+      @foreach($categories as $category)
+      <button class="tab-btn" onclick="filterTab('{{ $category->nama_kategori }}', this)">{{ $category->nama_kategori }}</button>
+      @endforeach
     </div>
 
     <div class="fade-up d2 mb-4">
@@ -236,7 +224,7 @@
         <span class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8A7968" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </span>
-        <input type="text" id="searchProduct" class="form-input py-2.5 text-sm" style="padding-left:36px;" placeholder="Cari nama produk atau SKU..."/>
+        <input type="text" id="searchProduct" class="form-input py-2.5 text-sm" style="padding-left:36px;" placeholder="Cari nama produk..."/>
       </div>
     </div>
     
@@ -247,7 +235,6 @@
 
     <div id="productContainer" class="product-grid"></div>
 
-    <!-- Pagination -->
     <div class="fade-up d5 mt-6 mb-4">
       <div class="flex flex-col items-center gap-3">
         <div class="flex items-center justify-center gap-2 text-xs text-kashy-muted">
@@ -272,12 +259,12 @@
 
 <!-- MODAL TAMBAH/EDIT PRODUK -->
 <div id="productModal" class="hidden fixed inset-0 z-[999] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-  <div class="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-5 relative animate-fadeIn">
+  <div class="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-5 relative">
     <h2 id="modalTitle" class="text-xl font-bold text-kashy-dark mb-4">Tambah Produk</h2>
     <input type="hidden" id="editId" value="">
 
     <div class="mb-4">
-      <label class="form-label">Foto Produk <span class="normal-case font-normal">(opsional)</span></label>
+      <label class="form-label">Foto Produk</label>
       <div class="img-dropzone" id="imgDropzone" onclick="document.getElementById('prodImage').click()">
         <input type="file" id="prodImage" accept="image/*" class="hidden" onchange="previewImage(this)"/>
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#C49A6C" stroke-width="1.6" class="mx-auto mb-2">
@@ -285,8 +272,7 @@
           <circle cx="8.5" cy="8.5" r="1.5"/>
           <polyline points="21 15 16 10 5 21"/>
         </svg>
-        <p class="text-sm font-semibold text-kashy-muted">Pilih atau seret gambar</p>
-        <p class="text-xs text-kashy-muted mt-1">JPG, PNG — maks 5MB</p>
+        <p class="text-sm font-semibold text-kashy-muted">Pilih gambar</p>
       </div>
     </div>
 
@@ -294,46 +280,33 @@
       <label class="form-label">Nama Produk <span class="required-star">*</span></label>
       <input type="text" id="prodName" class="form-input py-2.5" placeholder="Nama produk..."/>
     </div>
+    
     <div class="grid grid-cols-2 gap-3 mb-3">
       <div>
         <label class="form-label">Kategori <span class="required-star">*</span></label>
         <select id="prodCategory" class="form-input form-select py-2.5">
-          <option>Dress</option><option>Cardigan</option><option>Kemeja</option><option>Celana</option><option>Aksesoris</option>
+          @foreach($categories as $category)
+          <option value="{{ $category->id }}">{{ $category->nama_kategori }}</option>
+          @endforeach
         </select>
       </div>
-      <div><label class="form-label">Badge</label>
-        <select id="prodBadge" class="form-input form-select py-2.5">
-          <option value="">Tanpa Badge</option>
-          <option value="new">New</option><option value="sale">Sale</option><option value="branded">Branded</option>
+      <div>
+        <label class="form-label">Diskon</label>
+        <select id="prodDiscount" class="form-input form-select py-2.5">
+          <option value="0">Tidak</option>
+          <option value="1">Ya (Sale)</option>
         </select>
       </div>
     </div>
 
     <div class="grid grid-cols-2 gap-3 mb-3">
       <div><label class="form-label">Harga (Rp) <span class="required-star">*</span></label><input type="text" id="prodPrice" class="form-input py-2.5" placeholder="0" oninput="formatRupiah(this)"/></div>
-      <div><label class="form-label">Harga Coret</label><input type="text" id="prodOldPrice" class="form-input py-2.5" placeholder="Contoh: 120000" oninput="formatRupiah(this)"/></div>
+      <div><label class="form-label">Stok <span class="required-star">*</span></label><input type="number" id="prodStock" class="form-input py-2.5" placeholder="0"/></div>
     </div>
 
     <div class="grid grid-cols-2 gap-3 mb-3">
-      <div><label class="form-label">Bahan</label><input type="text" id="prodBahan" class="form-input py-2.5" placeholder="Katun Premium"/></div>
-      <div><label class="form-label">Warna</label><input type="text" id="prodWarna" class="form-input py-2.5" placeholder="Cream"/></div>
-    </div>
-
-    <div class="grid grid-cols-3 gap-2 mb-3">
-      <div><label class="form-label">Kondisi</label><select id="prodKondisi" class="form-input form-select py-2.5"><option value="">Pilih</option><option>Baru</option><option>Like New</option><option>Second</option></select></div>
-      <div><label class="form-label">Lingkar Dada</label><input type="text" id="prodLingkarDada" class="form-input py-2.5" placeholder="96 cm"/></div>
-      <div><label class="form-label">Panjang Baju</label><input type="text" id="prodPanjangBaju" class="form-input py-2.5" placeholder="72 cm"/></div>
-    </div>
-
-    <div class="grid grid-cols-2 gap-3 mb-3">
-      <div><label class="form-label">Stok</label><input type="number" id="prodStock" class="form-input py-2.5" placeholder="0"/></div>
-      <div><label class="form-label">Ukuran (varian)</label>
-        <div class="flex flex-wrap gap-1.5 mb-2" id="variantContainer">
-          <span class="chip">S<button class="chip-remove" onclick="this.closest('.chip').remove()">×</button></span>
-          <span class="chip">M<button class="chip-remove" onclick="this.closest('.chip').remove()">×</button></span>
-        </div>
-        <input type="text" id="variantInput" class="form-input py-2.5 text-sm" placeholder="Tambah ukuran lalu Enter" onkeydown="addVariant(event)"/>
-      </div>
+      <div><label class="form-label">Ukuran</label><input type="text" id="prodSize" class="form-input py-2.5" placeholder="S,M,L,XL"/></div>
+      <div><label class="form-label">Warna</label><input type="text" id="prodColor" class="form-input py-2.5" placeholder="Hitam, Putih"/></div>
     </div>
 
     <div class="mb-3">
@@ -342,8 +315,8 @@
     </div>
 
     <div class="flex flex-col gap-2">
-      <button id="saveProductBtn" class="w-full py-3 rounded-xl font-bold text-white text-sm tracking-wide transition-all duration-200 hover:opacity-90 active:scale-[.98]" style="background:#C49A6C; box-shadow:0 4px 14px rgba(196,154,108,.35);">Simpan Produk</button>
-      <button onclick="closeProductModal()" class="w-full py-3 rounded-xl font-bold text-kashy-dark text-sm tracking-wide border-2 border-kashy-border transition-all duration-200 hover:bg-kashy-cream active:scale-[.98] bg-white">Batal</button>
+      <button id="saveProductBtn" class="w-full py-3 rounded-xl font-bold text-white text-sm tracking-wide transition-all duration-200 hover:opacity-90" style="background:#C49A6C;">Simpan Produk</button>
+      <button onclick="closeProductModal()" class="w-full py-3 rounded-xl font-bold text-kashy-dark text-sm tracking-wide border-2 border-kashy-border transition-all duration-200 hover:bg-kashy-cream bg-white">Batal</button>
     </div>
   </div>
 </div>
@@ -351,7 +324,7 @@
 <!-- MODAL KONFIRMASI HAPUS -->
 <div id="confirmDeleteModal" class="modal-confirm">
   <div class="modal-card">
-    <div class="modal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg></div>
+    <div class="modal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></div>
     <div class="modal-title">Konfirmasi Hapus</div>
     <div class="modal-message" id="confirmDeleteMessage">Apakah Anda yakin ingin menghapus produk ini?</div>
     <div class="modal-buttons">
@@ -364,44 +337,37 @@
 <div id="toast"><span id="toastMsg"></span></div>
 
 <script>
-  // Sidebar
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('overlay');
-  const menuBtn = document.getElementById('global-menu-toggle');
-  function openSidebar()  { sidebar.classList.add('sidebar-open'); overlay.classList.add('show'); document.body.style.overflow='hidden'; }
-  function closeSidebar() { sidebar.classList.remove('sidebar-open'); overlay.classList.remove('show'); document.body.style.overflow=''; }
-  if (menuBtn) menuBtn.addEventListener('click', e => { e.stopPropagation(); openSidebar(); });
-  if (overlay) overlay.addEventListener('click', closeSidebar);
-  document.addEventListener('keydown', e => { if (e.key==='Escape') closeSidebar(); });
-
-  let products = [
-    { id:1, name:"Artisan Linen Midi Dress", sku:"EG-001", category:"Dress", price:"1450000", oldPrice:"", badge:"", bahan:"Linen", warna:"Cream", kondisi:"Baru", lingkar_dada:"96 cm", panjang_baju:"110 cm", stock:142, desc:"Linen premium modern.", variants:["S","M","L"], img:"https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400&q=80" },
-    { id:2, name:"Uniqlo Cardigan Pink", sku:"EG-002", category:"Cardigan", price:"890000", oldPrice:"", badge:"", bahan:"Rajut", warna:"Pink", kondisi:"Like New", lingkar_dada:"100 cm", panjang_baju:"60 cm", stock:22, desc:"Cardigan rajut pink.", variants:["M","L"], img:"https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400&q=80" },
-    { id:3, name:"Organic Cotton Oxford", sku:"EG-003", category:"Kemeja", price:"780000", oldPrice:"", badge:"new", bahan:"Katun Organik", warna:"Putih", kondisi:"Baru", lingkar_dada:"104 cm", panjang_baju:"72 cm", stock:0, desc:"Kemeja katun organik.", variants:["S","M","L"], img:"https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400&q=80" },
-    { id:4, name:"Celana Palazzo Linen", sku:"EG-004", category:"Celana", price:"550000", oldPrice:"", badge:"", bahan:"Linen", warna:"Beige", kondisi:"Baru", lingkar_dada:"-", panjang_baju:"-", stock:15, desc:"Celana palazzo nyaman.", variants:["S","M","L","XL"], img:"https://images.unsplash.com/photo-1591195853828-11db59a44f6b?w=400&q=80" }
-  ];
-
+  let products = @json($products);
+  let categories = @json($categories);
+  
   let currentFilter = "semua";
   let searchKeyword = "";
   let currentPage = 1;
   let perPage = 12;
 
+  const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
   function getFiltered() {
     let f = [...products];
-    if (currentFilter !== "semua") f = f.filter(p => p.category === currentFilter);
+    if (currentFilter !== "semua") {
+      const categoryId = categories.find(c => c.nama_kategori === currentFilter)?.id;
+      if (categoryId) f = f.filter(p => p.category_id === categoryId);
+    }
     if (searchKeyword.trim()) {
       const kw = searchKeyword.toLowerCase();
-      f = f.filter(p => p.name.toLowerCase().includes(kw) || (p.sku && p.sku.toLowerCase().includes(kw)));
+      f = f.filter(p => p.nama_produk.toLowerCase().includes(kw));
     }
     return f;
   }
 
-  function updateCounters() { document.getElementById("countSemua").innerHTML = `(${products.length})`; }
+  function updateCounters() { 
+    document.getElementById("countSemua").innerHTML = `(${products.length})`; 
+  }
 
   function renderCategoryStats() {
     const filtered = getFiltered();
-    const habis = filtered.filter(p => p.stock === 0).length;
-    const menipis = filtered.filter(p => p.stock > 0 && p.stock <= 5).length;
+    const habis = filtered.filter(p => p.stok === 0).length;
+    const menipis = filtered.filter(p => p.stok > 0 && p.stok <= 5).length;
     document.getElementById('categoryStatsGrid').innerHTML = `
       <div class="bg-white rounded-xl p-1 shadow-card border border-kashy-border">
         <div class="grid grid-cols-2 gap-2">
@@ -468,31 +434,32 @@
       container.innerHTML = `<div class="col-span-2 bg-white rounded-2xl p-6 text-center shadow-card"><p class="text-kashy-muted text-sm">Tidak ada produk ditemukan.</p></div>`;
     } else {
       container.innerHTML = paged.map(p => {
-        const priceFormatted = `Rp ${parseInt(p.price).toLocaleString('id-ID')}`;
-        const oldPriceHtml = p.oldPrice ? `<span class="text-[9px] text-kashy-muted line-through">Rp ${parseInt(p.oldPrice).toLocaleString('id-ID')}</span>` : '';
+        const priceFormatted = `Rp ${parseInt(p.harga).toLocaleString('id-ID')}`;
         let badgeHtml = '';
-        if (p.badge === 'sale') badgeHtml = `<span class="badge-produk badge-sale">SALE</span>`;
-        else if (p.badge === 'new') badgeHtml = `<span class="badge-produk badge-new">NEW</span>`;
-        else if (p.badge === 'branded') badgeHtml = `<span class="badge-produk badge-branded">BRANDED</span>`;
+        if (p.is_discount) badgeHtml = `<span class="badge-produk badge-sale">SALE</span>`;
+        const stockStatus = p.stok === 0 ? '<p class="text-[8px] font-bold text-red-600 mt-0.5">⚠ Habis</p>' : (p.stok <=5 ? '<p class="text-[8px] font-bold text-orange-500 mt-0.5">⚠ Menipis</p>' : '');
+        const imageUrl = p.gambar ? `/storage/${p.gambar}` : 'https://via.placeholder.com/400x400?text=No+Image';
+        const categoryName = categories.find(c => c.id === p.category_id)?.nama_kategori || '-';
+        const sizes = p.ukuran ? p.ukuran.split(',').map(v => `<span class="chip text-[9px] py-0 px-1.5">${v.trim()}</span>`).join('') : '';
+        
         return `
           <div class="bg-white rounded-xl p-2 shadow-card fade-up">
             <div class="prod-img-wrap relative">
-              <img src="${p.img}" loading="lazy">
+              <img src="${imageUrl}" loading="lazy" onerror="this.src='https://via.placeholder.com/400x400?text=No+Image'">
               ${badgeHtml}
             </div>
-            <p class="text-[9px] font-semibold text-kashy-muted uppercase mb-0.5">${p.category}</p>
-            <h3 class="text-xs font-bold text-kashy-dark line-clamp-1 mb-0.5">${p.name}</h3>
+            <p class="text-[9px] font-semibold text-kashy-muted uppercase mb-0.5">${categoryName}</p>
+            <h3 class="text-xs font-bold text-kashy-dark line-clamp-1 mb-0.5">${escapeHtml(p.nama_produk)}</h3>
             <div class="flex items-center gap-1 flex-wrap mb-1">
               <p class="text-sm font-extrabold text-kashy-brown">${priceFormatted}</p>
-              ${oldPriceHtml}
             </div>
-            <p class="text-[9px] text-kashy-muted line-clamp-2 mb-1.5">${p.desc}</p>
+            <p class="text-[9px] text-kashy-muted line-clamp-2 mb-1.5">${escapeHtml(p.deskripsi || '')}</p>
             <div class="flex items-center justify-between mb-1">
               <div>
-                <p class="text-[9px] text-kashy-muted">Stok: ${p.stock}</p>
-                ${p.stock === 0 ? `<p class="text-[8px] font-bold text-red-600 mt-0.5">⚠ Habis</p>` : (p.stock <=5 ? `<p class="text-[8px] font-bold text-orange-500 mt-0.5">⚠ Menipis</p>` : '')}
+                <p class="text-[9px] text-kashy-muted">Stok: ${p.stok}</p>
+                ${stockStatus}
               </div>
-              <div class="flex flex-wrap gap-1">${p.variants.map(v => `<span class="chip text-[9px] py-0 px-1.5">${v}</span>`).join('')}</div>
+              <div class="flex flex-wrap gap-1">${sizes}</div>
             </div>
             <div class="flex items-center gap-2 pt-2 border-t border-kashy-border">
               <button class="flex items-center gap-1 text-[9px] font-semibold text-kashy-muted hover:text-kashy-dark" onclick="editProduct(${p.id})">Edit</button>
@@ -515,6 +482,123 @@
     renderProducts();
   }
 
+  function editProduct(id) {
+    openProductModal(id);
+  }
+
+  function openProductModal(id = null) {
+    const modal = document.getElementById('productModal');
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    if (id) {
+      const p = products.find(x => x.id === id);
+      if (p) {
+        document.getElementById('modalTitle').innerText = 'Edit Produk';
+        document.getElementById('editId').value = p.id;
+        document.getElementById('prodName').value = p.nama_produk;
+        document.getElementById('prodCategory').value = p.category_id;
+        document.getElementById('prodPrice').value = parseInt(p.harga).toLocaleString('id-ID');
+        document.getElementById('prodStock').value = p.stok;
+        document.getElementById('prodDiscount').value = p.is_discount ? '1' : '0';
+        document.getElementById('prodSize').value = p.ukuran || '';
+        document.getElementById('prodColor').value = p.warna || '';
+        document.getElementById('prodDesc').value = p.deskripsi || '';
+        if (p.gambar) {
+          const dz = document.getElementById('imgDropzone');
+          dz.innerHTML = `<img src="/storage/${p.gambar}" alt="preview"/><div class="dropzone-overlay"><span class="text-white text-xs font-semibold bg-black/50 px-3 py-1.5 rounded-lg">Ganti Gambar</span></div><input type="file" id="prodImage" accept="image/*" class="hidden" onchange="previewImage(this)"/>`;
+          dz.classList.add('has-image');
+          dz.onclick = () => document.getElementById('prodImage').click();
+        } else {
+          resetDropzone();
+        }
+      }
+    } else {
+      document.getElementById('modalTitle').innerText = 'Tambah Produk';
+      document.getElementById('editId').value = '';
+      document.getElementById('prodName').value = '';
+      document.getElementById('prodCategory').value = categories[0]?.id || '';
+      document.getElementById('prodPrice').value = '';
+      document.getElementById('prodStock').value = '';
+      document.getElementById('prodDiscount').value = '0';
+      document.getElementById('prodSize').value = '';
+      document.getElementById('prodColor').value = '';
+      document.getElementById('prodDesc').value = '';
+      resetDropzone();
+    }
+  }
+
+  function closeProductModal() {
+    const modal = document.getElementById('productModal');
+    modal.classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  function deleteProduct(id) {
+    if (confirm('Yakin ingin menghapus produk ini?')) {
+      fetch(`/owner/produk/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'X-CSRF-TOKEN': csrfToken,
+          'Accept': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          showToast(data.message);
+          location.reload();
+        } else {
+          showToast(data.message, false);
+        }
+      })
+      .catch(error => {
+        showToast('Terjadi kesalahan', false);
+      });
+    }
+  }
+
+  document.getElementById('saveProductBtn').addEventListener('click', function() {
+    const id = document.getElementById('editId').value;
+    const formData = new FormData();
+    formData.append('nama_produk', document.getElementById('prodName').value);
+    formData.append('category_id', document.getElementById('prodCategory').value);
+    formData.append('harga', parseRupiahToNumber(document.getElementById('prodPrice').value));
+    formData.append('stok', document.getElementById('prodStock').value);
+    formData.append('ukuran', document.getElementById('prodSize').value);
+    formData.append('warna', document.getElementById('prodColor').value);
+    formData.append('deskripsi', document.getElementById('prodDesc').value);
+    formData.append('is_discount', document.getElementById('prodDiscount').value);
+    
+    const fileInput = document.getElementById('prodImage');
+    if (fileInput.files[0]) {
+      formData.append('gambar', fileInput.files[0]);
+    }
+    
+    const url = id ? `/owner/produk/${id}` : '/owner/produk';
+    
+    if (id) formData.append('_method', 'PUT');
+    
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'X-CSRF-TOKEN': csrfToken
+      },
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        showToast(data.message);
+        location.reload();
+      } else {
+        showToast(data.message, false);
+      }
+    })
+    .catch(error => {
+      showToast('Terjadi kesalahan', false);
+    });
+  });
+
   document.getElementById('searchProduct').addEventListener('input', e => { searchKeyword = e.target.value; currentPage = 1; renderProducts(); });
   document.getElementById('perPageSelect').addEventListener('change', changePerPage);
 
@@ -523,8 +607,7 @@
     document.getElementById('toastMsg').innerText = msg;
     toast.style.background = success ? '#1c1c1c' : '#ef4444';
     toast.classList.add('show');
-    clearTimeout(toast._t);
-    toast._t = setTimeout(() => toast.classList.remove('show'), 2600);
+    setTimeout(() => toast.classList.remove('show'), 2600);
   }
 
   function formatRupiah(input) {
@@ -532,19 +615,9 @@
     if (val === '') { input.value = ''; return; }
     input.value = new Intl.NumberFormat('id-ID').format(parseInt(val));
   }
+  
   function parseRupiahToNumber(str) { return parseInt(str.replace(/[^0-9]/g, '')) || 0; }
-
-  function addVariant(e) {
-    if (e.key !== 'Enter') return;
-    const val = e.target.value.trim();
-    if (!val) return;
-    const chip = document.createElement('span');
-    chip.className = 'chip';
-    chip.innerHTML = `${val}<button class="chip-remove" onclick="this.closest('.chip').remove()">×</button>`;
-    document.getElementById('variantContainer').appendChild(chip);
-    e.target.value = '';
-  }
-  function getVariants() { return Array.from(document.querySelectorAll('#variantContainer .chip')).map(ch => ch.innerText.replace('×','').trim()); }
+  function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' })[m]); }
 
   function previewImage(input) {
     if (!input.files[0]) return;
@@ -557,12 +630,7 @@
     };
     reader.readAsDataURL(input.files[0]);
   }
-  function setPreviewFromUrl(url) {
-    const dz = document.getElementById('imgDropzone');
-    dz.innerHTML = `<img src="${url}" alt="preview"/><div class="dropzone-overlay"><span class="text-white text-xs font-semibold bg-black/50 px-3 py-1.5 rounded-lg">Ganti Gambar</span></div><input type="file" id="prodImage" accept="image/*" class="hidden" onchange="previewImage(this)"/>`;
-    dz.classList.add('has-image');
-    dz.onclick = () => document.getElementById('prodImage').click();
-  }
+  
   function resetDropzone() {
     const dz = document.getElementById('imgDropzone');
     dz.classList.remove('has-image');
@@ -570,118 +638,6 @@
     dz.onclick = () => document.getElementById('prodImage').click();
   }
 
-  function openProductModal(id = null) {
-    const modal = document.getElementById('productModal');
-    modal.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-    if (id) {
-      const p = products.find(x => x.id === id);
-      if (p) {
-        document.getElementById('modalTitle').innerText = 'Edit Produk';
-        document.getElementById('editId').value = p.id;
-        document.getElementById('prodName').value = p.name;
-        document.getElementById('prodCategory').value = p.category;
-        document.getElementById('prodPrice').value = parseInt(p.price).toLocaleString('id-ID');
-        document.getElementById('prodOldPrice').value = p.oldPrice ? parseInt(p.oldPrice).toLocaleString('id-ID') : '';
-        document.getElementById('prodBadge').value = p.badge || '';
-        document.getElementById('prodBahan').value = p.bahan || '';
-        document.getElementById('prodWarna').value = p.warna || '';
-        document.getElementById('prodKondisi').value = p.kondisi || '';
-        document.getElementById('prodLingkarDada').value = p.lingkar_dada || '';
-        document.getElementById('prodPanjangBaju').value = p.panjang_baju || '';
-        document.getElementById('prodStock').value = p.stock;
-        document.getElementById('prodDesc').value = p.desc;
-        const vc = document.getElementById('variantContainer');
-        vc.innerHTML = '';
-        p.variants.forEach(v => {
-          const chip = document.createElement('span');
-          chip.className = 'chip';
-          chip.innerHTML = `${v}<button class="chip-remove" onclick="this.closest('.chip').remove()">×</button>`;
-          vc.appendChild(chip);
-        });
-        if (p.img) setPreviewFromUrl(p.img);
-        else resetDropzone();
-      }
-    } else {
-      document.getElementById('modalTitle').innerText = 'Tambah Produk';
-      document.getElementById('editId').value = '';
-      document.getElementById('prodName').value = '';
-      document.getElementById('prodCategory').value = 'Dress';
-      document.getElementById('prodPrice').value = '';
-      document.getElementById('prodOldPrice').value = '';
-      document.getElementById('prodBadge').value = '';
-      document.getElementById('prodBahan').value = '';
-      document.getElementById('prodWarna').value = '';
-      document.getElementById('prodKondisi').value = '';
-      document.getElementById('prodLingkarDada').value = '';
-      document.getElementById('prodPanjangBaju').value = '';
-      document.getElementById('prodStock').value = '';
-      document.getElementById('prodDesc').value = '';
-      document.getElementById('variantContainer').innerHTML = `<span class="chip">S<button class="chip-remove" onclick="this.closest('.chip').remove()">×</button></span><span class="chip">M<button class="chip-remove" onclick="this.closest('.chip').remove()">×</button></span>`;
-      resetDropzone();
-    }
-  }
-  function closeProductModal() {
-    document.getElementById('productModal').classList.add('hidden');
-    document.body.style.overflow = '';
-  }
-
-  document.getElementById('saveProductBtn').addEventListener('click', () => {
-    const name = document.getElementById('prodName').value.trim();
-    const category = document.getElementById('prodCategory').value;
-    const priceRaw = document.getElementById('prodPrice').value;
-    if (!name) { showToast('Nama produk wajib diisi', false); return; }
-    if (!category) { showToast('Kategori wajib dipilih', false); return; }
-    if (!priceRaw || parseRupiahToNumber(priceRaw) === 0) { showToast('Harga produk wajib diisi', false); return; }
-
-    let image = '';
-    const fileInput = document.getElementById('prodImage');
-    const editId = document.getElementById('editId').value;
-    if (fileInput.files && fileInput.files[0]) image = URL.createObjectURL(fileInput.files[0]);
-    else if (editId) { const existing = products.find(p => p.id == editId); if (existing && existing.img) image = existing.img; }
-    else image = 'https://images.unsplash.com/photo-1594938298603-c8148c4b4057?w=400&q=80';
-
-    const newProduct = {
-      name, category, price: parseRupiahToNumber(priceRaw).toString(),
-      oldPrice: parseRupiahToNumber(document.getElementById('prodOldPrice').value) ? parseRupiahToNumber(document.getElementById('prodOldPrice').value).toString() : '',
-      badge: document.getElementById('prodBadge').value,
-      bahan: document.getElementById('prodBahan').value,
-      warna: document.getElementById('prodWarna').value,
-      kondisi: document.getElementById('prodKondisi').value,
-      lingkar_dada: document.getElementById('prodLingkarDada').value,
-      panjang_baju: document.getElementById('prodPanjangBaju').value,
-      stock: parseInt(document.getElementById('prodStock').value) || 0,
-      desc: document.getElementById('prodDesc').value || 'Deskripsi produk',
-      variants: getVariants(),
-      img: image,
-      sku: editId ? (products.find(p => p.id == editId)?.sku || 'SKU-'+Date.now()) : 'SKU-'+Date.now()
-    };
-    if (editId) {
-      const index = products.findIndex(p => p.id == editId);
-      if (index !== -1) { newProduct.id = parseInt(editId); products[index] = newProduct; showToast(`Produk "${name}" berhasil diperbarui.`, true); }
-    } else {
-      newProduct.id = Date.now(); products.unshift(newProduct); showToast(`Produk "${name}" berhasil ditambahkan.`, true);
-    }
-    currentPage = 1;
-    renderProducts();
-    closeProductModal();
-  });
-
-  function editProduct(id) { openProductModal(id); }
-  async function deleteProduct(id) {
-    const p = products.find(x => x.id === id);
-    if (!p) return;
-    const modal = document.getElementById('confirmDeleteModal');
-    document.getElementById('confirmDeleteMessage').innerText = `Apakah Anda yakin ingin menghapus produk "${p.name}"?`;
-    modal.classList.add('show');
-    const onConfirm = () => { modal.classList.remove('show'); products = products.filter(x => x.id !== id); renderProducts(); showToast(`Produk "${p.name}" dihapus.`, true); cleanup(); };
-    const onCancel = () => { modal.classList.remove('show'); cleanup(); };
-    const cleanup = () => { document.getElementById('deleteConfirmBtn').removeEventListener('click', onConfirm); document.getElementById('deleteCancelBtn').removeEventListener('click', onCancel); };
-    document.getElementById('deleteConfirmBtn').addEventListener('click', onConfirm);
-    document.getElementById('deleteCancelBtn').addEventListener('click', onCancel);
-  }
-
+  // Render awal
   renderProducts();
 </script>
-</body>
-</html>
