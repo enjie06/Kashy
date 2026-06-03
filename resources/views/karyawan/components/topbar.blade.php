@@ -7,13 +7,25 @@
         </span>
     </div>
 
-    @if (!request()->routeIs('karyawan.profile'))
-        <a href="{{ route('karyawan.profile') }}"
-           class="flex items-center gap-1.5 hover:opacity-80 transition">
+    @if (!request()->routeIs('kasir.profil'))
+        <a href="{{ route('kasir.profil') }}"
+           class="flex items-center gap-2 hover:opacity-80 transition">
 
-            <div class="w-7 h-7 rounded-full bg-[#C8966C] flex items-center justify-center text-white font-semibold text-xs">
-                {{ strtoupper(substr(Auth::user()->name ?? 'K', 0, 1)) }}
-            </div>
+            <span class="text-white text-xs font-medium max-w-[90px] truncate">
+                {{ Auth::user()->name }}
+            </span>
+
+            @if (Auth::user()->profile_photo)
+                <img
+                    src="{{ asset('storage/' . Auth::user()->profile_photo) }}"
+                    alt="Foto Profil"
+                    class="w-7 h-7 rounded-full object-cover border border-white/30"
+                >
+            @else
+                <div class="w-7 h-7 rounded-full bg-[#C8966C] flex items-center justify-center text-white font-semibold text-xs">
+                    {{ strtoupper(substr(Auth::user()->name ?? 'K', 0, 1)) }}
+                </div>
+            @endif
 
         </a>
     @else

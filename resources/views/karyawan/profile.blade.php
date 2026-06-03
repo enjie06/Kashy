@@ -136,13 +136,9 @@
   }
 </style>
 </head>
+@include('karyawan.components.topbar')
 <body class="bg-bg min-h-screen flex flex-col">
 @include('karyawan.components.navbar')
-<nav class="sticky top-0 z-50 bg-gray-900 flex items-center justify-center px-5 shadow-md h-12 px-4">
-  <div class="absolute left-1/2 -translate-x-1/2">
-    <span class="font-bold text-white text-lg tracking-wider">Kashy</span>
-  </div>
-</nav>
 
 <main class="flex-1 overflow-y-auto hide-scroll pb-28">
   <div class="max-w-md mx-auto px-4 pt-5 space-y-5">
