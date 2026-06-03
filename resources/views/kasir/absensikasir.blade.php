@@ -78,23 +78,49 @@
       </div>
     </div>
 
-    <!-- Pilih Shift -->
-    <div class="bg-white rounded-2xl border border-border shadow-sm overflow-hidden animate-fade-up-2 card-hover">
-      <div class="px-4 py-4">
-        <p class="text-[10px] font-bold tracking-[.14em] uppercase text-muted mb-3">Pilih Shift</p>
-        <div class="grid grid-cols-2 gap-3">
-          <button onclick="selectShift('pagi')" id="btnPagi"
-            class="shift-btn py-3 rounded-xl border-2 border-border text-sm font-semibold text-gray-700 transition hover:border-terra hover:bg-terra-xs">
-            🌅 Pagi
-          </button>
-          <button onclick="selectShift('malam')" id="btnMalam"
-            class="shift-btn py-3 rounded-xl border-2 border-border text-sm font-semibold text-gray-700 transition hover:border-terra hover:bg-terra-xs">
-            🌙 Malam
-          </button>
+  <!-- Pilih Shift -->
+<div class="bg-white rounded-2xl border border-border shadow-sm overflow-hidden animate-fade-up-2 card-hover">
+  <div class="px-4 py-4">
+    <p class="text-[10px] font-bold tracking-[.14em] uppercase text-muted mb-3">Pilih Shift</p>
+    <div class="flex flex-col gap-2">
+
+      <!-- Pagi -->
+      <button onclick="selectShift('pagi')" id="btnPagi"
+        class="shift-btn w-full flex items-center justify-between px-4 py-3.5 rounded-xl border-2 border-border bg-white transition hover:border-terra hover:bg-terra-xs">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full bg-amber-50 flex items-center justify-center flex-shrink-0">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="4"/>
+              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+            </svg>
+          </div>
+          <div class="text-left">
+            <p class="text-sm font-semibold text-gray-900">Shift Pagi</p>
+            <p class="text-[10px] text-muted">05:00 – 17:00</p>
+          </div>
         </div>
-        <p class="text-[10px] text-muted mt-2 text-center" id="shiftSelectedInfo">Pilih shift sebelum melakukan absensi</p>
-      </div>
+      </button>
+
+      <!-- Malam -->
+      <button onclick="selectShift('malam')" id="btnMalam"
+        class="shift-btn w-full flex items-center justify-between px-4 py-3.5 rounded-xl border-2 border-border bg-white transition hover:border-terra hover:bg-terra-xs">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          </div>
+          <div class="text-left">
+            <p class="text-sm font-semibold text-gray-900">Shift Malam</p>
+            <p class="text-[10px] text-muted">16:00 – 23:00</p>
+          </div>
+        </div>
+      </button>
+
     </div>
+    <p class="text-[10px] text-muted mt-2 text-center" id="shiftSelectedInfo">Pilih shift sebelum melakukan absensi</p>
+  </div>
+</div>
 
     <!-- Fingerprint Scanner -->
     <div class="bg-white rounded-2xl border border-border shadow-sm overflow-hidden animate-fade-up-2 card-hover">
@@ -234,6 +260,9 @@
 </div>
 
 <script>
+  // Cek apakah dari tutup shift (mode pulang)
+const urlParams = new URLSearchParams(window.location.search);
+const modePulang = urlParams.get('mode') === 'pulang';
 let shiftStatus  = 'tidak_aktif';
 let checkInTime  = null;
 let checkOutTime = null;
@@ -272,30 +301,27 @@ function setFpBtnDisabled(disabled) {
   fpGlow.style.filter = disabled ? 'grayscale(1)' : '';
 }
 
-// ── Pilih Shift ──
 function selectShift(shift) {
   selectedShift = shift;
 
-  // Visual aktif
   document.querySelectorAll('.shift-btn').forEach(btn => {
-    btn.classList.remove('border-terra', 'bg-terra-xs', 'text-terra');
-    btn.classList.add('border-border', 'text-gray-700');
+    btn.classList.remove('border-terra', 'bg-terra-xs');
+    btn.classList.add('border-border');
   });
+
   const activeBtn = document.getElementById(shift === 'pagi' ? 'btnPagi' : 'btnMalam');
-  activeBtn.classList.add('border-terra', 'bg-terra-xs', 'text-terra');
-  activeBtn.classList.remove('border-border', 'text-gray-700');
+  activeBtn.classList.add('border-terra', 'bg-terra-xs');
+  activeBtn.classList.remove('border-border');
 
   document.getElementById('shiftSelectedInfo').textContent =
     `Shift ${shift === 'pagi' ? 'Pagi' : 'Malam'} dipilih`;
 
-  // Simpan ke localStorage
   const today = new Date().toISOString().split('T')[0];
   localStorage.setItem('kashy_shift_date', today);
   localStorage.setItem('kashy_selected_shift_kasir', shift);
 
   updateUIByServerStatus();
 }
-
 function getSelectedShiftFromStorage() {
   const today    = new Date().toISOString().split('T')[0];
   const savedDate = localStorage.getItem('kashy_shift_date');
@@ -437,6 +463,16 @@ async function loadData() {
     if (checkOutTime) {
       document.getElementById('todayPulang').textContent = checkOutTime;
     }
+    // Kalau dari tutup shift, paksa mode pulang & sembunyikan pilih shift
+if (modePulang) {
+  checkInTime = checkInTime || '00:00'; // pastikan masuk sudah tercatat
+  document.querySelector('.animate-fade-up-2:first-of-type').style.display = 'none'; // sembunyikan pilih shift
+  selectedShift = getSelectedShiftFromStorage() || 'pagi';
+  absenType = 'pulang';
+  setFpBtnDisabled(false);
+  document.getElementById('statusTitle').textContent = 'Siap absen pulang';
+  document.getElementById('statusSub').textContent = 'Tekan tombol untuk mengakhiri shift';
+}
 
     // Restore shift pilihan dari storage
     const storedShift = getSelectedShiftFromStorage();
@@ -487,7 +523,7 @@ async function completeScan() {
         localStorage.setItem('kasir_shift_updated', Date.now());
         // ✅ LANGSUNG KE DASHBOARD
         setTimeout(() => { 
-          window.location.href = '{{ route("dashboard-kasir") }}';
+        window.location.             href = '/kasir/dashboard';
         }, 1400);
       } else if (absenType === 'pulang') {
         const waktu = result.check_out;

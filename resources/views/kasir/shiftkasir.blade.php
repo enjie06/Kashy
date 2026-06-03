@@ -581,21 +581,11 @@ async function confirmTutupShift() {
         const result = await response.json();
         
         if (result.success) {
-            let selisihText = '';
-            if (result.selisih > 0) {
-                selisihText = ` Kelebihan: Rp ${result.selisih.toLocaleString('id-ID')}`;
-            } else if (result.selisih < 0) {
-                selisihText = ` Kekurangan: Rp ${Math.abs(result.selisih).toLocaleString('id-ID')}`;
-            } else {
-                selisihText = ` Pas!`;
-            }
-            showToast(result.message + selisihText);
-            closeTutupModal();
-            localStorage.setItem('kasir_shift_updated', Date.now());
-            // ✅ LANGSUNG KE DASHBOARD (bukan ke absensi)
-            setTimeout(() => {
-                window.location.href = '{{ route("dashboard-kasir") }}';
-            }, 1200);
+    closeTutupModal();
+    localStorage.setItem('kasir_shift_updated', Date.now());
+    setTimeout(() => {
+      window.location.href = '{{ route("kasir.absensikasir") }}?mode=pulang';
+    }, 500);
         } else {
             showToast(result.message || 'Gagal menutup shift');
             closeTutupModal();

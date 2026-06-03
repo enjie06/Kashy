@@ -100,9 +100,6 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['auth'])->group(function () {
         Route::get('/owner/pengaturan-tambahan', [OwnerSettingController::class, 'index'])
             ->name('owner.pengaturan-tambahan');
-
-        Route::post('/owner/pengaturan-tambahan', [OwnerSettingController::class, 'update'])
-            ->name('owner.pengaturan-tambahan.update');
     });
 
     /*
@@ -260,7 +257,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/kasir/shift/min-saldo', [KasirShiftController::class, 'getMinSaldo'])->name('kasir.shift.minSaldo');
     Route::post('/kasir/shift/buka', [KasirShiftController::class, 'bukaShift'])->name('kasir.shift.buka');
     Route::post('/kasir/shift/tutup', [KasirShiftController::class, 'tutupShift'])->name('kasir.shift.tutup');
+
+    Route::get('/shift/status', [App\Http\Controllers\ShiftController::class, 'cekStatusAbsensi'])->name('shift.status');
+    Route::get('/shift/full-history', [App\Http\Controllers\ShiftController::class, 'getFullHistory'])->name('shift.full-history');
 });
+
 
 /*
 |--------------------------------------------------------------------------
