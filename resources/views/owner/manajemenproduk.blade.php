@@ -667,6 +667,53 @@
 
   // Render awal
   renderProducts();
+  // Sidebar / hamburger menu
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  const menuBtn = document.getElementById('global-menu-toggle');
+  const navLinks = document.querySelectorAll('[data-nav]');
+
+  function openSidebar() {
+    sidebar?.classList.add('sidebar-open');
+    overlay?.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeSidebar() {
+    sidebar?.classList.remove('sidebar-open');
+    overlay?.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  function toggleSidebar() {
+    if (sidebar?.classList.contains('sidebar-open')) {
+      closeSidebar();
+    } else {
+      openSidebar();
+    }
+  }
+
+  if (menuBtn) {
+    menuBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      toggleSidebar();
+    });
+  }
+
+  overlay?.addEventListener('click', closeSidebar);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeSidebar();
+    }
+  });
+
+  navLinks.forEach(link => {
+    link.addEventListener('click', closeSidebar);
+  });
+
+  sidebar?.classList.remove('sidebar-open');
+  overlay?.classList.remove('show');
 </script>
 </body>
 </html>

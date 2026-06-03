@@ -174,11 +174,11 @@
   .field-error.show { display: block; }
 </style>
 </head>
+@include('owner.components.topbar')
 @include('owner.components.sidebar')
 <body class="bg-bg min-h-screen">
 
 <main id="main" class="min-h-screen bg-kashy-cream">
-  @include('owner.components.topbar')
 
   <div class="max-w-lg mx-auto lg:max-w-2xl px-4 pt-7 pb-20 space-y-5">
 

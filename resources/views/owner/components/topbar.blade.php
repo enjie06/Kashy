@@ -14,14 +14,26 @@
       <span class="font-bold text-white text-xl tracking-wide">Kashy</span>
     </div>
 
-<!-- Kanan: avatar -->
-@if (!request()->routeIs('owner.profile'))
-<a href="{{ route('owner.profile') }}" 
+<!-- Kanan: Nama + Avatar -->
+<!-- Kanan: Nama + Avatar -->
+<a href="{{ route('owner.profile') }}"
    class="flex items-center gap-2 hover:opacity-80 transition">
-  <div class="w-8 h-8 rounded-full bg-kashy-brown flex items-center justify-center text-white font-bold text-sm shadow-sm">
-    A
-  </div>
+
+    <span class="text-white text-sm font-medium max-w-[120px] truncate">
+        {{ Auth::user()->name }}
+    </span>
+
+    @if(Auth::user()->profile_photo)
+        <img
+            src="{{ asset('storage/' . Auth::user()->profile_photo) }}"
+            alt="Foto Profil"
+            class="w-8 h-8 rounded-full object-cover border border-white/20 shadow-sm"
+        >
+    @else
+        <div class="w-8 h-8 rounded-full bg-kashy-brown flex items-center justify-center text-white font-bold text-sm shadow-sm">
+            {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+        </div>
+    @endif
 
 </a>
-@endif
   </header>
