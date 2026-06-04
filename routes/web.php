@@ -32,12 +32,28 @@ Route::get('/', function () {
 |--------------------------------------------------------------------------
 */
 
+// Manajemen Diskon
+    Route::get('/owner/manajemendiskon', [DiscountController::class, 'index'])
+    ->name('manajemen.diskon');
+
+    Route::post('/owner/diskon', [DiscountController::class, 'store'])
+    ->name('diskon.store');
+
+    Route::get('/owner/diskon/{id}/edit', [DiscountController::class, 'edit'])
+    ->name('diskon.edit');
+
+    Route::put('/owner/diskon/{id}', [DiscountController::class, 'update'])
+    ->name('diskon.update');
+    
+    Route::delete('/owner/diskon/{id}', [DiscountController::class, 'destroy'])
+    ->name('diskon.destroy');
+
 Route::middleware(['auth'])->group(function () {
 
     Route::get("/owner/dashboard", [DashboardController::class, "index"])
         ->name("owner.dashboard");
 
-    Route::get('/owner/manajemendiskon', [DiscountController::class, 'index'])
+    Route::get('/owner/manajemendiskon', 'App\Http\Controllers\DiscountController@index')
         ->middleware('auth')
         ->name('manajemen.diskon');
 
@@ -69,6 +85,13 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('auth')
         ->name('manajemen.produk');
 
+    Route::post('/owner/produk', [ProductController::class, 'store'])
+        ->name('produk.store');
+    Route::put('/owner/produk/{product}', [ProductController::class, 'update'])
+        ->name('produk.update');
+    Route::delete('/owner/produk/{product}', [ProductController::class, 'destroy'])
+        ->name('produk.destroy');
+
     Route::middleware(['auth'])->group(function () {
         Route::get('/owner/pengaturantransaksi', [OwnerSettingController::class, 'index'])
             ->name('pengaturan.transaksi');
@@ -89,7 +112,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/owner/products/{product}', [ProductController::class, 'destroy'])
         ->name('owner.products.destroy');
 
-    Route::view('/owner/manajemenkategori', 'owner.manajemenkategori')
+    Route::get('/owner/manajemenkategori', 'App\Http\Controllers\CategoryController@index')
         ->middleware('auth')
         ->name('manajemen.kategori');
 
@@ -142,6 +165,16 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('auth')
         ->name('owner.profile');
 
+
+    // API untuk kategori
+    Route::post('/owner/kategori', [CategoryController::class, 'store'])->name('kategori.store');
+    Route::put('/owner/kategori/{id}', [CategoryController::class, 'update'])->name('kategori.update');
+    Route::delete('/owner/kategori/{id}', [CategoryController::class, 'destroy'])->name('kategori.destroy');
+
+    // API untuk diskon
+    Route::post('/owner/diskon', [DiscountController::class, 'store'])->name('diskon.store');
+    Route::put('/owner/diskon/{id}', [DiscountController::class, 'update'])->name('diskon.update');
+    Route::delete('/owner/diskon/{id}', [DiscountController::class, 'destroy'])->name('diskon.destroy');
 });
 
 
@@ -370,9 +403,8 @@ Route::get('/api/products-all', [ProductController::class, 'getProductsJson'])
 Route::get('/katalog', [ProductController::class, 'katalog'])
     ->name('katalog');
 
-Route::get('/daftarproduk', function () {
-    return view('pelanggan.daftarproduk');
-})->name('daftar-produk');
+Route::get('/daftarproduk', [ProductController::class, 'daftarProduk'])
+->name('daftar-produk');
 
 Route::get('/detail-produk/{id}', [ProductController::class, 'detail'])
     ->name('detail-produk');
