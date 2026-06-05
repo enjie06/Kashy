@@ -11,14 +11,13 @@ use Carbon\Carbon;
 class ShiftController extends Controller
 {
     // ============================================================
-    // KONFIGURASI SHIFT (KARYAWAN & KASIR PAKAI YANG SAMA)
+    // KONFIGURASI SHIFT
     // ============================================================
     const SHIFTS = [
         'pagi'  => ['start' => '09:00', 'end' => '17:00', 'mulai_jam' => 9,  'selesai_jam' => 17],
         'malam' => ['start' => '15:00', 'end' => '23:00', 'mulai_jam' => 15, 'selesai_jam' => 23],
     ];
 
-    // Shift kasir sedikit berbeda jamnya
     const SHIFTS_KASIR = [
         'pagi'  => ['start' => '09:00', 'end' => '17:00', 'mulai_jam' => 9,  'selesai_jam' => 17],
         'malam' => ['start' => '16:00', 'end' => '23:00', 'mulai_jam' => 16, 'selesai_jam' => 23],
@@ -33,7 +32,6 @@ class ShiftController extends Controller
         $today = date('Y-m-d');
         $now   = now();
 
-        // Kasir pakai method sendiri
         if ($user->role === 'kasir') {
             return $this->handleAbsensiKasir($request);
         }
@@ -120,7 +118,7 @@ class ShiftController extends Controller
     }
 
     // ============================================================
-    // KASIR — handleAbsensi (cek ada shift aktif dulu)
+    // KASIR — handleAbsensi
     // ============================================================
     private function handleAbsensiKasir(Request $request)
     {
@@ -136,29 +134,12 @@ class ShiftController extends Controller
             ], 422);
         }
 
-        $shiftCfg = self::SHIFTS_KASIR[$shiftType];
-
-        // Untuk absen masuk: wajib ada shift aktif (sudah buka shift)
-        $action = $request->input('action', 'masuk');
-
-        if ($action === 'masuk') {
-            $shiftAktif = Shift::where('kasir_id', $user->id)
-                               ->where('status', 'open')
-                               ->first();
-
-            // if (!$shiftAktif) {
-            //     return response()->json([
-            //         'success' => false,
-            //         'message' => 'Buka shift kas terlebih dahulu sebelum absen masuk.',
-            //         'need_open_shift' => true,
-            //     ], 422);
-            // }
-        }
-
+        $shiftCfg  = self::SHIFTS_KASIR[$shiftType];
         $attendance = Attendance::where('user_id', $user->id)
                                 ->whereDate('created_at', $today)
                                 ->first();
 
+        // ── ABSEN MASUK ──
         if (!$attendance || !$attendance->check_in) {
             $terlambatInfo = $this->hitungTerlambat($now, $shiftCfg['start']);
 
@@ -183,17 +164,19 @@ class ShiftController extends Controller
                 : "✅ Shift {$shiftNama} dimulai! Tepat waktu.";
 
             return response()->json([
-                'success'         => true,
-                'action'          => 'masuk',
-                'message'         => $message,
-                'check_in'        => $now->format('H:i'),
-                'shift_type'      => $shiftType,
-                'shift_type_nama' => $shiftNama,
-                'terlambat'       => $terlambatInfo['terlambat'],
-                'terlambat_menit' => $terlambatInfo['menit'],
+                'success'          => true,
+                'action'           => 'masuk',
+                'message'          => $message,
+                'check_in'         => $now->format('H:i'),
+                'shift_type'       => $shiftType,
+                'shift_type_nama'  => $shiftNama,
+                'terlambat'        => $terlambatInfo['terlambat'],
+                'terlambat_menit'  => $terlambatInfo['menit'],
+                'redirect'         => route('kasir.shiftkasir'),
             ]);
         }
 
+        // ── ABSEN PULANG ──
         if ($attendance->check_in && !$attendance->check_out) {
             $attendance->update([
                 'check_out'    => $now,
@@ -206,6 +189,7 @@ class ShiftController extends Controller
                 'message'   => '✅ Shift selesai! Terima kasih.',
                 'check_out' => $now->format('H:i'),
                 'check_in'  => $attendance->check_in->format('H:i'),
+                'redirect'  => route('dashboard-kasir'),
             ]);
         }
 
@@ -216,15 +200,139 @@ class ShiftController extends Controller
     }
 
     // ============================================================
+    // KASIR — bukaShift
+    // Validasi: kasir wajib sudah absen masuk hari ini
+    // ============================================================
+    public function bukaShift(Request $request)
+    {
+        $user  = Auth::user();
+        $today = date('Y-m-d');
+
+        // ── Cek absensi masuk ──
+        $attendance = Attendance::where('user_id', $user->id)
+                                ->whereDate('created_at', $today)
+                                ->whereNotNull('check_in')
+                                ->first();
+
+        if (!$attendance) {
+            return response()->json([
+                'success'  => false,
+                'message'  => 'Anda belum melakukan absensi masuk hari ini. Silakan absen terlebih dahulu.',
+                'need_absen' => true,
+                'redirect' => route('kasir.absensikasir'),
+            ], 403);
+        }
+
+        $saldoAwal = $request->input('saldo_awal', 0);
+
+        // Cek apakah shift kas sudah aktif
+        $existingShift = Shift::where('user_id', $user->id)
+                              ->whereDate('created_at', $today)
+                              ->whereNull('waktu_tutup')
+                              ->first();
+
+        if ($existingShift) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Shift kas sudah aktif hari ini.',
+            ], 400);
+        }
+
+        $shift = Shift::create([
+            'user_id'    => $user->id,
+            'saldo_awal' => $saldoAwal,
+            'waktu_buka' => now()->format('H:i'),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return response()->json([
+            'success'  => true,
+            'message'  => 'Shift berhasil dibuka!',
+            'shift'    => $shift,
+            'redirect' => route('dashboard-kasir'),
+        ]);
+    }
+
+    // ============================================================
+    // KASIR — tutupShift
+    // ============================================================
+    public function tutupShift(Request $request)
+    {
+        $user  = Auth::user();
+        $today = date('Y-m-d');
+
+        $shift = Shift::where('user_id', $user->id)
+                      ->whereDate('created_at', $today)
+                      ->whereNull('waktu_tutup')
+                      ->first();
+
+        if (!$shift) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada shift aktif yang bisa ditutup.',
+            ], 404);
+        }
+
+        $uangTunaiAktual = $request->input('uang_tunai_aktual', 0);
+
+        $shift->update([
+            'waktu_tutup'       => now()->format('H:i'),
+            'uang_tunai_aktual' => $uangTunaiAktual,
+        ]);
+
+        return response()->json([
+            'success'  => true,
+            'message'  => 'Shift berhasil ditutup!',
+            'redirect' => route('kasir.absensikasir'),
+        ]);
+    }
+
+    // ============================================================
+    // KASIR — minSaldo
+    // ============================================================
+    public function getMinSaldo()
+    {
+        return response()->json(['min_saldo' => 50000]);
+    }
+
+    // ============================================================
+    // KASIR — shiftStatus (untuk dashboard kasir)
+    // ============================================================
+    public function shiftStatusKasir()
+    {
+        $user  = Auth::user();
+        $today = date('Y-m-d');
+
+        $shift = Shift::where('user_id', $user->id)
+                      ->whereDate('created_at', $today)
+                      ->whereNull('waktu_tutup')
+                      ->first();
+
+        if (!$shift) {
+            return response()->json(['shift_active' => false, 'shift' => null]);
+        }
+
+        return response()->json([
+            'shift_active' => true,
+            'shift'        => $shift,
+        ]);
+    }
+
+    // ============================================================
     // KARYAWAN — cekStatus
     // ============================================================
+    public function cekStatusAbsensi()
+    {
+        return $this->cekStatus();
+    }
+
     public function cekStatus()
     {
         $user  = Auth::user();
         $today = date('Y-m-d');
         $now   = now();
 
-        // Kasir pakai method sendiri
         if ($user->role === 'kasir') {
             return $this->cekStatusKasir();
         }
@@ -289,7 +397,7 @@ class ShiftController extends Controller
     }
 
     // ============================================================
-    // KASIR — cekStatus (cek attendance + shift kas)
+    // KASIR — cekStatus absensi
     // ============================================================
     public function cekStatusKasir()
     {
@@ -343,13 +451,12 @@ class ShiftController extends Controller
     }
 
     // ============================================================
-    // FULL HISTORY (KARYAWAN & KASIR)
+    // FULL HISTORY
     // ============================================================
     public function getFullHistory(Request $request)
     {
         $user     = Auth::user();
         $isKasir  = ($user->role === 'kasir');
-        $shiftsRef = $isKasir ? self::SHIFTS_KASIR : self::SHIFTS;
 
         $joinDate = Carbon::parse($user->created_at)->startOfDay();
         $today    = Carbon::today();
@@ -386,15 +493,15 @@ class ShiftController extends Controller
             if ($attendance) {
                 if (!$attendance->check_in) {
                     $result[] = [
-                        'id'         => $attendance->id,
-                        'date'       => $current->translatedFormat('l, d F Y'),
-                        'date_raw'   => $dateKey,
-                        'check_in'   => '-',
-                        'check_out'  => '-',
-                        'status'     => 'Tidak Hadir',
-                        'shift_type' => null,
-                        'shift_start'=> '-',
-                        'shift_end'  => '-',
+                        'id'          => $attendance->id,
+                        'date'        => $current->translatedFormat('l, d F Y'),
+                        'date_raw'    => $dateKey,
+                        'check_in'    => '-',
+                        'check_out'   => '-',
+                        'status'      => 'Tidak Hadir',
+                        'shift_type'  => null,
+                        'shift_start' => '-',
+                        'shift_end'   => '-',
                     ];
                 } else {
                     $shiftInfo = $isKasir
@@ -402,29 +509,29 @@ class ShiftController extends Controller
                         : $this->getShiftFromTime($attendance->check_in);
 
                     $result[] = [
-                        'id'         => $attendance->id,
-                        'date'       => $current->translatedFormat('l, d F Y'),
-                        'date_raw'   => $dateKey,
-                        'check_in'   => $attendance->check_in->format('H:i'),
-                        'check_out'  => $attendance->check_out ? $attendance->check_out->format('H:i') : '-',
-                        'status'     => $shiftInfo['terlambat'] ? 'Terlambat' : 'Hadir',
-                        'shift_type' => $shiftInfo['type'],
-                        'shift_start'=> $shiftInfo['start'],
-                        'shift_end'  => $shiftInfo['end'],
+                        'id'          => $attendance->id,
+                        'date'        => $current->translatedFormat('l, d F Y'),
+                        'date_raw'    => $dateKey,
+                        'check_in'    => $attendance->check_in->format('H:i'),
+                        'check_out'   => $attendance->check_out ? $attendance->check_out->format('H:i') : '-',
+                        'status'      => $shiftInfo['terlambat'] ? 'Terlambat' : 'Hadir',
+                        'shift_type'  => $shiftInfo['type'],
+                        'shift_start' => $shiftInfo['start'],
+                        'shift_end'   => $shiftInfo['end'],
                     ];
                 }
             } else {
                 if ($current->lt($today)) {
                     $result[] = [
-                        'id'         => null,
-                        'date'       => $current->translatedFormat('l, d F Y'),
-                        'date_raw'   => $dateKey,
-                        'check_in'   => '-',
-                        'check_out'  => '-',
-                        'status'     => 'Tidak Hadir',
-                        'shift_type' => null,
-                        'shift_start'=> '-',
-                        'shift_end'  => '-',
+                        'id'          => null,
+                        'date'        => $current->translatedFormat('l, d F Y'),
+                        'date_raw'    => $dateKey,
+                        'check_in'    => '-',
+                        'check_out'   => '-',
+                        'status'      => 'Tidak Hadir',
+                        'shift_type'  => null,
+                        'shift_start' => '-',
+                        'shift_end'   => '-',
                     ];
                 }
             }
@@ -551,7 +658,6 @@ class ShiftController extends Controller
     {
         $hour = (int) $checkInTime->format('H');
 
-        // Shift pagi kasir: 05:00–17:00, shift malam: 16:00–23:00
         if ($hour >= 5 && $hour < 16) {
             $shiftType     = 'pagi';
             $shiftTypeNama = 'Pagi';

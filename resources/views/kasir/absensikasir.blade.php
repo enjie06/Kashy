@@ -50,6 +50,7 @@
   @keyframes glowPulse { 0%,100% { box-shadow: 0 0 20px rgba(200,150,108,.4); } 50% { box-shadow: 0 0 50px rgba(229,177,138,.8); } }
   .scanning-glow { animation: glowPulse .7s ease-in-out infinite; }
 
+  /* Modal pulang */
   #pulangOverlay { opacity: 0; pointer-events: none; transition: opacity .25s ease; }
   #pulangOverlay.open { opacity: 1; pointer-events: all; }
   #pulangDialog { transform: scale(.92) translateY(12px); transition: transform .3s cubic-bezier(0.34,1.56,.64,1); }
@@ -75,51 +76,6 @@
         <p class="text-xs text-muted mt-1" id="liveDate">--</p>
       </div>
     </div>
-
-  <!-- MODAL PILIH SHIFT -->
-<div id="shiftModal" class="fixed inset-0 z-[60] flex items-center justify-center p-3 bg-black/50" style="backdrop-filter:blur(4px);">
-  <div id="shiftModalDialog" class="w-full max-w-[320px] bg-white rounded-2xl shadow-2xl overflow-hidden">
-    <div class="shimmer-bar h-1 w-full"></div>
-    <div class="px-4 pt-5 pb-6">
-      <div class="flex items-center justify-between mb-1">
-        <div>
-          <h3 class="text-base font-bold text-gray-900">Pilih Shift Kerja</h3>
-          <p class="text-[10px] text-muted mt-0.5" id="modalDateLabel">—</p>
-        </div>
-        <button onclick="closeShiftModal()" class="w-7 h-7 rounded-lg border border-border flex items-center justify-center text-muted hover:bg-terra-xs">
-          <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      </div>
-
-      <div class="flex flex-col gap-2 mb-5">
-        <div id="optPagi" class="shift-option" onclick="pilihShift('pagi')">
-          <div class="shift-option-icon w-9 h-9">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C8966C" stroke-width="2">
-              <circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/>
-              <line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
-              <line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/>
-            </svg>
-          </div>
-          <div class="flex-1"><p class="text-xs font-bold text-gray-900">Shift Pagi</p><p class="text-[9px] text-muted">09:00 – 17:00</p></div>
-          <svg class="w-4 h-4 text-terra" id="arrowPagi" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
-          <span class="unavail-badge hidden" id="unavailPagi">Unavailable</span>
-        </div>
-        <div id="optMalam" class="shift-option" onclick="pilihShift('malam')">
-          <div class="shift-option-icon w-9 h-9" style="background:#F0F4FF;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7B4F2E" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-          </div>
-          <div class="flex-1"><p class="text-xs font-bold text-gray-900">Shift Malam</p><p class="text-[9px] text-muted">15:00 – 23:00</p></div>
-          <svg class="w-4 h-4" id="arrowMalam" fill="none" stroke="#7B4F2E" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
-          <span class="unavail-badge hidden" id="unavailMalam">Unavailable</span>
-        </div>
-      </div>
-      <div class="flex items-center justify-center gap-1.5 py-1.5 rounded-lg" style="background:#F5F0EB;">
-        <svg width="11" height="11" fill="none" stroke="#9C8B7E" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        <p class="text-[9px] text-muted">Waktu sekarang: <strong class="text-gray-800" id="modalCurrentTime">—</strong></p>
-      </div>
-    </div>
-  </div>
-</div>
 
     <!-- Fingerprint Scanner -->
     <div class="bg-white rounded-2xl border border-border shadow-sm overflow-hidden animate-fade-up-2 card-hover">
@@ -169,8 +125,8 @@
           </div>
         </div>
         <div class="text-center space-y-1 mb-2">
-          <p class="text-sm font-semibold text-gray-700" id="statusTitle">Memuat...</p>
-          <p class="text-xs text-muted" id="statusSub"></p>
+          <p class="text-sm font-semibold text-gray-700" id="statusTitle">Memuat data...</p>
+          <p class="text-xs text-muted" id="statusSub">Mohon tunggu sebentar</p>
         </div>
       </div>
     </div>
@@ -234,7 +190,6 @@
   </div>
 </main>
 
-
 <!-- Modal Konfirmasi Absen Pulang -->
 <div id="pulangOverlay" class="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
   <div id="pulangDialog" class="w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden">
@@ -267,8 +222,9 @@ const SHIFT_CONFIG = {
   malam: { nama: 'Shift Malam', mulai: '15:00', selesai: '23:00', mulaiJam: 15, selesaiJam: 23 },
 };
 
-const LS_SHIFT_KEY      = 'kashy_selected_shift_kasir';
-const LS_SHIFT_DATE_KEY = 'kashy_shift_date_kasir';
+// Key harus sama persis dengan yang dipakai di dashboard kasir
+const LS_SHIFT_KEY      = 'kashy_kasir_selected_shift';
+const LS_SHIFT_DATE_KEY = 'kashy_kasir_shift_date';
 
 let checkInTime  = null;
 let checkOutTime = null;
@@ -304,6 +260,7 @@ function setFpBtnDisabled(disabled) {
   fpGlow.style.filter = disabled ? 'grayscale(1)' : '';
 }
 
+// ── localStorage helpers ──
 function getShiftFromStorage() {
   const today     = new Date().toISOString().split('T')[0];
   const savedDate = localStorage.getItem(LS_SHIFT_DATE_KEY);
@@ -312,80 +269,6 @@ function getShiftFromStorage() {
     return null; 
   }
   return localStorage.getItem(LS_SHIFT_KEY);
-}
-
-function isShiftAvailable(shiftType) {
-  const now     = new Date();
-  const nowMins = now.getHours() * 60 + now.getMinutes();
-  const cfg     = SHIFT_CONFIG[shiftType];
-  return nowMins >= cfg.mulaiJam * 60 && nowMins < cfg.selesaiJam * 60;
-}
-
-function updateShiftOptions() {
-  const now = new Date();
-  const h   = String(now.getHours()).padStart(2, '0');
-  const m   = String(now.getMinutes()).padStart(2, '0');
-  
-  const modalCurrentTime = document.getElementById('modalCurrentTime');
-  const modalDateLabel = document.getElementById('modalDateLabel');
-  if (modalCurrentTime) modalCurrentTime.textContent = `${h}:${m} WIB`;
-  if (modalDateLabel) modalDateLabel.textContent = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' });
-
-  const availPagi = isShiftAvailable('pagi');
-  const optPagi = document.getElementById('optPagi');
-  const arrowPagi = document.getElementById('arrowPagi');
-  const unavailPagi = document.getElementById('unavailPagi');
-  if (optPagi) {
-    optPagi.classList.toggle('disabled', !availPagi);
-    if (arrowPagi) arrowPagi.classList.toggle('hidden', !availPagi);
-    if (unavailPagi) unavailPagi.classList.toggle('hidden', availPagi);
-    if (selectedShift === 'pagi') optPagi.classList.add('selected');
-    else optPagi.classList.remove('selected');
-  }
-
-  const availMalam = isShiftAvailable('malam');
-  const optMalam = document.getElementById('optMalam');
-  const arrowMalam = document.getElementById('arrowMalam');
-  const unavailMalam = document.getElementById('unavailMalam');
-  if (optMalam) {
-    optMalam.classList.toggle('disabled', !availMalam);
-    if (arrowMalam) arrowMalam.classList.toggle('hidden', !availMalam);
-    if (unavailMalam) unavailMalam.classList.toggle('hidden', availMalam);
-    if (selectedShift === 'malam') optMalam.classList.add('selected');
-    else optMalam.classList.remove('selected');
-  }
-}
-
-function pilihShift(type) {
-  if (!isShiftAvailable(type)) {
-    showToast(`${SHIFT_CONFIG[type].nama} tidak tersedia saat ini`);
-    return;
-  }
-  selectedShift = type;
-  saveShiftChoice(type);
-  updateShiftOptions();
-  closeShiftModal();
-  updateUIByStatus();
-  showToast(`${SHIFT_CONFIG[type].nama} dipilih`);
-}
-
-function openShiftModal() {
-  updateShiftOptions();
-  const modal = document.getElementById('shiftModal');
-  if (modal) {
-    modal.classList.remove('hidden');
-    modal.style.display = 'flex';
-  }
-  document.body.style.overflow = 'hidden';
-}
-
-function closeShiftModal() {
-  const modal = document.getElementById('shiftModal');
-  if (modal) {
-    modal.classList.add('hidden');
-    modal.style.display = 'none';
-  }
-  document.body.style.overflow = '';
 }
 
 function updateUIByStatus() {
@@ -410,10 +293,13 @@ function updateUIByStatus() {
     return;
   }
   if (!shift) {
-    statusTitle.textContent = 'Pilih shift terlebih dahulu';
-    statusSub.textContent   = 'Klik tombol fingerprint untuk memilih shift';
-    setFpBtnDisabled(false);
+    // Tidak ada shift → arahkan balik ke dashboard untuk pilih shift
+    statusTitle.textContent = 'Shift belum dipilih';
+    statusSub.textContent   = 'Kembali ke dashboard untuk memilih shift';
+    setFpBtnDisabled(true);
     absenType = null;
+    showToast('Silakan pilih shift di dashboard terlebih dahulu');
+    setTimeout(() => { window.location.href = '{{ route("dashboard-kasir") }}'; }, 1800);
     return;
   }
   if (checkInTime && !checkOutTime) {
@@ -423,7 +309,8 @@ function updateUIByStatus() {
     absenType = 'pulang';
     return;
   }
-  statusTitle.textContent = 'Siap absen masuk';
+  const cfg = SHIFT_CONFIG[shift];
+  statusTitle.textContent = `Siap absen masuk · ${cfg ? cfg.nama : ''}`;
   statusSub.textContent   = 'Tekan tombol untuk memulai shift';
   setFpBtnDisabled(false);
   absenType = 'masuk';
@@ -500,11 +387,7 @@ async function loadData() {
       }
     }
 
-    const storedShift = getShiftFromStorage();
-    if (storedShift) {
-      selectedShift = storedShift;
-    }
-
+    selectedShift = getShiftFromStorage();
     updateUIByStatus();
     await loadHistory();
   } catch (err) {
@@ -644,12 +527,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (fpBtn) {
     fpBtn.addEventListener('click', () => {
       if (scanState !== 'idle') return;
-
-      const shift = selectedShift || getShiftFromStorage();
-      if (!shift) {
-        openShiftModal();
-        return;
-      }
       if (document.getElementById('fpBtn').disabled) return;
 
       if (absenType === 'pulang') {
@@ -657,13 +534,6 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         startFakeScan();
       }
-    });
-  }
-
-  const shiftModal = document.getElementById('shiftModal');
-  if (shiftModal) {
-    shiftModal.addEventListener('click', function(e) {
-      if (e.target === this) closeShiftModal();
     });
   }
 });
