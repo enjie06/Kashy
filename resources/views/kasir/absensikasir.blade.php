@@ -222,7 +222,6 @@ const SHIFT_CONFIG = {
   malam: { nama: 'Shift Malam', mulai: '15:00', selesai: '23:00', mulaiJam: 15, selesaiJam: 23 },
 };
 
-// Key harus sama persis dengan yang dipakai di dashboard kasir
 const LS_SHIFT_KEY      = 'kashy_kasir_selected_shift';
 const LS_SHIFT_DATE_KEY = 'kashy_kasir_shift_date';
 
@@ -235,7 +234,9 @@ let scanInterval  = null;
 
 function showToast(msg) {
   const t = document.getElementById('toast');
-  document.getElementById('toastMsg').textContent = msg;
+  const toastMsg = document.getElementById('toastMsg');
+  if (!t || !toastMsg) return;
+  toastMsg.textContent = msg;
   t.style.opacity = '1';
   t.style.transform = 'translateX(-50%) translateY(0)';
   clearTimeout(t._t);
@@ -248,19 +249,20 @@ function showToast(msg) {
 const CIRCUMFERENCE = 2 * Math.PI * 58;
 function setRingProgress(pct) {
   const fill = document.getElementById('fpRingFill');
-  fill.style.strokeDashoffset = CIRCUMFERENCE * (1 - pct);
-  fill.style.strokeDasharray  = CIRCUMFERENCE;
+  if (fill) fill.style.strokeDashoffset = CIRCUMFERENCE * (1 - pct);
 }
 function resetRing() { setRingProgress(0); }
+
 function setFpBtnDisabled(disabled) {
   const fpBtn = document.getElementById('fpBtn');
   const fpGlow = document.getElementById('fpGlow');
-  fpBtn.disabled = disabled;
-  fpBtn.style.opacity = disabled ? '0.45' : '1';
-  fpGlow.style.filter = disabled ? 'grayscale(1)' : '';
+  if (fpBtn) {
+    fpBtn.disabled = disabled;
+    fpBtn.style.opacity = disabled ? '0.45' : '1';
+  }
+  if (fpGlow) fpGlow.style.filter = disabled ? 'grayscale(1)' : '';
 }
 
-// ── localStorage helpers ──
 function getShiftFromStorage() {
   const today     = new Date().toISOString().split('T')[0];
   const savedDate = localStorage.getItem(LS_SHIFT_DATE_KEY);
@@ -274,57 +276,67 @@ function getShiftFromStorage() {
 function updateUIByStatus() {
   const statusTitle = document.getElementById('statusTitle');
   const statusSub   = document.getElementById('statusSub');
-  const shiftLabel  = document.getElementById('selectedShiftLabel');
   
   const storedShift = getShiftFromStorage();
   if (storedShift && SHIFT_CONFIG[storedShift]) {
     selectedShift = storedShift;
-    shiftLabel.textContent = SHIFT_CONFIG[storedShift].nama;
   } else {
     selectedShift = null;
-    shiftLabel.textContent = 'Belum pilih shift';
   }
 
+  // Jika sudah absen masuk dan pulang
   if (checkInTime && checkOutTime) {
-    statusTitle.textContent = 'Absensi selesai';
-    statusSub.textContent   = 'Anda sudah absen masuk dan pulang hari ini';
+    if (statusTitle) statusTitle.textContent = 'Absensi selesai';
+    if (statusSub) statusSub.textContent = 'Anda sudah absen masuk dan pulang hari ini';
     setFpBtnDisabled(true);
     absenType = null;
     return;
   }
-  if (!shift) {
-    // Tidak ada shift → arahkan balik ke dashboard untuk pilih shift
-    statusTitle.textContent = 'Shift belum dipilih';
-    statusSub.textContent   = 'Kembali ke dashboard untuk memilih shift';
+  
+  // Jika belum pilih shift
+  if (!selectedShift) {
+    if (statusTitle) statusTitle.textContent = 'Shift belum dipilih';
+    if (statusSub) statusSub.textContent = 'Kembali ke dashboard untuk memilih shift';
     setFpBtnDisabled(true);
     absenType = null;
     showToast('Silakan pilih shift di dashboard terlebih dahulu');
     setTimeout(() => { window.location.href = '{{ route("dashboard-kasir") }}'; }, 1800);
     return;
   }
+  
+  // Jika sudah absen masuk tapi belum pulang
   if (checkInTime && !checkOutTime) {
-    statusTitle.textContent = 'Siap absen pulang';
-    statusSub.textContent   = 'Tekan tombol untuk mengakhiri shift';
+    if (statusTitle) statusTitle.textContent = 'Siap absen pulang';
+    if (statusSub) statusSub.textContent = 'Tekan tombol untuk mengakhiri shift';
     setFpBtnDisabled(false);
     absenType = 'pulang';
     return;
   }
-  const cfg = SHIFT_CONFIG[shift];
-  statusTitle.textContent = `Siap absen masuk · ${cfg ? cfg.nama : ''}`;
-  statusSub.textContent   = 'Tekan tombol untuk memulai shift';
+  
+  // Belum absen sama sekali
+  const cfg = SHIFT_CONFIG[selectedShift];
+  if (statusTitle) statusTitle.textContent = `Siap absen masuk · ${cfg ? cfg.nama : ''}`;
+  if (statusSub) statusSub.textContent = 'Tekan tombol untuk memulai shift';
   setFpBtnDisabled(false);
   absenType = 'masuk';
 }
 
-// ── Modal pulang ──
 function openPulangModal() {
-  document.getElementById('pulangOverlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
+  const overlay = document.getElementById('pulangOverlay');
+  if (overlay) {
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
 }
+
 function closePulangModal() {
-  document.getElementById('pulangOverlay').classList.remove('open');
-  document.body.style.overflow = '';
+  const overlay = document.getElementById('pulangOverlay');
+  if (overlay) {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
 }
+
 function confirmPulang() {
   closePulangModal();
   startFakeScan();
@@ -337,6 +349,9 @@ async function loadHistory() {
     const container  = document.getElementById('historyContent');
     const loadingEl  = document.getElementById('historyLoading');
     const data = Array.isArray(result) ? result : (result.histories || []);
+    
+    if (!container || !loadingEl) return;
+    
     if (data.length === 0) {
       container.innerHTML = '<p class="text-center text-muted text-xs py-4">Belum ada riwayat absensi</p>';
     } else {
@@ -367,8 +382,10 @@ async function loadHistory() {
     container.classList.remove('hidden');
   } catch (err) {
     console.error('Load history error:', err);
-    document.getElementById('historyLoading').innerHTML =
-      '<p class="text-center text-muted text-xs py-4">Gagal memuat riwayat</p>';
+    const loadingEl = document.getElementById('historyLoading');
+    if (loadingEl) {
+      loadingEl.innerHTML = '<p class="text-center text-muted text-xs py-4">Gagal memuat riwayat</p>';
+    }
   }
 }
 
@@ -378,13 +395,21 @@ async function loadData() {
     const absenData = await absenRes.json();
     checkInTime  = absenData.check_in  || null;
     checkOutTime = absenData.check_out || null;
-    if (checkInTime)  document.getElementById('todayMasuk').textContent  = checkInTime  + ' WIB';
-    if (checkOutTime) document.getElementById('todayPulang').textContent = checkOutTime + ' WIB';
-    if (absenData.terlambat && checkInTime) {
-      document.getElementById('lateWarning').classList.remove('hidden');
+    
+    const todayMasuk = document.getElementById('todayMasuk');
+    const todayPulang = document.getElementById('todayPulang');
+    if (todayMasuk && checkInTime) todayMasuk.textContent = checkInTime + ' WIB';
+    if (todayPulang && checkOutTime) todayPulang.textContent = checkOutTime + ' WIB';
+    
+    const lateWarning = document.getElementById('lateWarning');
+    const lateWarningText = document.getElementById('lateWarningText');
+    if (absenData.terlambat && checkInTime && lateWarning && lateWarningText) {
+      lateWarning.classList.remove('hidden');
       if (absenData.terlambat_menit) {
-        document.getElementById('lateWarningText').textContent = `⚠️ Terlambat ${absenData.terlambat_menit} menit`;
+        lateWarningText.textContent = `⚠️ Terlambat ${absenData.terlambat_menit} menit`;
       }
+    } else if (lateWarning) {
+      lateWarning.classList.add('hidden');
     }
 
     selectedShift = getShiftFromStorage();
@@ -411,26 +436,35 @@ async function completeScan() {
     });
     const result = await response.json();
 
-    document.getElementById('fpGlow').style.opacity = '0';
-    const sc = document.getElementById('successCircle');
-    sc.classList.remove('hidden');
-    sc.style.display = 'flex';
-    sc.classList.add('animate-success-pop');
+    const fpGlow = document.getElementById('fpGlow');
+    const successCircle = document.getElementById('successCircle');
+    if (fpGlow) fpGlow.style.opacity = '0';
+    if (successCircle) {
+      successCircle.classList.remove('hidden');
+      successCircle.style.display = 'flex';
+      successCircle.classList.add('animate-success-pop');
+    }
 
     if (result.success) {
       if (absenType === 'masuk') {
         const waktu = result.check_in;
-        document.getElementById('statusTitle').textContent = '✓ Absen masuk berhasil';
-        document.getElementById('statusSub').textContent   = `Tercatat pukul ${waktu} WIB`;
-        document.getElementById('todayMasuk').textContent  = waktu + ' WIB';
+        const statusTitle = document.getElementById('statusTitle');
+        const statusSub = document.getElementById('statusSub');
+        const todayMasuk = document.getElementById('todayMasuk');
+        if (statusTitle) statusTitle.textContent = '✓ Absen masuk berhasil';
+        if (statusSub) statusSub.textContent = `Tercatat pukul ${waktu} WIB`;
+        if (todayMasuk) todayMasuk.textContent = waktu + ' WIB';
         showToast(result.message);
         localStorage.setItem('kasir_shift_updated', Date.now());
         setTimeout(() => { window.location.href = '{{ route("kasir.shiftkasir") }}'; }, 1400);
       } else if (absenType === 'pulang') {
         const waktu = result.check_out;
-        document.getElementById('statusTitle').textContent = '✓ Absen pulang berhasil';
-        document.getElementById('statusSub').textContent   = `Tercatat pukul ${waktu} WIB`;
-        document.getElementById('todayPulang').textContent = waktu + ' WIB';
+        const statusTitle = document.getElementById('statusTitle');
+        const statusSub = document.getElementById('statusSub');
+        const todayPulang = document.getElementById('todayPulang');
+        if (statusTitle) statusTitle.textContent = '✓ Absen pulang berhasil';
+        if (statusSub) statusSub.textContent = `Tercatat pukul ${waktu} WIB`;
+        if (todayPulang) todayPulang.textContent = waktu + ' WIB';
         showToast(result.message);
         localStorage.setItem('kasir_shift_updated', Date.now());
         setTimeout(() => { window.location.href = '{{ route("dashboard-kasir") }}'; }, 1400);
@@ -445,34 +479,54 @@ async function completeScan() {
     resetScanner();
   }
   scanState = 'done';
-  document.getElementById('fpBtn').style.pointerEvents = '';
+  const fpBtn = document.getElementById('fpBtn');
+  if (fpBtn) fpBtn.style.pointerEvents = '';
 }
 
 function resetScanner() {
   scanState = 'idle';
-  document.getElementById('fpGlow').style.opacity   = '1';
-  document.getElementById('fpGlow').style.filter    = '';
-  document.getElementById('fpGlow').style.boxShadow = '';
-  document.getElementById('successCircle').classList.add('hidden');
-  document.getElementById('fpIcon').style.display       = 'block';
-  document.getElementById('fpTextGroup').style.display  = 'flex';
-  document.getElementById('fpBtn').style.pointerEvents  = '';
-  document.getElementById('scanPercent').classList.add('hidden');
+  const fpGlow = document.getElementById('fpGlow');
+  const successCircle = document.getElementById('successCircle');
+  const fpIcon = document.getElementById('fpIcon');
+  const fpTextGroup = document.getElementById('fpTextGroup');
+  const scanPercent = document.getElementById('scanPercent');
+  const fpBtn = document.getElementById('fpBtn');
+  
+  if (fpGlow) {
+    fpGlow.style.opacity = '1';
+    fpGlow.style.filter = '';
+    fpGlow.style.boxShadow = '';
+  }
+  if (successCircle) successCircle.classList.add('hidden');
+  if (fpIcon) fpIcon.style.display = 'block';
+  if (fpTextGroup) fpTextGroup.style.display = 'flex';
+  if (fpBtn) fpBtn.style.pointerEvents = '';
+  if (scanPercent) scanPercent.classList.add('hidden');
   resetRing();
   updateUIByStatus();
 }
 
 function startFakeScan() {
   if (scanState !== 'idle') return;
-  if (document.getElementById('fpBtn').disabled) return;
+  const fpBtn = document.getElementById('fpBtn');
+  if (fpBtn && fpBtn.disabled) return;
+  
   scanState = 'scanning';
-  document.getElementById('scanPercent').classList.remove('hidden');
-  document.getElementById('fpIcon').style.display      = 'none';
-  document.getElementById('fpTextGroup').style.display = 'none';
-  document.getElementById('fpGlow').classList.add('scanning-glow');
-  document.getElementById('statusTitle').textContent   = 'Memindai sidik jari';
-  document.getElementById('statusSub').textContent     = 'Mohon tunggu...';
-  document.getElementById('fpBtn').style.pointerEvents = 'none';
+  const scanPercent = document.getElementById('scanPercent');
+  const fpIcon = document.getElementById('fpIcon');
+  const fpTextGroup = document.getElementById('fpTextGroup');
+  const fpGlow = document.getElementById('fpGlow');
+  const statusTitle = document.getElementById('statusTitle');
+  const statusSub = document.getElementById('statusSub');
+  
+  if (scanPercent) scanPercent.classList.remove('hidden');
+  if (fpIcon) fpIcon.style.display = 'none';
+  if (fpTextGroup) fpTextGroup.style.display = 'none';
+  if (fpGlow) fpGlow.classList.add('scanning-glow');
+  if (statusTitle) statusTitle.textContent = 'Memindai sidik jari';
+  if (statusSub) statusSub.textContent = 'Mohon tunggu...';
+  if (fpBtn) fpBtn.style.pointerEvents = 'none';
+  
   let progress = 0;
   setRingProgress(0);
   if (scanInterval) clearInterval(scanInterval);
@@ -485,10 +539,10 @@ function startFakeScan() {
     if (progress >= 100) {
       clearInterval(scanInterval);
       scanInterval = null;
-      document.getElementById('fpGlow').classList.remove('scanning-glow');
-      document.getElementById('fpIcon').style.display      = 'block';
-      document.getElementById('fpTextGroup').style.display = 'flex';
-      document.getElementById('scanPercent').classList.add('hidden');
+      if (fpGlow) fpGlow.classList.remove('scanning-glow');
+      if (fpIcon) fpIcon.style.display = 'block';
+      if (fpTextGroup) fpTextGroup.style.display = 'flex';
+      if (scanPercent) scanPercent.classList.add('hidden');
       completeScan();
     }
   }, 50);
@@ -527,7 +581,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (fpBtn) {
     fpBtn.addEventListener('click', () => {
       if (scanState !== 'idle') return;
-      if (document.getElementById('fpBtn').disabled) return;
+      if (fpBtn.disabled) return;
 
       if (absenType === 'pulang') {
         openPulangModal();
