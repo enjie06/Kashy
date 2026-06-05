@@ -344,16 +344,20 @@ async function cekStatusShift() {
 }
 
 // ========== CEK STATUS ABSEN SEBELUM MULAI SHIFT ==========
+// Response dari ShiftController@cekStatusKasir:
+// - shift_status: 'aktif', 'selesai', atau 'tidak_aktif'
+// - check_in: string jam (misal '09:30') atau null jika belum absen
+// - check_out: string jam atau null
 async function cekAbsenSebelumMulai() {
   try {
     const response = await fetch('{{ route("shift.status") }}');
     const data = await response.json();
     
-    // Jika belum absen masuk
-    if (!data.sudah_absen_masuk) {
-      // Tampilkan toast peringatan kecil
+    // Cek apakah sudah absen masuk
+    const sudahAbsenMasuk = data.check_in !== null && data.shift_status !== 'tidak_aktif';
+    
+    if (!sudahAbsenMasuk) {
       showToast('⚠️ Anda belum absen masuk! Silakan absen terlebih dahulu.', 'warning');
-      // Redirect ke dashboard setelah 1.5 detik
       setTimeout(() => {
         window.location.href = '{{ route("dashboard-kasir") }}';
       }, 1500);
