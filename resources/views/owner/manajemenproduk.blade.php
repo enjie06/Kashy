@@ -439,7 +439,7 @@
         let badgeHtml = '';
         if (p.is_discount) badgeHtml = `<span class="badge-produk badge-sale">SALE</span>`;
         const stockStatus = p.stok === 0 ? '<p class="text-[8px] font-bold text-red-600 mt-0.5">⚠ Habis</p>' : (p.stok <=5 ? '<p class="text-[8px] font-bold text-orange-500 mt-0.5">⚠ Menipis</p>' : '');
-        const imageUrl = p.gambar ? `/storage/${p.gambar}` : 'https://via.placeholder.com/400x400?text=No+Image';
+        const imageUrl = p.gambar ? '/images/products/' + p.gambar.split('/').pop() : 'https://via.placeholder.com/400x400?text=No+Image';
         const categoryName = categories.find(c => c.id === p.category_id)?.nama_kategori || '-';
         const sizes = p.ukuran ? p.ukuran.split(',').map(v => `<span class="chip text-[9px] py-0 px-1.5">${v.trim()}</span>`).join('') : '';
         

@@ -5,65 +5,63 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage; // tambahkan ini
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
-    // Dipakai karyawan & owner untuk lihat stok
+    // ========== UNTUK KARYAWAN ==========
     public function index()
     {
         $products = Product::with('category')->latest()->get();
-
         return view('karyawan.stok-produk', compact('products'));
     }
 
-    // ========== TAMBAHAN UNTUK PELANGGAN (KATALOG) ==========
-    
-    // Halaman katalog pelanggan
+    // ========== UNTUK PELANGGAN ==========
     public function katalog()
     {
-        $products = Product::with('category')->where('stok', '>', 0)->get();
+        $products = Product::with('category')->where('stok', '>', 0)->latest()->get();
         $categories = Category::all();
         return view('pelanggan.katalog', compact('products', 'categories'));
     }
 
-    // Detail produk untuk pelanggan
+    public function daftarProduk()
+    {
+        $products = Product::with('category')->latest()->get();
+        $categories = Category::all();
+        return view('pelanggan.daftarproduk', compact('products', 'categories'));
+    }
+
     public function detail($id)
     {
         $product = Product::with('category')->findOrFail($id);
         return view('pelanggan.detailproduk', compact('product'));
     }
 
-    // API untuk mengambil produk (dipakai halaman transaksi kasir)
+    // ========== UNTUK API ==========
     public function getProducts()
     {
         $products = Product::where('stok', '>', 0)->get();
         return response()->json($products);
     }
 
-    // ========== END TAMBAHAN ==========
-
-    // API untuk mengambil semua produk (dipakai halaman manajemen produk owner)
     public function getProductsJson()
     {
         $products = Product::with('category')->get();
         return response()->json($products);
     }
 
-    // Nanti dipakai owner untuk halaman daftar produk CRUD
+    // ========== UNTUK OWNER (MANAJEMEN PRODUK) ==========
     public function ownerIndex()
     {
         $products = Product::with('category')->latest()->get();
         $categories = Category::all();
-
         return view('owner.manajemenproduk', compact('products', 'categories'));
     }
 
     public function create()
     {
         $categories = Category::all();
-
-        return view('owner.products.create', compact('categories'));
+        return view('owner.produk-create', compact('categories'));
     }
 
     public function store(Request $request)
@@ -83,26 +81,33 @@ class ProductController extends Controller
         ]);
 
         $data = $request->all();
+        $data['is_discount'] = $request->has('is_discount') ? 1 : 0;
 
         if ($request->hasFile('gambar')) {
             $path = $request->file('gambar')->store('products', 'public');
             $data['gambar'] = $path;
         }
 
-        Product::create($data);
+        $product = Product::create($data);
 
-        return redirect()->route('owner.products.index')->with('success', 'Produk berhasil ditambahkan');
+        return response()->json([
+            'success' => true,
+            'message' => 'Produk berhasil ditambahkan',
+            'product' => $product
+        ]);
     }
 
-    public function edit(Product $product)
+    public function edit($id)
     {
+        $product = Product::findOrFail($id);
         $categories = Category::all();
-
-        return view('owner.products.edit', compact('product', 'categories'));
+        return view('owner.produk-edit', compact('product', 'categories'));
     }
 
-    public function update(Request $request, Product $product)
+    public function update(Request $request, $id)
     {
+        $product = Product::findOrFail($id);
+
         $request->validate([
             'category_id' => 'required|exists:categories,id',
             'nama_produk' => 'required|string|max:255',
@@ -118,6 +123,7 @@ class ProductController extends Controller
         ]);
 
         $data = $request->all();
+        $data['is_discount'] = $request->has('is_discount') ? 1 : 0;
 
         if ($request->hasFile('gambar')) {
             if ($product->gambar) {
@@ -129,17 +135,26 @@ class ProductController extends Controller
 
         $product->update($data);
 
-        return redirect()->route('owner.products.index')->with('success', 'Produk berhasil diupdate');
+        return response()->json([
+            'success' => true,
+            'message' => 'Produk berhasil diupdate',
+            'product' => $product
+        ]);
     }
 
-    public function destroy(Product $product)
+    public function destroy($id)
     {
+        $product = Product::findOrFail($id);
+        
         if ($product->gambar) {
             Storage::disk('public')->delete($product->gambar);
         }
         
         $product->delete();
 
-        return redirect()->route('owner.products.index')->with('success', 'Produk berhasil dihapus');
+        return response()->json([
+            'success' => true,
+            'message' => 'Produk berhasil dihapus'
+        ]);
     }
 }
