@@ -38,8 +38,6 @@
   .fade-up { animation: fadeUp 0.4s cubic-bezier(0.2,0.9,0.4,1.1) both; }
   .card-hover { transition: transform 0.2s, box-shadow 0.2s; }
   .card-hover:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(0,0,0,0.08); }
-  .pulse-dot { animation: pulse 1.4s infinite; }
-  @keyframes pulse { 0%,100%{ opacity:1; transform:scale(1); } 50%{ opacity:0.7; transform:scale(1.2); } }
   input[type="text"]::-webkit-outer-spin-button,
   input[type="text"]::-webkit-inner-spin-button { -webkit-appearance: none; margin:0; }
   .loading-spinner {
@@ -81,7 +79,8 @@
 
     <div class="bg-white rounded-2xl shadow-sm border border-border p-6 card-hover">
       <p class="text-sm text-muted mb-5 leading-relaxed">
-        Masukkan saldo kas awal untuk memulai sesi penjualan harianmu. (Minimal Rp 50.000)
+        Masukkan saldo kas awal untuk memulai sesi penjualan harianmu. 
+        <span id="minSaldoHint" class="font-semibold text-terra"></span>
       </p>
       
       <div class="mb-4">
@@ -89,8 +88,7 @@
         <div class="relative">
           <input type="text" id="initialBalance" 
             class="w-full border-2 border-border rounded-xl py-3.5 px-4 text-gray-900 font-semibold text-base focus:border-terra focus:ring-1 focus:ring-terra outline-none transition bg-white" 
-            placeholder="Rp 0" 
-            oninput="formatRupiahWithValidate(this)">
+            placeholder="Rp 0">
         </div>
         <p id="minSaldoWarning" class="text-[11px] text-red-500 mt-1 hidden"></p>
       </div>
@@ -110,7 +108,6 @@
     </div>
     <h2 class="text-3xl font-extrabold text-gray-900 mb-6 tracking-tight">Tutup Shift</h2>
 
-    <!-- STATUS SHIFT AKTIF -->
     <div class="bg-green-50 border-l-4 border-green-500 rounded-xl p-4 mb-5 shadow-sm">
       <div class="flex items-center justify-between">
         <div>
@@ -126,7 +123,6 @@
       </div>
     </div>
 
-    <!-- Ringkasan Transaksi -->
     <div class="bg-white rounded-2xl shadow-sm border border-border overflow-hidden mb-6">
       <div class="p-5 space-y-3">
         <div class="flex justify-between items-center p-3 bg-terra-xs rounded-xl">
@@ -163,7 +159,6 @@
       </div>
     </div>
 
-    <!-- Laporan Saldo Akhir -->
     <div class="bg-gradient-to-br from-gray-800 to-gray-900 text-white rounded-2xl p-6 shadow-md mb-6 relative overflow-hidden">
       <div class="absolute -right-6 -top-6 w-24 h-24 bg-terra/20 rounded-full blur-2xl"></div>
       <div class="relative">
@@ -176,15 +171,13 @@
       </div>
     </div>
 
-    <!-- Verifikasi Uang Tunai -->
     <div class="mb-6">
-      <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">Jumlah Total Uang Tunai</label>
-      <input type="text" id="finalCash" class="w-full border-2 border-dashed border-border rounded-xl py-3.5 px-4 text-gray-900 font-semibold text-base focus:border-terra focus:ring-1 focus:ring-terra outline-none transition bg-white" placeholder="Masukkan jumlah untuk verifikasi" oninput="formatRupiah(this)">
+      <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">Jumlah Total Uang Tunai (Fisik)</label>
+      <input type="text" id="finalCash" class="w-full border-2 border-dashed border-border rounded-xl py-3.5 px-4 text-gray-900 font-semibold text-base focus:border-terra focus:ring-1 focus:ring-terra outline-none transition bg-white" placeholder="Masukkan jumlah uang tunai fisik untuk verifikasi">
       <p class="text-[11px] text-muted mt-1 flex items-center gap-1">🔍 Masukkan nominal uang tunai yang ada di laci kas</p>
     </div>
 
-    <!-- Tombol Tutup -->
-    <button onclick="showTutupShiftModal()" id="btnTutupShift" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-md transition-all card-hover">
+    <button onclick="confirmTutupShift()" id="btnTutupShift" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-md transition-all card-hover">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
         <path d="M7 11V7a5 5 0 0 1 10 0v4" />
@@ -194,7 +187,7 @@
   </div>
 </main>
 
-<!-- ========== MODAL KONFIRMASI BUKA SHIFT ========== -->
+<!-- MODAL KONFIRMASI BUKA SHIFT -->
 <div id="confirmModal" class="fixed inset-0 z-50 hidden items-center justify-center" style="background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px);">
   <div class="bg-white rounded-2xl max-w-sm w-full mx-4 shadow-2xl transform transition-all">
     <div class="p-6">
@@ -226,402 +219,371 @@
   </div>
 </div>
 
-<!-- ========== MODAL KONFIRMASI TUTUP SHIFT ========== -->
-<div id="confirmTutupModal" class="fixed inset-0 z-50 hidden items-center justify-center" style="background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px);">
-  <div class="bg-white rounded-2xl max-w-sm w-full mx-4 shadow-2xl transform transition-all">
-    <div class="p-6">
-      <div class="flex items-center gap-3 mb-4">
-        <div class="w-10 h-10 rounded-full bg-terra-xs flex items-center justify-center">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C8966C" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/>
-            <path d="M12 6v6l4 2"/>
-          </svg>
-        </div>
-        <h3 class="text-lg font-bold text-gray-900">Konfirmasi Tutup Shift</h3>
-      </div>
-      <p class="text-sm text-muted mb-4">Periksa kembali data verifikasi tunai berikut:</p>
-      <div id="verifikasiDetail" class="bg-gray-50 rounded-xl p-4 mb-5 space-y-2 text-sm"></div>
-      <div class="flex gap-3">
-        <button onclick="closeTutupModal()" class="flex-1 py-2.5 rounded-xl border border-border bg-white text-gray-700 text-sm font-semibold hover:bg-gray-100 transition">Batal</button>
-        <button id="confirmTutupBtn" class="flex-1 py-2.5 rounded-xl text-white text-sm font-semibold transition">Ya, Tutup Shift</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ========== MODAL ERROR POP UP ========== -->
-<div id="errorModal" class="fixed inset-0 z-50 hidden items-center justify-center" style="background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px);">
-  <div class="bg-white rounded-2xl max-w-sm w-full mx-4 shadow-2xl transform transition-all">
-    <div class="p-6">
-      <div class="flex items-center gap-3 mb-4">
-        <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="12" y1="8" x2="12" y2="12"/>
-            <line x1="12" y1="16" x2="12.01" y2="16"/>
-          </svg>
-        </div>
-        <h3 class="text-lg font-bold text-gray-900" id="errorModalTitle">Error</h3>
-      </div>
-      <p class="text-sm text-gray-700 mb-6" id="errorModalMessage">Terjadi kesalahan</p>
-      <button onclick="closeErrorModal()" class="w-full py-2.5 rounded-xl bg-red-500 text-white text-sm font-semibold hover:bg-red-600 transition">
-        Mengerti
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- TOAST NOTIFICATION -->
+<!-- TOAST NOTIFICATION (Pemberitahuan kecil) -->
 <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-30 bg-gray-900 text-white text-sm font-medium px-5 py-3 rounded-full shadow-xl flex items-center gap-2 pointer-events-none transition-all duration-300 opacity-0 translate-y-4">
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
   <span id="toastMsg">—</span>
 </div>
 
 <script>
+// ========== VARIABLES ==========
 let minSaldo = 50000;
 let currentShift = null;
 let isLoading = false;
 
-// ========== FORMAT RUPIAH ==========
-function formatRupiah(input) {
-    let val = input.value.replace(/[^\d]/g, '');
-    if (val) {
-        let num = parseInt(val, 10);
-        input.value = num.toLocaleString('id-ID');
-    } else {
-        input.value = '';
-    }
+// ========== HELPER FUNCTIONS ==========
+function formatRupiah(angka) {
+  if (angka === undefined || angka === null) angka = 0;
+  return 'Rp ' + Number(angka).toLocaleString('id-ID');
+}
+
+function formatRupiahInput(input) {
+  let val = input.value.replace(/[^\d]/g, '');
+  if (val) {
+    let num = parseInt(val, 10);
+    input.value = num.toLocaleString('id-ID');
+  } else {
+    input.value = '';
+  }
 }
 
 function parseRupiah(str) {
-    if (!str) return 0;
-    let cleaned = str.replace(/[^\d]/g, '');
-    return parseInt(cleaned, 10) || 0;
+  if (!str) return 0;
+  let cleaned = str.replace(/[^\d]/g, '');
+  return parseInt(cleaned, 10) || 0;
 }
 
-// ========== VALIDASI VISUAL ==========
+function showToast(msg, type = 'default') {
+  const toast = document.getElementById('toast');
+  const toastMsg = document.getElementById('toastMsg');
+  if (!toast || !toastMsg) return;
+  toastMsg.innerText = msg;
+  toast.className = 'fixed bottom-24 left-1/2 -translate-x-1/2 z-30 px-5 py-3 rounded-full shadow-xl flex items-center gap-2 pointer-events-none transition-all duration-300 text-sm font-medium';
+  toast.className += type === 'success' ? ' bg-emerald-600 text-white' : ' bg-amber-600 text-white';
+  toast.style.opacity = '1';
+  toast.style.transform = 'translateX(-50%) translateY(0)';
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(-50%) translateY(16px)';
+  }, 3000);
+}
+
 function validateSaldo() {
-    const balanceInput = document.getElementById('initialBalance');
-    const balanceStr = balanceInput.value;
-    const balanceNum = parseRupiah(balanceStr);
-    const warningEl = document.getElementById('minSaldoWarning');
-    
-    if (balanceNum === 0 && balanceStr !== '') {
-        balanceInput.classList.add('border-red-500', 'bg-red-50');
-        warningEl.classList.remove('hidden');
-        warningEl.innerHTML = '⚠️ Saldo kas awal tidak boleh kosong!';
-        return false;
-    } else if (balanceNum > 0 && balanceNum < minSaldo) {
-        balanceInput.classList.add('border-red-500', 'bg-red-50');
-        warningEl.classList.remove('hidden');
-        warningEl.innerHTML = `⚠️ Saldo minimal Rp ${minSaldo.toLocaleString('id-ID')}`;
-        return false;
-    } else {
-        balanceInput.classList.remove('border-red-500', 'bg-red-50');
-        warningEl.classList.add('hidden');
-        return true;
+  const inputEl = document.getElementById('initialBalance');
+  if (!inputEl) return true;
+  
+  const saldoStr = inputEl.value;
+  const saldoNum = parseRupiah(saldoStr);
+  const warningEl = document.getElementById('minSaldoWarning');
+  
+  if (saldoNum === 0 && saldoStr !== '') {
+    inputEl.classList.add('border-red-500', 'bg-red-50');
+    if (warningEl) {
+      warningEl.classList.remove('hidden');
+      warningEl.innerHTML = '⚠️ Saldo kas awal tidak boleh kosong!';
     }
-}
-
-function formatRupiahWithValidate(input) {
-    let val = input.value.replace(/[^\d]/g, '');
-    if (val) {
-        let num = parseInt(val, 10);
-        input.value = num.toLocaleString('id-ID');
-    } else {
-        input.value = '';
+    return false;
+  } else if (saldoNum > 0 && saldoNum < minSaldo) {
+    inputEl.classList.add('border-red-500', 'bg-red-50');
+    if (warningEl) {
+      warningEl.classList.remove('hidden');
+      warningEl.innerHTML = `⚠️ Saldo minimal ${formatRupiah(minSaldo)}`;
     }
-    validateSaldo();
-}
-
-// ========== AMBIL MINIMAL SALDO ==========
-async function getMinSaldo() {
-    try {
-        const response = await fetch('{{ route("kasir.shift.minSaldo") }}');
-        const data = await response.json();
-        minSaldo = data.min_saldo;
-    } catch (error) {
-        console.error('Gagal ambil min saldo:', error);
-    }
+    return false;
+  } else {
+    inputEl.classList.remove('border-red-500', 'bg-red-50');
+    if (warningEl) warningEl.classList.add('hidden');
+    return true;
+  }
 }
 
 // ========== CEK STATUS SHIFT ==========
 async function cekStatusShift() {
-    try {
-        const response = await fetch('{{ route("kasir.shift.status") }}');
-        const data = await response.json();
-        
-        document.getElementById('loadingState').style.display = 'none';
-        
-        if (data.shift_active && data.shift) {
-            currentShift = data.shift;
-            document.getElementById('openShiftSection').style.display = 'none';
-            document.getElementById('closeShiftSection').style.display = 'block';
-            
-            const totalPenjualan = Number(data.shift.total_penjualan) || 0;
-            const penjualanTunai = Number(data.shift.penjualan_tunai) || 0;
-            const penjualanNonTunai = Number(data.shift.penjualan_qris || 0) + (data.shift.penjualan_debit || 0);
-            const saldoAwal = Number(data.shift.saldo_awal) || 0;
-            const ekspektasiTunai = saldoAwal + penjualanTunai;
-            
-            document.getElementById('totalCash').innerText = 'Rp ' + penjualanTunai.toLocaleString('id-ID');
-            document.getElementById('totalNonCash').innerText = 'Rp ' + penjualanNonTunai.toLocaleString('id-ID');
-            document.getElementById('saldoAwalKas').innerText = 'Rp ' + saldoAwal.toLocaleString('id-ID');
-            document.getElementById('totalPenjualan').innerText = 'Rp ' + totalPenjualan.toLocaleString('id-ID');
-            document.getElementById('ekspektasiTunai').innerText = 'Rp ' + ekspektasiTunai.toLocaleString('id-ID');
-        } else {
-            document.getElementById('openShiftSection').style.display = 'block';
-            document.getElementById('closeShiftSection').style.display = 'none';
-        }
-    } catch (error) {
-        console.error('Gagal cek status shift:', error);
-        document.getElementById('loadingState').style.display = 'none';
-        document.getElementById('openShiftSection').style.display = 'block';
-        showToast('Gagal memuat status shift');
+  const loadingEl = document.getElementById('loadingState');
+  const openSection = document.getElementById('openShiftSection');
+  const closeSection = document.getElementById('closeShiftSection');
+  
+  try {
+    const response = await fetch('{{ route("kasir.shift.status") }}');
+    const data = await response.json();
+    
+    if (loadingEl) loadingEl.style.display = 'none';
+    
+    if (data.shift_active && data.shift) {
+      currentShift = data.shift;
+      if (openSection) openSection.style.display = 'none';
+      if (closeSection) closeSection.style.display = 'block';
+      
+      const totalPenjualan = Number(data.shift.total_penjualan) || 0;
+      const penjualanTunai = Number(data.shift.penjualan_tunai) || 0;
+      const penjualanNonTunai = Number(data.shift.penjualan_qris || 0) + (data.shift.penjualan_debit || 0);
+      const saldoAwal = Number(data.shift.saldo_awal) || 0;
+      const ekspektasiTunai = saldoAwal + penjualanTunai;
+      
+      const totalCashEl = document.getElementById('totalCash');
+      const totalNonCashEl = document.getElementById('totalNonCash');
+      const saldoAwalKasEl = document.getElementById('saldoAwalKas');
+      const totalPenjualanEl = document.getElementById('totalPenjualan');
+      const ekspektasiTunaiEl = document.getElementById('ekspektasiTunai');
+      
+      if (totalCashEl) totalCashEl.innerText = formatRupiah(penjualanTunai);
+      if (totalNonCashEl) totalNonCashEl.innerText = formatRupiah(penjualanNonTunai);
+      if (saldoAwalKasEl) saldoAwalKasEl.innerText = formatRupiah(saldoAwal);
+      if (totalPenjualanEl) totalPenjualanEl.innerText = formatRupiah(totalPenjualan);
+      if (ekspektasiTunaiEl) ekspektasiTunaiEl.innerText = formatRupiah(ekspektasiTunai);
+    } else {
+      if (openSection) openSection.style.display = 'block';
+      if (closeSection) closeSection.style.display = 'none';
     }
+  } catch (error) {
+    console.error('Gagal cek status shift:', error);
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (openSection) openSection.style.display = 'block';
+    showToast('Gagal memuat status shift');
+  }
 }
 
-// ========== BUKA SHIFT ==========
+// ========== CEK STATUS ABSEN SEBELUM MULAI SHIFT ==========
+async function cekAbsenSebelumMulai() {
+  try {
+    const response = await fetch('{{ route("shift.status") }}');
+    const data = await response.json();
+    
+    // Jika belum absen masuk
+    if (!data.sudah_absen_masuk) {
+      // Tampilkan toast peringatan kecil
+      showToast('⚠️ Anda belum absen masuk! Silakan absen terlebih dahulu.', 'warning');
+      // Redirect ke dashboard setelah 1.5 detik
+      setTimeout(() => {
+        window.location.href = '{{ route("dashboard-kasir") }}';
+      }, 1500);
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error('Gagal cek status absen:', error);
+    showToast('Gagal mengecek status absensi', 'error');
+    return false;
+  }
+}
+
+// ========== BUKA SHIFT (DENGAN CEK ABSEN DULU) ==========
 async function bukaShift() {
-    if (isLoading) return;
-    
-    const balanceInput = document.getElementById('initialBalance');
-    const balanceStr = balanceInput.value;
-    const balanceNum = parseRupiah(balanceStr);
-    
-    if (balanceNum === 0) {
-        balanceInput.classList.add('border-red-500', 'bg-red-50');
-        document.getElementById('minSaldoWarning').classList.remove('hidden');
-        document.getElementById('minSaldoWarning').innerHTML = '⚠️ Saldo kas awal tidak boleh kosong!';
-        return;
+  if (isLoading) return;
+  
+  // CEK ABSEN DULU
+  const sudahAbsen = await cekAbsenSebelumMulai();
+  if (!sudahAbsen) return;
+  
+  const inputEl = document.getElementById('initialBalance');
+  const saldoStr = inputEl?.value || '';
+  const saldo = parseRupiah(saldoStr);
+  
+  if (!saldo || saldo === 0) {
+    showToast(`Saldo awal tidak boleh kosong! Minimal ${formatRupiah(minSaldo)}`);
+    inputEl?.classList.add('border-red-500', 'bg-red-50');
+    const warningEl = document.getElementById('minSaldoWarning');
+    if (warningEl) {
+      warningEl.classList.remove('hidden');
+      warningEl.innerHTML = '⚠️ Saldo kas awal tidak boleh kosong!';
     }
-    
-    if (balanceNum < minSaldo) {
-        balanceInput.classList.add('border-red-500', 'bg-red-50');
-        document.getElementById('minSaldoWarning').classList.remove('hidden');
-        document.getElementById('minSaldoWarning').innerHTML = `⚠️ Saldo minimal Rp ${minSaldo.toLocaleString('id-ID')}`;
-        return;
+    return;
+  }
+  
+  if (saldo < minSaldo) {
+    showToast(`Saldo awal minimal ${formatRupiah(minSaldo)}`);
+    inputEl?.classList.add('border-red-500', 'bg-red-50');
+    const warningEl = document.getElementById('minSaldoWarning');
+    if (warningEl) {
+      warningEl.classList.remove('hidden');
+      warningEl.innerHTML = `⚠️ Saldo minimal ${formatRupiah(minSaldo)}`;
     }
-    
-    balanceInput.classList.remove('border-red-500', 'bg-red-50');
-    document.getElementById('minSaldoWarning').classList.add('hidden');
-    
-    document.getElementById('modalBalance').innerText = 'Rp ' + balanceNum.toLocaleString('id-ID');
-    const now = new Date();
-    const waktuMulai = now.toLocaleTimeString('id-ID', { 
-   hour: '2-digit', 
-   minute: '2-digit',
-   second: '2-digit'
-}); 
-    document.getElementById('modalStartTime').innerText = waktuMulai;
-    
-    document.getElementById('confirmModal').classList.remove('hidden');
-    document.getElementById('confirmModal').classList.add('flex');
-    
-    window.pendingSaldo = balanceNum;
+    return;
+  }
+  
+  inputEl?.classList.remove('border-red-500', 'bg-red-50');
+  const warningEl = document.getElementById('minSaldoWarning');
+  if (warningEl) warningEl.classList.add('hidden');
+  
+  const modalBalance = document.getElementById('modalBalance');
+  const modalStartTime = document.getElementById('modalStartTime');
+  
+  if (modalBalance) modalBalance.innerText = formatRupiah(saldo);
+  const now = new Date();
+  const waktuMulai = now.toLocaleTimeString('id-ID', { 
+    hour: '2-digit', 
+    minute: '2-digit',
+    second: '2-digit'
+  });
+  if (modalStartTime) modalStartTime.innerText = waktuMulai;
+  
+  const confirmModal = document.getElementById('confirmModal');
+  if (confirmModal) {
+    confirmModal.classList.remove('hidden');
+    confirmModal.classList.add('flex');
+  }
+  
+  window.pendingSaldo = saldo;
 }
 
 async function confirmBukaShift() {
-    if (isLoading) return;
-    isLoading = true;
-    
-    const btn = document.getElementById('confirmBukaBtn');
-    const originalText = btn.innerHTML;
+  if (isLoading) return;
+  isLoading = true;
+  
+  const btn = document.getElementById('confirmBukaBtn');
+  const originalText = btn?.innerHTML || '';
+  if (btn) {
     btn.innerHTML = '<span class="loading-spinner"></span> Memproses...';
     btn.disabled = true;
+  }
+  
+  try {
+    const response = await fetch('{{ route("kasir.shift.buka") }}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      },
+      body: JSON.stringify({ saldo_awal: window.pendingSaldo })
+    });
     
-    try {
-        const response = await fetch('{{ route("kasir.shift.buka") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({ saldo_awal: window.pendingSaldo })
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-    closeModal();
-    localStorage.setItem('kasir_shift_updated', Date.now());
-
-    window.location.href = '{{ route("dashboard-kasir") }}';  
-} else {
-            // Tutup modal konfirmasi
-            closeModal();
-            
-            // Tampilkan modal error pop up
-            if (result.message && result.message.includes('sudah melakukan shift hari ini')) {
-                showErrorModal('⚠️ Gagal Buka Shift', result.message);
-            } else {
-                showToast(result.message || 'Gagal membuka shift');
-            }
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        closeModal();
-        showToast('Gagal membuka shift');
-    } finally {
-        isLoading = false;
-        btn.innerHTML = originalText;
+    const result = await response.json();
+    
+    if (result.success) {
+      closeModal();
+      showToast(result.message || 'Shift berhasil dibuka', 'success');
+      localStorage.setItem('kasir_shift_updated', Date.now());
+      const redirectUrl = result.redirect || '{{ route("dashboard-kasir") }}';
+      setTimeout(() => { window.location.href = redirectUrl; }, 1200);
+    } else {
+      closeModal();
+      showToast(result.message || 'Gagal membuka shift');
+      if (btn) {
         btn.disabled = false;
+        btn.innerHTML = originalText;
+      }
     }
+  } catch (error) {
+    console.error('Error:', error);
+    closeModal();
+    showToast('Gagal membuka shift');
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    }
+  } finally {
+    isLoading = false;
+  }
 }
 
 function closeModal() {
-    document.getElementById('confirmModal').classList.add('hidden');
-    document.getElementById('confirmModal').classList.remove('flex');
-}
-
-// ========== MODAL ERROR POP UP ==========
-function showErrorModal(title, message) {
-    const errorModal = document.getElementById('errorModal');
-    document.getElementById('errorModalTitle').innerHTML = title;
-    document.getElementById('errorModalMessage').innerHTML = message;
-    errorModal.classList.remove('hidden');
-    errorModal.classList.add('flex');
-}
-
-function closeErrorModal() {
-    const errorModal = document.getElementById('errorModal');
-    errorModal.classList.add('hidden');
-    errorModal.classList.remove('flex');
+  const confirmModal = document.getElementById('confirmModal');
+  if (confirmModal) {
+    confirmModal.classList.add('hidden');
+    confirmModal.classList.remove('flex');
+  }
 }
 
 // ========== TUTUP SHIFT ==========
-let finalCashValue = 0;
-let expectedCash = 0;
-let selisih = 0;
-
-function showTutupShiftModal() {
-    const finalCashStr = document.getElementById('finalCash').value;
-    const finalCashNum = parseRupiah(finalCashStr);
-    
-    if (finalCashNum === 0) {
-        showToast('Masukkan jumlah uang tunai fisik untuk verifikasi!');
-        return;
-    }
-    
-    finalCashValue = finalCashNum;
-    const saldoAwal = currentShift ? currentShift.saldo_awal : 0;
-    const penjualanTunai = currentShift ? currentShift.penjualan_tunai : 0;
-    expectedCash = saldoAwal + penjualanTunai;
-    selisih = finalCashValue - expectedCash;
-    
-    let detailHtml = `
-        <div class="flex justify-between text-sm">
-            <span class="text-muted">Saldo awal kas:</span>
-            <span class="font-semibold">Rp ${(saldoAwal || 0).toLocaleString('id-ID')}</span>
-        </div>
-        <div class="flex justify-between text-sm">
-            <span class="text-muted">Penjualan tunai:</span>
-            <span class="font-semibold">Rp ${(penjualanTunai || 0).toLocaleString('id-ID')}</span>
-        </div>
-        <div class="flex justify-between text-sm border-t border-gray-200 pt-2 mt-1">
-            <span class="text-muted">Ekspektasi uang tunai:</span>
-            <span class="font-semibold">Rp ${expectedCash.toLocaleString('id-ID')}</span>
-        </div>
-        <div class="flex justify-between text-sm">
-            <span class="text-muted">Uang tunai aktual:</span>
-            <span class="font-semibold">Rp ${finalCashValue.toLocaleString('id-ID')}</span>
-        </div>
-    `;
-    
-    if (selisih > 0) {
-        detailHtml += `<div class="flex justify-between text-sm text-green-600 bg-green-50 p-2 rounded-lg mt-2">
-            <span>💰 Kelebihan tunai:</span>
-            <span class="font-bold">Rp ${selisih.toLocaleString('id-ID')}</span>
-        </div>`;
-    } else if (selisih < 0) {
-        detailHtml += `<div class="flex justify-between text-sm text-red-600 bg-red-50 p-2 rounded-lg mt-2">
-            <span>⚠️ Kekurangan tunai:</span>
-            <span class="font-bold">Rp ${Math.abs(selisih).toLocaleString('id-ID')}</span>
-        </div>`;
-    } else {
-        detailHtml += `<div class="flex justify-between text-sm text-green-600 bg-green-50 p-2 rounded-lg mt-2">
-            <span>✅ Pas! Kas sesuai.</span>
-        </div>`;
-    }
-    
-    document.getElementById('verifikasiDetail').innerHTML = detailHtml;
-    
-    const confirmBtn = document.getElementById('confirmTutupBtn');
-    confirmBtn.className = "flex-1 py-2.5 rounded-xl bg-green-500 text-white text-sm font-semibold hover:bg-green-600 transition";
-    confirmBtn.innerText = "Ya, Tutup Shift";
-    
-    document.getElementById('confirmTutupModal').classList.remove('hidden');
-    document.getElementById('confirmTutupModal').classList.add('flex');
-}
-
-function closeTutupModal() {
-    document.getElementById('confirmTutupModal').classList.add('hidden');
-    document.getElementById('confirmTutupModal').classList.remove('flex');
-}
-
 async function confirmTutupShift() {
-    if (isLoading) return;
-    isLoading = true;
-    
-    const btn = document.getElementById('confirmTutupBtn');
-    const originalText = btn.innerHTML;
+  if (isLoading) return;
+  
+  const finalCashInput = document.getElementById('finalCash');
+  const finalCashStr = finalCashInput?.value || '';
+  const finalCashNum = parseRupiah(finalCashStr);
+  
+  if (finalCashNum === 0) {
+    showToast('Masukkan jumlah uang tunai fisik untuk verifikasi!');
+    finalCashInput?.classList.add('border-red-500', 'bg-red-50');
+    return;
+  }
+  
+  finalCashInput?.classList.remove('border-red-500', 'bg-red-50');
+  
+  isLoading = true;
+  
+  const btn = document.getElementById('btnTutupShift');
+  const originalText = btn?.innerHTML || '';
+  if (btn) {
     btn.innerHTML = '<span class="loading-spinner"></span> Memproses...';
     btn.disabled = true;
+  }
+  
+  try {
+    const response = await fetch('{{ route("kasir.shift.tutup") }}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      },
+      body: JSON.stringify({ uang_tunai_aktual: finalCashNum })
+    });
     
-    try {
-        const response = await fetch('{{ route("kasir.shift.tutup") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({ uang_tunai_aktual: finalCashValue })
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-    closeTutupModal();
-    localStorage.setItem('kasir_shift_updated', Date.now());
-    setTimeout(() => {
-      window.location.href = '{{ route("kasir.absensikasir") }}?mode=pulang';
-    }, 500);
-        } else {
-            showToast(result.message || 'Gagal menutup shift');
-            closeTutupModal();
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        showToast('Gagal menutup shift');
-        closeTutupModal();
-    } finally {
-        isLoading = false;
-        btn.innerHTML = originalText;
+    const result = await response.json();
+    
+    if (result.success) {
+      showToast(result.message || 'Shift berhasil ditutup', 'success');
+      localStorage.setItem('kasir_shift_updated', Date.now());
+      const redirectUrl = result.redirect || '{{ route("kasir.absensikasir") }}';
+      setTimeout(() => { window.location.href = redirectUrl; }, 1500);
+    } else {
+      showToast(result.message || 'Gagal menutup shift');
+      if (btn) {
         btn.disabled = false;
+        btn.innerHTML = originalText;
+      }
     }
+  } catch (error) {
+    console.error('Error:', error);
+    showToast('Gagal menutup shift');
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    }
+  } finally {
+    isLoading = false;
+  }
 }
 
-document.getElementById('confirmTutupBtn').onclick = confirmTutupShift;
-
-function showToast(msg) {
-    const toast = document.getElementById('toast');
-    document.getElementById('toastMsg').innerText = msg;
-    toast.style.opacity = '1';
-    toast.style.transform = 'translateX(-50%) translateY(0)';
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateX(-50%) translateY(16px)';
-    }, 2600);
+// ========== AMBIL MINIMAL SALDO ==========
+async function getMinSaldo() {
+  try {
+    const response = await fetch('{{ route("kasir.shift.minSaldo") }}');
+    const data = await response.json();
+    minSaldo = data.min_saldo || 50000;
+    const hintEl = document.getElementById('minSaldoHint');
+    if (hintEl) hintEl.textContent = `Minimal ${formatRupiah(minSaldo)}`;
+  } catch (error) {
+    console.error('Gagal ambil min saldo:', error);
+  }
 }
 
-// ========== INIT ==========
-getMinSaldo();
-cekStatusShift();
+// ========== INITIALIZATION ==========
+document.addEventListener('DOMContentLoaded', async () => {
+  await getMinSaldo();
+  
+  const inputSaldo = document.getElementById('initialBalance');
+  if (inputSaldo) {
+    inputSaldo.addEventListener('input', function() {
+      formatRupiahInput(this);
+      validateSaldo();
+    });
+  }
+  
+  const finalCashInput = document.getElementById('finalCash');
+  if (finalCashInput) {
+    finalCashInput.addEventListener('input', function() {
+      formatRupiahInput(this);
+    });
+  }
+  
+  await cekStatusShift();
+});
 
 window.addEventListener('storage', (event) => {
-    if (event.key === 'kasir_shift_updated') {
-        cekStatusShift();
-    }
+  if (event.key === 'kasir_shift_updated') {
+    cekStatusShift();
+  }
 });
 </script>
 </body>
