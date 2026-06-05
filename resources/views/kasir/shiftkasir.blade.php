@@ -446,7 +446,7 @@ async function confirmBukaShift() {
     closeModal();
     localStorage.setItem('kasir_shift_updated', Date.now());
 
-    window.location.href = '{{ route("kasir.absensikasir") }}?type=masuk';
+    window.location.href = '{{ route("dashboard-kasir") }}';  
 } else {
             // Tutup modal konfirmasi
             closeModal();

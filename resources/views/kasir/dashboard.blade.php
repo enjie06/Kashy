@@ -50,6 +50,54 @@
   @keyframes shimmer { 0%{background-position:100%} 100%{background-position:-100%} }
   .card-hover { transition: transform 0.2s, box-shadow 0.2s; }
   .card-hover:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(0,0,0,0.08); }
+
+  /* ========== MODAL SHIFT ========== */
+  #shiftModal {
+    opacity:0; pointer-events:none;
+    transition:opacity .25s ease;
+  }
+  #shiftModal.open { opacity:1; pointer-events:all; }
+  #shiftModalDialog {
+    transform:scale(.92) translateY(20px);
+    transition:transform .32s cubic-bezier(0.34,1.56,.64,1);
+  }
+  #shiftModal.open #shiftModalDialog { transform:scale(1) translateY(0); }
+
+  .shift-option {
+    display:flex; align-items:center; gap:14px;
+    padding:16px 18px; border-radius:16px;
+    border:2px solid #EAE0D6; background:#fff;
+    cursor:pointer; transition:all .2s;
+    position:relative; overflow:hidden;
+  }
+  .shift-option:hover:not(.disabled) {
+    border-color:#C8966C; background:#FAF2EC;
+    transform:translateY(-1px); box-shadow:0 6px 18px rgba(200,150,108,.2);
+  }
+  .shift-option.disabled {
+    opacity:.5; cursor:not-allowed; background:#f9f9f9;
+  }
+  .shift-option-icon {
+    width:44px; height:44px; border-radius:14px;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .shift-option .unavail-badge {
+    position:absolute; top:10px; right:12px;
+    font-size:9px; font-weight:700; letter-spacing:.05em;
+    padding:2px 8px; border-radius:20px;
+    background:#F3F4F6; color:#9CA3AF;
+  }
+  #toast {
+    max-width: calc(100% - 32px);
+    white-space: normal;
+    text-align: center;
+    font-size: 11px;
+    padding: 8px 16px;
+    border-radius: 40px;
+  }
+  @media (max-width: 480px) {
+    #toast { font-size: 10px; padding: 6px 14px; max-width: 90%; }
+  }
 </style>
 </head>
 @include('kasir.components.topbar')
@@ -78,19 +126,18 @@
       <span class="text-sm font-semibold leading-tight">Transaksi Baru</span>
     </button>
 
-    <button onclick="window.location.href='{{ route('kasir.shiftkasir') }}'"
+    <button onclick="goShift()"
       class="bg-white hover:bg-terra-xs border border-border text-gray-900 rounded-xl px-4 py-4 flex items-center gap-3 shadow-sm transition-all card-hover">
       <div class="w-8 h-8 rounded-lg bg-terra-xs flex items-center justify-center">
         <svg width="18" height="18" fill="none" stroke="#C8966C" stroke-width="2" viewBox="0 0 24 24">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-          <polyline points="16 17 21 12 16 7"/>
-          <line x1="21" y1="12" x2="9" y2="12"/>
+          <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
         </svg>
       </div>
-      <span id="shiftBtnLabel" class="text-sm font-semibold leading-tight text-gray-900">Pilih Shift</span>
+      <span class="text-sm font-semibold leading-tight text-gray-900">Pilih Shift</span>
     </button>
   </div>
 
+  <!-- Shift Saat Ini (status dari backend) -->
   <div class="bg-white rounded-2xl shadow-sm border border-border overflow-hidden mb-6 fade-up delay-3">
     <div class="shimmer-bar h-1 w-full"></div>
     <div class="p-5">
@@ -140,6 +187,7 @@
     </div>
   </div>
 
+  <!-- Statistik Penjualan -->
   <div class="bg-white rounded-2xl shadow-sm border border-border overflow-hidden mb-6 fade-up delay-3">
     <div class="p-5">
       <div class="flex items-center gap-2.5 mb-3">
@@ -229,12 +277,159 @@
   </div>
 </main>
 
+<!-- MODAL PILIH SHIFT (POP UP) -->
+<div id="shiftModal" class="fixed inset-0 z-[60] flex items-center justify-center p-3 bg-black/50" style="backdrop-filter:blur(4px);">
+  <div id="shiftModalDialog" class="w-full max-w-[320px] bg-white rounded-2xl shadow-2xl overflow-hidden">
+    <div class="shimmer-bar h-1 w-full"></div>
+    <div class="px-4 pt-5 pb-6">
+      <div class="flex items-center justify-between mb-1">
+        <div>
+          <h3 class="text-base font-bold text-gray-900">Pilih Shift Kerja</h3>
+          <p class="text-[10px] text-muted mt-0.5" id="modalDateLabel">—</p>
+        </div>
+        <button onclick="closeShiftModal()" class="w-7 h-7 rounded-lg border border-border flex items-center justify-center text-muted hover:bg-terra-xs">
+          <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div class="flex flex-col gap-2 mb-5">
+        <div id="optPagi" class="shift-option" onclick="pilihShift('pagi')">
+          <div class="shift-option-icon w-9 h-9">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C8966C" stroke-width="2">
+              <circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/>
+              <line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
+              <line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/>
+            </svg>
+          </div>
+          <div class="flex-1"><p class="text-xs font-bold text-gray-900">Shift Pagi</p><p class="text-[9px] text-muted">05:00 – 17:00</p></div>
+          <svg class="w-4 h-4 text-terra" id="arrowPagi" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+          <span class="unavail-badge hidden" id="unavailPagi">Tidak Tersedia</span>
+        </div>
+        <div id="optMalam" class="shift-option" onclick="pilihShift('malam')">
+          <div class="shift-option-icon w-9 h-9" style="background:#F0F4FF;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7B4F2E" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </div>
+          <div class="flex-1"><p class="text-xs font-bold text-gray-900">Shift Malam</p><p class="text-[9px] text-muted">16:00 – 23:00</p></div>
+          <svg class="w-4 h-4" id="arrowMalam" fill="none" stroke="#7B4F2E" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+          <span class="unavail-badge hidden" id="unavailMalam">Tidak Tersedia</span>
+        </div>
+      </div>
+      <div class="flex items-center justify-center gap-1.5 py-1.5 rounded-lg" style="background:#F5F0EB;">
+        <svg width="11" height="11" fill="none" stroke="#9C8B7E" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <p class="text-[9px] text-muted">Waktu sekarang: <strong class="text-gray-800" id="modalCurrentTime">—</strong></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
 <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-30 bg-gray-900 text-white text-sm font-medium px-5 py-3 rounded-full shadow-xl flex items-center gap-2 pointer-events-none transition-all duration-300 opacity-0 translate-y-4">
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
   <span id="toastMsg">—</span>
 </div>
 
 <script>
+// ==================== SHIFT PICKER (MODAL POP UP) ====================
+const SHIFT_CONFIG = {
+  pagi:  { nama: 'Shift Pagi',  mulai: '05:00', selesai: '17:00', mulaiJam: 5,  selesaiJam: 17 },
+  malam: { nama: 'Shift Malam', mulai: '16:00', selesai: '23:00', mulaiJam: 16, selesaiJam: 23 },
+};
+
+const LS_SHIFT_KEY      = 'kashy_selected_shift_kasir';
+const LS_SHIFT_DATE_KEY = 'kashy_shift_date_kasir';
+
+function getShiftFromStorage() {
+  const today     = new Date().toISOString().split('T')[0];
+  const savedDate = localStorage.getItem(LS_SHIFT_DATE_KEY);
+  if (savedDate !== today) { localStorage.removeItem(LS_SHIFT_KEY); return null; }
+  return localStorage.getItem(LS_SHIFT_KEY);
+}
+
+function saveShiftChoice(shift) {
+  const today = new Date().toISOString().split('T')[0];
+  localStorage.setItem(LS_SHIFT_KEY, shift);
+  localStorage.setItem(LS_SHIFT_DATE_KEY, today);
+}
+
+function isShiftAvailable(shiftType) {
+  const now     = new Date();
+  const nowMins = now.getHours() * 60 + now.getMinutes();
+  const cfg     = SHIFT_CONFIG[shiftType];
+  return nowMins >= cfg.mulaiJam * 60 && nowMins < cfg.selesaiJam * 60;
+}
+
+// ========== MODAL UI ==========
+function openShiftModal() {
+  updateModalTime();
+  updateShiftOptionState();
+  document.getElementById('shiftModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeShiftModal() {
+  document.getElementById('shiftModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function updateModalTime() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('modalCurrentTime').textContent = h + ':' + m + ' WIB';
+  const days   = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  document.getElementById('modalDateLabel').textContent =
+    days[now.getDay()] + ', ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
+}
+
+function updateShiftOptionState() {
+  const now = new Date();
+  const nowMins = now.getHours() * 60 + now.getMinutes();
+  updateModalTime();
+
+  const pagiAvail = (nowMins >= SHIFT_CONFIG.pagi.mulaiJam * 60 && nowMins <= SHIFT_CONFIG.pagi.selesaiJam * 60);
+  const optPagi = document.getElementById('optPagi');
+  if (pagiAvail) {
+    optPagi.classList.remove('disabled');
+    optPagi.style.pointerEvents = '';
+    document.getElementById('unavailPagi').classList.add('hidden');
+    document.getElementById('arrowPagi').classList.remove('hidden');
+  } else {
+    optPagi.classList.add('disabled');
+    optPagi.style.pointerEvents = 'none';
+    document.getElementById('unavailPagi').classList.remove('hidden');
+    document.getElementById('arrowPagi').classList.add('hidden');
+  }
+
+  const malamAvail = (nowMins >= SHIFT_CONFIG.malam.mulaiJam * 60 && nowMins <= SHIFT_CONFIG.malam.selesaiJam * 60);
+  const optMalam = document.getElementById('optMalam');
+  if (malamAvail) {
+    optMalam.classList.remove('disabled');
+    optMalam.style.pointerEvents = '';
+    document.getElementById('unavailMalam').classList.add('hidden');
+    document.getElementById('arrowMalam').classList.remove('hidden');
+  } else {
+    optMalam.classList.add('disabled');
+    optMalam.style.pointerEvents = 'none';
+    document.getElementById('unavailMalam').classList.remove('hidden');
+    document.getElementById('arrowMalam').classList.add('hidden');
+  }
+}
+
+function pilihShift(type) {
+  if (!isShiftAvailable(type)) {
+    showToast(`Shift ${type === 'pagi' ? 'Pagi' : 'Malam'} tidak tersedia saat ini.`);
+    closeShiftModal();
+    return;
+  }
+  saveShiftChoice(type);
+  closeShiftModal();
+  showToast(`Shift ${type === 'pagi' ? 'Pagi' : 'Malam'} dipilih. Silakan absen masuk.`);
+  // Redirect ke halaman absensi
+  window.location.href = '{{ route("kasir.absensikasir") }}';
+}
+
+// ==================== DASHBOARD ASLI ====================
 (function() {
     const h = new Date().getHours();
     let greet = 'Selamat Pagi';
@@ -269,12 +464,12 @@ async function loadShiftStatus() {
             
             shiftMulaiElem.innerText = data.shift.waktu_buka || '--:--';
             shiftBerakhirElem.innerText = '23:59';
-            shiftBtnLabel.innerText = "Tutup Shift";
+            shiftBtnLabel.innerHTML = "Shift Aktif";
             
             const totalPenjualan = Number(data.shift.total_penjualan) || 0;
-const penjualanTunai = Number(data.shift.penjualan_tunai) || 0;
-const penjualanQris = Number(data.shift.penjualan_qris) || 0;
-const penjualanDebit = Number(data.shift.penjualan_debit) || 0;
+            const penjualanTunai = Number(data.shift.penjualan_tunai) || 0;
+            const penjualanQris = Number(data.shift.penjualan_qris) || 0;
+            const penjualanDebit = Number(data.shift.penjualan_debit) || 0;
             
             document.getElementById('penjualanValue').innerText = `Rp ${totalPenjualan.toLocaleString('id-ID')}`;
             document.getElementById('tunaiNominal').innerText = penjualanTunai.toLocaleString('id-ID');
@@ -294,7 +489,7 @@ const penjualanDebit = Number(data.shift.penjualan_debit) || 0;
             
             shiftMulaiElem.innerText = "--:--";
             shiftBerakhirElem.innerText = "--:--";
-            shiftBtnLabel.innerText = "Pilih Shift";
+            shiftBtnLabel.innerHTML = "Pilih Shift";
             
             document.getElementById('penjualanValue').innerText = "Rp 0";
             document.getElementById('tunaiNominal').innerText = "0";
@@ -316,16 +511,10 @@ async function loadTransactionStats() {
         const response = await fetch('{{ route("kasir.transaksi.recent") }}');
         const transactions = await response.json();
         document.getElementById('transaksiCount').innerText = transactions.length;
-        
-        // Hitung total item terjual
         let totalItems = 0;
-        transactions.forEach(trx => {
-            totalItems += trx.total_items || 0;
-        });
+        transactions.forEach(trx => { totalItems += trx.total_items || 0; });
         document.getElementById('itemCount').innerText = totalItems;
-    } catch (error) {
-        console.error('Gagal load statistik:', error);
-    }
+    } catch (error) { console.error(error); }
 }
 
 async function loadRecentTransactions() {
@@ -333,7 +522,6 @@ async function loadRecentTransactions() {
         const response = await fetch('{{ route("kasir.transaksi.recent") }}');
         const transactions = await response.json();
         const container = document.getElementById('recentTransactionsList');
-        
         if (transactions.length === 0) {
             container.innerHTML = '<li class="text-center text-muted text-xs py-4">Belum ada transaksi hari ini</li>';
         } else {
@@ -355,21 +543,26 @@ async function loadRecentTransactions() {
             `).join('');
         }
     } catch (error) {
-        console.error('Gagal load recent transactions:', error);
         document.getElementById('recentTransactionsList').innerHTML = '<li class="text-center text-muted text-xs py-4">Gagal memuat transaksi</li>';
     }
 }
 
 function goTransaksi() {
     if (isShiftActive) {
-        window.location.href = '{{ route("kasir.transaksi") }}';
+        window.location.href = '{{ route("kasir.transaksi") }}';  
     } else {
-        showToast('⚠️ Silakan buka shift terlebih dahulu!');
+        showToast('Silakan buka shift terlebih dahulu!');
     }
 }
 
-function goRiwayat() {
-    window.location.href = '{{ route("kasir.riwayattransaksi") }}';
+function goRiwayat() { window.location.href = '{{ route("kasir.riwayattransaksi") }}'; }
+
+function goShift() {
+    if (isShiftActive) {
+        window.location.href = '{{ route("kasir.shiftkasir") }}';
+    } else {
+        window.location.href = '{{ route("kasir.absensikasir") }}';
+    }
 }
 
 function showToast(msg) {
@@ -383,17 +576,18 @@ function showToast(msg) {
     }, 2600);
 }
 
+// Inisialisasi
+document.getElementById('pilihShiftBtn').addEventListener('click', openShiftModal);
+document.getElementById('shiftModal').addEventListener('click', function(e) {
+    if (e.target === this) closeShiftModal();
+});
+setInterval(updateShiftOptionState, 60000);
 window.addEventListener('storage', (event) => {
     if (event.key === 'kasir_shift_updated') {
         loadShiftStatus();
         loadRecentTransactions();
     }
 });
-
-setInterval(() => {
-    loadShiftStatus();
-    loadRecentTransactions();
-}, 30000);
 
 loadShiftStatus();
 loadRecentTransactions();

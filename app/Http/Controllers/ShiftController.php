@@ -20,7 +20,7 @@ class ShiftController extends Controller
 
     // Shift kasir sedikit berbeda jamnya
     const SHIFTS_KASIR = [
-        'pagi'  => ['start' => '05:00', 'end' => '17:00', 'mulai_jam' => 5,  'selesai_jam' => 17],
+        'pagi'  => ['start' => '09:00', 'end' => '17:00', 'mulai_jam' => 9,  'selesai_jam' => 17],
         'malam' => ['start' => '16:00', 'end' => '23:00', 'mulai_jam' => 16, 'selesai_jam' => 23],
     ];
 
@@ -48,13 +48,14 @@ class ShiftController extends Controller
 
         $shiftCfg = self::SHIFTS[$shiftType];
 
-        $nowHour = (int) $now->format('H');
-        if ($nowHour < $shiftCfg['mulai_jam'] || $nowHour >= $shiftCfg['selesai_jam']) {
-            return response()->json([
-                'success' => false,
-                'message' => "Absensi hanya bisa dilakukan pada jam {$shiftCfg['start']} – {$shiftCfg['end']}."
-            ], 422);
-        }
+        // SEMENTARA: validasi jam dinonaktifkan untuk testing
+        // $nowHour = (int) $now->format('H');
+        // if ($nowHour < $shiftCfg['mulai_jam'] || $nowHour >= $shiftCfg['selesai_jam']) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => "Absensi hanya bisa dilakukan pada jam {$shiftCfg['start']} – {$shiftCfg['end']}."
+        //     ], 422);
+        // }
 
         $attendance = Attendance::where('user_id', $user->id)
                                 ->whereDate('created_at', $today)
@@ -145,13 +146,13 @@ class ShiftController extends Controller
                                ->where('status', 'open')
                                ->first();
 
-            if (!$shiftAktif) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Buka shift kas terlebih dahulu sebelum absen masuk.',
-                    'need_open_shift' => true,
-                ], 422);
-            }
+            // if (!$shiftAktif) {
+            //     return response()->json([
+            //         'success' => false,
+            //         'message' => 'Buka shift kas terlebih dahulu sebelum absen masuk.',
+            //         'need_open_shift' => true,
+            //     ], 422);
+            // }
         }
 
         $attendance = Attendance::where('user_id', $user->id)

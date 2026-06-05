@@ -12,6 +12,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\StockOpnameController;
 use App\Http\Controllers\OwnerSettingController;
 use App\Http\Controllers\OwnerLaporanController;
+use App\Http\Controllers\KasirRiwayatController;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Auth;
 
@@ -32,12 +33,28 @@ Route::get('/', function () {
 |--------------------------------------------------------------------------
 */
 
+// Manajemen Diskon
+    Route::get('/owner/manajemendiskon', [DiscountController::class, 'index'])
+    ->name('manajemen.diskon');
+
+    Route::post('/owner/diskon', [DiscountController::class, 'store'])
+    ->name('diskon.store');
+
+    Route::get('/owner/diskon/{id}/edit', [DiscountController::class, 'edit'])
+    ->name('diskon.edit');
+
+    Route::put('/owner/diskon/{id}', [DiscountController::class, 'update'])
+    ->name('diskon.update');
+    
+    Route::delete('/owner/diskon/{id}', [DiscountController::class, 'destroy'])
+    ->name('diskon.destroy');
+
 Route::middleware(['auth'])->group(function () {
 
     Route::get("/owner/dashboard", [DashboardController::class, "index"])
         ->name("owner.dashboard");
 
-    Route::get('/owner/manajemendiskon', [DiscountController::class, 'index'])
+    Route::get('/owner/manajemendiskon', 'App\Http\Controllers\DiscountController@index')
         ->middleware('auth')
         ->name('manajemen.diskon');
 
@@ -69,6 +86,13 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('auth')
         ->name('manajemen.produk');
 
+    Route::post('/owner/produk', [ProductController::class, 'store'])
+        ->name('produk.store');
+    Route::put('/owner/produk/{product}', [ProductController::class, 'update'])
+        ->name('produk.update');
+    Route::delete('/owner/produk/{product}', [ProductController::class, 'destroy'])
+        ->name('produk.destroy');
+
     Route::middleware(['auth'])->group(function () {
         Route::get('/owner/pengaturantransaksi', [OwnerSettingController::class, 'index'])
             ->name('pengaturan.transaksi');
@@ -89,7 +113,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/owner/products/{product}', [ProductController::class, 'destroy'])
         ->name('owner.products.destroy');
 
-    Route::view('/owner/manajemenkategori', 'owner.manajemenkategori')
+    Route::get('/owner/manajemenkategori', 'App\Http\Controllers\CategoryController@index')
         ->middleware('auth')
         ->name('manajemen.kategori');
 
@@ -142,6 +166,16 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('auth')
         ->name('owner.profile');
 
+
+    // API untuk kategori
+    Route::post('/owner/kategori', [CategoryController::class, 'store'])->name('kategori.store');
+    Route::put('/owner/kategori/{id}', [CategoryController::class, 'update'])->name('kategori.update');
+    Route::delete('/owner/kategori/{id}', [CategoryController::class, 'destroy'])->name('kategori.destroy');
+
+    // API untuk diskon
+    Route::post('/owner/diskon', [DiscountController::class, 'store'])->name('diskon.store');
+    Route::put('/owner/diskon/{id}', [DiscountController::class, 'update'])->name('diskon.update');
+    Route::delete('/owner/diskon/{id}', [DiscountController::class, 'destroy'])->name('diskon.destroy');
 });
 
 
@@ -178,16 +212,8 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/kasir/profil/password', [ProfileController::class, 'updatePassword'])
         ->name('kasir.password.update');
 
-    Route::get('/kasir/riwayattransaksi', function () {
-        $transactions = Transaction::with('details')
-            ->where('kasir_id', Auth::id())
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->groupBy(function ($transaction) {
-                return $transaction->created_at->translatedFormat('d F Y');
-            });
-        return view('kasir.riwayattransaksi', compact('transactions'));
-    })->name('kasir.riwayattransaksi');
+    Route::get('/kasir/riwayattransaksi', [KasirRiwayatController::class, 'index'])
+    ->name('kasir.riwayattransaksi');
 
     Route::get('/kasir/laporantransaksi', function () {
         return view('kasir.laporantransaksi');
@@ -207,6 +233,12 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/kasir/transaksi/session', [KasirTransactionController::class, 'saveTransactionSession'])
         ->name('kasir.transaksi.session');
+   
+
+    // ── Absensi / Shift Handle ──
+Route::post('/shift/handle', [App\Http\Controllers\ShiftController::class, 'handleAbsensi'])->name('shift.handle');
+Route::get('/shift/status', [App\Http\Controllers\ShiftController::class, 'cekStatusAbsensi'])->name('shift.status');
+Route::get('/shift/full-history', [App\Http\Controllers\ShiftController::class, 'getFullHistory'])->name('shift.full-history');
 
     // ── Shift Kas (buka/tutup) ──
     Route::get('/kasir/shift/status',    [KasirShiftController::class, 'cekStatus'])   ->name('kasir.shift.status');
@@ -370,9 +402,8 @@ Route::get('/api/products-all', [ProductController::class, 'getProductsJson'])
 Route::get('/katalog', [ProductController::class, 'katalog'])
     ->name('katalog');
 
-Route::get('/daftarproduk', function () {
-    return view('pelanggan.daftarproduk');
-})->name('daftar-produk');
+Route::get('/daftarproduk', [ProductController::class, 'daftarProduk'])
+->name('daftar-produk');
 
 Route::get('/detail-produk/{id}', [ProductController::class, 'detail'])
     ->name('detail-produk');
