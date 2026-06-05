@@ -78,7 +78,7 @@
       <span class="text-sm font-semibold leading-tight">Transaksi Baru</span>
     </button>
 
-    <button onclick="window.location.href='{{ route('kasir.absensikasir') }}'"
+    <button onclick="goShift()"
       class="bg-white hover:bg-terra-xs border border-border text-gray-900 rounded-xl px-4 py-4 flex items-center gap-3 shadow-sm transition-all card-hover">
       <div class="w-8 h-8 rounded-lg bg-terra-xs flex items-center justify-center">
         <svg width="18" height="18" fill="none" stroke="#C8966C" stroke-width="2" viewBox="0 0 24 24">
@@ -362,14 +362,22 @@ async function loadRecentTransactions() {
 
 function goTransaksi() {
     if (isShiftActive) {
-        window.location.href = '{{ route("kasir.transaksi") }}';
+        window.location.href = '{{ route("kasir.transaksi") }}';  
     } else {
-        showToast('⚠️ Silakan buka shift terlebih dahulu!');
+        showToast('Silakan buka shift terlebih dahulu!');
     }
 }
 
 function goRiwayat() {
     window.location.href = '{{ route("kasir.riwayattransaksi") }}';
+}
+
+function goShift() {
+    if (isShiftActive) {
+        window.location.href = '{{ route("kasir.shiftkasir") }}';
+    } else {
+        window.location.href = '{{ route("kasir.absensikasir") }}';
+    }
 }
 
 function showToast(msg) {
