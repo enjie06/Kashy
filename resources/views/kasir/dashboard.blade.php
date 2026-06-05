@@ -115,14 +115,14 @@
       <span class="text-sm font-semibold leading-tight">Transaksi Baru</span>
     </button>
 
-    <button onclick="goShift()"
+    <button id="shiftActionBtn" onclick="goShift()"
       class="bg-white hover:bg-terra-xs border border-border text-gray-900 rounded-xl px-4 py-4 flex items-center gap-3 shadow-sm transition-all card-hover">
       <div class="w-8 h-8 rounded-lg bg-terra-xs flex items-center justify-center">
         <svg width="18" height="18" fill="none" stroke="#C8966C" stroke-width="2" viewBox="0 0 24 24">
           <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
         </svg>
       </div>
-      <span id="shiftBtnLabel" class="text-sm font-semibold leading-tight text-gray-900">Buka Shift</span>
+      <span id="shiftBtnLabel" class="text-sm font-semibold leading-tight text-gray-900">Pilih Shift</span>
     </button>
   </div>
 
@@ -336,6 +336,8 @@ const SHIFT_CONFIG = {
 const LS_SHIFT_KEY      = 'kashy_kasir_selected_shift';
 const LS_SHIFT_DATE_KEY = 'kashy_kasir_shift_date';
 
+let isShiftActive = false;
+
 function getTodayShift() {
   const today = new Date().toISOString().split('T')[0];
   const savedDate = localStorage.getItem(LS_SHIFT_DATE_KEY);
@@ -364,18 +366,28 @@ function isShiftAvailable(shiftType) {
 function openShiftModal() {
   updateModalTime();
   updateShiftOptionState();
-  document.getElementById('shiftModal').classList.add('open');
-  document.body.style.overflow = 'hidden';
+  const modal = document.getElementById('shiftModal');
+  if (modal) {
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
 }
 
 function closeShiftModal() {
-  document.getElementById('shiftModal').classList.remove('open');
-  document.body.style.overflow = '';
+  const modal = document.getElementById('shiftModal');
+  if (modal) {
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+  }
 }
 
-document.getElementById('shiftModal')?.addEventListener('click', function(e) {
-  if (e.target === this) closeShiftModal();
-});
+// Event listener untuk modal (hanya sekali)
+const shiftModalElement = document.getElementById('shiftModal');
+if (shiftModalElement) {
+  shiftModalElement.addEventListener('click', function(e) {
+    if (e.target === this) closeShiftModal();
+  });
+}
 
 function updateShiftOptionState() {
   const now = new Date();
@@ -388,16 +400,18 @@ function updateShiftOptionState() {
     const opt   = document.getElementById('opt' + type.charAt(0).toUpperCase() + type.slice(1));
     const arrow = document.getElementById('arrow' + type.charAt(0).toUpperCase() + type.slice(1));
     const badge = document.getElementById('unavail' + type.charAt(0).toUpperCase() + type.slice(1));
-    if (avail) {
-      opt.classList.remove('disabled');
-      opt.style.pointerEvents = '';
-      arrow?.classList.remove('hidden');
-      badge?.classList.add('hidden');
-    } else {
-      opt.classList.add('disabled');
-      opt.style.pointerEvents = 'none';
-      arrow?.classList.add('hidden');
-      badge?.classList.remove('hidden');
+    if (opt) {
+      if (avail) {
+        opt.classList.remove('disabled');
+        opt.style.pointerEvents = '';
+        if (arrow) arrow.classList.remove('hidden');
+        if (badge) badge.classList.add('hidden');
+      } else {
+        opt.classList.add('disabled');
+        opt.style.pointerEvents = 'none';
+        if (arrow) arrow.classList.add('hidden');
+        if (badge) badge.classList.remove('hidden');
+      }
     }
   });
 }
@@ -406,11 +420,15 @@ function updateModalTime() {
   const now = new Date();
   const h = String(now.getHours()).padStart(2,'0');
   const m = String(now.getMinutes()).padStart(2,'0');
-  document.getElementById('modalCurrentTime').textContent = h + ':' + m + ' WIB';
+  const currentTimeEl = document.getElementById('modalCurrentTime');
+  if (currentTimeEl) currentTimeEl.textContent = h + ':' + m + ' WIB';
+  
   const days   = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
   const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-  document.getElementById('modalDateLabel').textContent =
-    days[now.getDay()] + ', ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
+  const dateLabelEl = document.getElementById('modalDateLabel');
+  if (dateLabelEl) {
+    dateLabelEl.textContent = days[now.getDay()] + ', ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
+  }
 }
 
 function pilihShift(type) {
@@ -439,8 +457,6 @@ function pilihShift(type) {
 const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
 const hariEl  = document.getElementById('shiftHariTanggal');
 if (hariEl) hariEl.innerText = new Date().toLocaleDateString('id-ID', options);
-
-let isShiftActive = false;
 
 async function loadShiftStatus() {
   try {
@@ -587,7 +603,8 @@ function goShift() {
 function showToast(msg) {
   const toast = document.getElementById('toast');
   if (!toast) return;
-  document.getElementById('toastMsg').innerText = msg;
+  const toastMsg = document.getElementById('toastMsg');
+  if (toastMsg) toastMsg.innerText = msg;
   toast.style.opacity   = '1';
   toast.style.transform = 'translateX(-50%) translateY(0)';
   clearTimeout(window._toastTimeout);
@@ -598,25 +615,27 @@ function showToast(msg) {
 }
 
 // Inisialisasi
-document.getElementById('pilihShiftBtn').addEventListener('click', openShiftModal);
-document.getElementById('shiftModal').addEventListener('click', function(e) {
-    if (e.target === this) closeShiftModal();
-});
-setInterval(updateShiftOptionState, 60000);
-window.addEventListener('storage', (event) => {
-  if (event.key === 'kasir_shift_updated') {
-    loadShiftStatus();
-    loadRecentTransactions();
-  }
-});
-
-setInterval(() => {
+document.addEventListener('DOMContentLoaded', function() {
   loadShiftStatus();
   loadRecentTransactions();
-}, 30000);
-
-loadShiftStatus();
-loadRecentTransactions();
+  
+  // Update shift option state setiap menit
+  setInterval(updateShiftOptionState, 60000);
+  
+  // Refresh data setiap 30 detik
+  setInterval(() => {
+    loadShiftStatus();
+    loadRecentTransactions();
+  }, 30000);
+  
+  // Listen untuk storage event (ketika shift diubah di tab lain)
+  window.addEventListener('storage', (event) => {
+    if (event.key === 'kasir_shift_updated') {
+      loadShiftStatus();
+      loadRecentTransactions();
+    }
+  });
+});
 </script>
 </body>
 </html>
