@@ -50,6 +50,43 @@
   @keyframes shimmer { 0%{background-position:100%} 100%{background-position:-100%} }
   .card-hover { transition: transform 0.2s, box-shadow 0.2s; }
   .card-hover:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(0,0,0,0.08); }
+
+  /* ── Shift Modal ── */
+  #shiftModal {
+    opacity:0; pointer-events:none;
+    transition:opacity .25s ease;
+  }
+  #shiftModal.open { opacity:1; pointer-events:all; }
+  #shiftModalDialog {
+    transform:scale(.92) translateY(20px);
+    transition:transform .32s cubic-bezier(0.34,1.56,.64,1);
+  }
+  #shiftModal.open #shiftModalDialog { transform:scale(1) translateY(0); }
+
+  .shift-option {
+    display:flex; align-items:center; gap:14px;
+    padding:16px 18px; border-radius:16px;
+    border:2px solid #EAE0D6; background:#fff;
+    cursor:pointer; transition:all .2s;
+    position:relative; overflow:hidden;
+  }
+  .shift-option:hover:not(.disabled) {
+    border-color:#C8966C; background:#FAF2EC;
+    transform:translateY(-1px); box-shadow:0 6px 18px rgba(200,150,108,.2);
+  }
+  .shift-option.disabled {
+    opacity:.5; cursor:not-allowed; background:#f9f9f9;
+  }
+  .shift-option-icon {
+    width:44px; height:44px; border-radius:14px;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .shift-option .unavail-badge {
+    position:absolute; top:10px; right:12px;
+    font-size:9px; font-weight:700; letter-spacing:.05em;
+    padding:2px 8px; border-radius:20px;
+    background:#F3F4F6; color:#9CA3AF;
+  }
 </style>
 </head>
 @include('kasir.components.topbar')
@@ -78,19 +115,18 @@
       <span class="text-sm font-semibold leading-tight">Transaksi Baru</span>
     </button>
 
-    <button onclick="window.location.href='{{ route('kasir.absensikasir') }}'"
+    <button id="shiftActionBtn" onclick="goShift()"
       class="bg-white hover:bg-terra-xs border border-border text-gray-900 rounded-xl px-4 py-4 flex items-center gap-3 shadow-sm transition-all card-hover">
       <div class="w-8 h-8 rounded-lg bg-terra-xs flex items-center justify-center">
         <svg width="18" height="18" fill="none" stroke="#C8966C" stroke-width="2" viewBox="0 0 24 24">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-          <polyline points="16 17 21 12 16 7"/>
-          <line x1="21" y1="12" x2="9" y2="12"/>
+          <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
         </svg>
       </div>
       <span id="shiftBtnLabel" class="text-sm font-semibold leading-tight text-gray-900">Pilih Shift</span>
     </button>
   </div>
 
+  <!-- Shift Saat Ini (status dari backend) -->
   <div class="bg-white rounded-2xl shadow-sm border border-border overflow-hidden mb-6 fade-up delay-3">
     <div class="shimmer-bar h-1 w-full"></div>
     <div class="p-5">
@@ -106,9 +142,9 @@
             <p class="text-xs text-muted" id="shiftHariTanggal"></p>
           </div>
         </div>
-        <div id="shiftBadge" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border">
-          <span id="badgeDot" class="w-2 h-2 rounded-full"></span>
-          <span id="badgeText" class="text-[11px] font-semibold">Memuat...</span>
+        <div id="shiftBadge" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-red-300 bg-red-100">
+          <span id="badgeDot" class="w-2 h-2 rounded-full bg-red-500"></span>
+          <span id="badgeText" class="text-[11px] font-semibold text-red-700">Tidak Aktif</span>
         </div>
       </div>
 
@@ -140,6 +176,7 @@
     </div>
   </div>
 
+  <!-- Statistik Penjualan -->
   <div class="bg-white rounded-2xl shadow-sm border border-border overflow-hidden mb-6 fade-up delay-3">
     <div class="p-5">
       <div class="flex items-center gap-2.5 mb-3">
@@ -229,174 +266,376 @@
   </div>
 </main>
 
+<!-- TOAST -->
 <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-30 bg-gray-900 text-white text-sm font-medium px-5 py-3 rounded-full shadow-xl flex items-center gap-2 pointer-events-none transition-all duration-300 opacity-0 translate-y-4">
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
   <span id="toastMsg">—</span>
 </div>
 
-<script>
-(function() {
-    const h = new Date().getHours();
-    let greet = 'Selamat Pagi';
-    if (h >= 11 && h < 15) greet = 'Selamat Siang';
-    else if (h >= 15 && h < 18) greet = 'Selamat Sore';
-    else if (h >= 18) greet = 'Selamat Malam';
-    document.getElementById('greetingText').innerHTML = `${greet}, <span class="text-terra">{{ Auth::user()->name }}</span>`;
-})();
+<!-- MODAL PILIH SHIFT -->
+<div id="shiftModal" class="fixed inset-0 z-[60] flex items-center justify-center p-3 bg-black/50" style="backdrop-filter:blur(4px);">
+  <div id="shiftModalDialog" class="w-full max-w-[320px] bg-white rounded-2xl shadow-2xl overflow-hidden">
+    <div class="shimmer-bar h-1 w-full"></div>
+    <div class="px-4 pt-5 pb-6">
+      <div class="flex items-center justify-between mb-1">
+        <div>
+          <h3 class="text-base font-bold text-gray-900">Pilih Shift Kerja</h3>
+          <p class="text-[10px] text-muted mt-0.5" id="modalDateLabel">—</p>
+        </div>
+        <button onclick="closeShiftModal()" class="w-7 h-7 rounded-lg border border-border flex items-center justify-center text-muted hover:bg-terra-xs">
+          <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
 
-const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-document.getElementById('shiftHariTanggal').innerText = new Date().toLocaleDateString('id-ID', options);
+      <div class="flex flex-col gap-2 mb-5 mt-4">
+        <div id="optPagi" class="shift-option" onclick="pilihShift('pagi')">
+          <div class="shift-option-icon" style="background:#FAF2EC;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C8966C" stroke-width="2">
+              <circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/>
+              <line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
+              <line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/>
+            </svg>
+          </div>
+          <div class="flex-1">
+            <p class="text-xs font-bold text-gray-900">Shift Pagi</p>
+            <p class="text-[9px] text-muted">09:00 – 17:00</p>
+          </div>
+          <svg class="w-4 h-4 text-terra" id="arrowPagi" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+          <span class="unavail-badge hidden" id="unavailPagi">Unavailable</span>
+        </div>
+
+        <div id="optMalam" class="shift-option" onclick="pilihShift('malam')">
+          <div class="shift-option-icon" style="background:#F0F4FF;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7B4F2E" stroke-width="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          </div>
+          <div class="flex-1">
+            <p class="text-xs font-bold text-gray-900">Shift Malam</p>
+            <p class="text-[9px] text-muted">15:00 – 23:00</p>
+          </div>
+          <svg class="w-4 h-4" id="arrowMalam" fill="none" stroke="#7B4F2E" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+          <span class="unavail-badge hidden" id="unavailMalam">Unavailable</span>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-center gap-1.5 py-1.5 rounded-lg" style="background:#F5F0EB;">
+        <svg width="11" height="11" fill="none" stroke="#9C8B7E" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <p class="text-[9px] text-muted">Waktu sekarang: <strong class="text-gray-800" id="modalCurrentTime">—</strong></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SHIFT_CONFIG = {
+  pagi:  { nama:'Shift Pagi',  mulai:'09:00', selesai:'17:00', mulaiJam:9,  endHour:17 },
+  malam: { nama:'Shift Malam', mulai:'15:00', selesai:'23:00', mulaiJam:15, endHour:23 },
+};
+
+const LS_SHIFT_KEY      = 'kashy_kasir_selected_shift';
+const LS_SHIFT_DATE_KEY = 'kashy_kasir_shift_date';
 
 let isShiftActive = false;
 
-async function loadShiftStatus() {
-    try {
-        const response = await fetch('{{ route("kasir.shift.status") }}');
-        const data = await response.json();
-        
-        const shiftBadge = document.getElementById('shiftBadge');
-        const badgeDot = document.getElementById('badgeDot');
-        const badgeText = document.getElementById('badgeText');
-        const shiftMulaiElem = document.getElementById('shiftMulai');
-        const shiftBerakhirElem = document.getElementById('shiftBerakhir');
-        const shiftBtnLabel = document.getElementById('shiftBtnLabel');
-        
-        if (data.shift_active && data.shift) {
-            isShiftActive = true;
-            badgeDot.className = "w-2 h-2 rounded-full bg-green-500 pulse-dot";
-            badgeText.innerText = "Aktif";
-            shiftBadge.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-green-300 bg-green-100";
-            
-            shiftMulaiElem.innerText = data.shift.waktu_buka || '--:--';
-            shiftBerakhirElem.innerText = '23:59';
-            shiftBtnLabel.innerText = "Tutup Shift";
-            
-            const totalPenjualan = Number(data.shift.total_penjualan) || 0;
-const penjualanTunai = Number(data.shift.penjualan_tunai) || 0;
-const penjualanQris = Number(data.shift.penjualan_qris) || 0;
-const penjualanDebit = Number(data.shift.penjualan_debit) || 0;
-            
-            document.getElementById('penjualanValue').innerText = `Rp ${totalPenjualan.toLocaleString('id-ID')}`;
-            document.getElementById('tunaiNominal').innerText = penjualanTunai.toLocaleString('id-ID');
-            document.getElementById('qrisNominal').innerText = penjualanQris.toLocaleString('id-ID');
-            document.getElementById('debitNominal').innerText = penjualanDebit.toLocaleString('id-ID');
-            
-            const percent = Math.min(Math.round((totalPenjualan / 15000000) * 100), 100);
-            document.getElementById('penjualanProgress').style.width = `${percent}%`;
-            document.getElementById('penjualanPercent').innerText = `${percent}% dari target`;
-            
-            await loadTransactionStats();
-        } else {
-            isShiftActive = false;
-            badgeDot.className = "w-2 h-2 rounded-full bg-red-500";
-            badgeText.innerText = "Tidak Aktif";
-            shiftBadge.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-red-300 bg-red-100";
-            
-            shiftMulaiElem.innerText = "--:--";
-            shiftBerakhirElem.innerText = "--:--";
-            shiftBtnLabel.innerText = "Pilih Shift";
-            
-            document.getElementById('penjualanValue').innerText = "Rp 0";
-            document.getElementById('tunaiNominal').innerText = "0";
-            document.getElementById('qrisNominal').innerText = "0";
-            document.getElementById('debitNominal').innerText = "0";
-            document.getElementById('penjualanProgress').style.width = "0%";
-            document.getElementById('penjualanPercent').innerText = "0% dari target";
-            document.getElementById('transaksiCount').innerText = "0";
-            document.getElementById('itemCount').innerText = "0";
-        }
-    } catch (error) {
-        console.error('Gagal load shift status:', error);
-        showToast('Gagal memuat status shift');
+function getTodayShift() {
+  const today = new Date().toISOString().split('T')[0];
+  const savedDate = localStorage.getItem(LS_SHIFT_DATE_KEY);
+  if (savedDate !== today) {
+    localStorage.removeItem(LS_SHIFT_KEY);
+    localStorage.setItem(LS_SHIFT_DATE_KEY, today);
+    return null;
+  }
+  return localStorage.getItem(LS_SHIFT_KEY);
+}
+
+function saveShiftChoice(shiftType) {
+  const today = new Date().toISOString().split('T')[0];
+  localStorage.setItem(LS_SHIFT_KEY, shiftType);
+  localStorage.setItem(LS_SHIFT_DATE_KEY, today);
+}
+
+function isShiftAvailable(shiftType) {
+  const now = new Date();
+  const nowMins = now.getHours() * 60 + now.getMinutes();
+  const cfg = SHIFT_CONFIG[shiftType];
+  if (!cfg) return false;
+  return (nowMins >= cfg.mulaiJam * 60 && nowMins <= cfg.endHour * 60);
+}
+
+function openShiftModal() {
+  updateModalTime();
+  updateShiftOptionState();
+  const modal = document.getElementById('shiftModal');
+  if (modal) {
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeShiftModal() {
+  const modal = document.getElementById('shiftModal');
+  if (modal) {
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+}
+
+// Event listener untuk modal (hanya sekali)
+const shiftModalElement = document.getElementById('shiftModal');
+if (shiftModalElement) {
+  shiftModalElement.addEventListener('click', function(e) {
+    if (e.target === this) closeShiftModal();
+  });
+}
+
+function updateShiftOptionState() {
+  const now = new Date();
+  const nowMins = now.getHours() * 60 + now.getMinutes();
+  updateModalTime();
+
+  ['pagi', 'malam'].forEach(type => {
+    const cfg   = SHIFT_CONFIG[type];
+    const avail = (nowMins >= cfg.mulaiJam * 60 && nowMins <= cfg.endHour * 60);
+    const opt   = document.getElementById('opt' + type.charAt(0).toUpperCase() + type.slice(1));
+    const arrow = document.getElementById('arrow' + type.charAt(0).toUpperCase() + type.slice(1));
+    const badge = document.getElementById('unavail' + type.charAt(0).toUpperCase() + type.slice(1));
+    if (opt) {
+      if (avail) {
+        opt.classList.remove('disabled');
+        opt.style.pointerEvents = '';
+        if (arrow) arrow.classList.remove('hidden');
+        if (badge) badge.classList.add('hidden');
+      } else {
+        opt.classList.add('disabled');
+        opt.style.pointerEvents = 'none';
+        if (arrow) arrow.classList.add('hidden');
+        if (badge) badge.classList.remove('hidden');
+      }
     }
+  });
+}
+
+function updateModalTime() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const currentTimeEl = document.getElementById('modalCurrentTime');
+  if (currentTimeEl) currentTimeEl.textContent = h + ':' + m + ' WIB';
+  
+  const days   = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const dateLabelEl = document.getElementById('modalDateLabel');
+  if (dateLabelEl) {
+    dateLabelEl.textContent = days[now.getDay()] + ', ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
+  }
+}
+
+function pilihShift(type) {
+  if (!isShiftAvailable(type)) {
+    showToast('Shift ' + (type === 'pagi' ? 'Pagi' : 'Malam') + ' sudah tidak tersedia.');
+    closeShiftModal();
+    return;
+  }
+  saveShiftChoice(type);
+  closeShiftModal();
+  showToast('Shift ' + (type === 'pagi' ? 'Pagi' : 'Malam') + ' dipilih. Silakan lakukan absensi.');
+  setTimeout(() => { window.location.href = '{{ route("kasir.absensikasir") }}'; }, 500);
+}
+
+// ── Greeting ──
+(function() {
+  const h = new Date().getHours();
+  let greet = 'Selamat Pagi';
+  if (h >= 11 && h < 15) greet = 'Selamat Siang';
+  else if (h >= 15 && h < 18) greet = 'Selamat Sore';
+  else if (h >= 18) greet = 'Selamat Malam';
+  const el = document.getElementById('greetingText');
+  if (el) el.innerHTML = `${greet}, <span class="text-terra">{{ Auth::user()->name }}</span>`;
+})();
+
+const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+const hariEl  = document.getElementById('shiftHariTanggal');
+if (hariEl) hariEl.innerText = new Date().toLocaleDateString('id-ID', options);
+
+async function loadShiftStatus() {
+  try {
+    const response = await fetch('{{ route("kasir.shift.status") }}');
+    const data     = await response.json();
+
+    const shiftBadge      = document.getElementById('shiftBadge');
+    const badgeDot        = document.getElementById('badgeDot');
+    const badgeText       = document.getElementById('badgeText');
+    const shiftMulaiEl    = document.getElementById('shiftMulai');
+    const shiftBerakhirEl = document.getElementById('shiftBerakhir');
+    const shiftBtnLabel   = document.getElementById('shiftBtnLabel');
+
+    if (data.shift_active && data.shift) {
+      isShiftActive = true;
+
+      if (badgeDot)   badgeDot.className   = 'w-2 h-2 rounded-full bg-green-500 pulse-dot';
+      if (badgeText)  badgeText.innerText  = 'Aktif';
+      if (shiftBadge) shiftBadge.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-green-300 bg-green-100';
+
+      if (shiftMulaiEl)    shiftMulaiEl.innerText    = data.shift.waktu_buka || '--:--';
+      if (shiftBerakhirEl) shiftBerakhirEl.innerText = '23:59';
+      if (shiftBtnLabel)   shiftBtnLabel.innerText   = 'Tutup Shift';
+
+      const totalPenjualan = Number(data.shift.total_penjualan) || 0;
+      const penjualanTunai = Number(data.shift.penjualan_tunai) || 0;
+      const penjualanQris  = Number(data.shift.penjualan_qris)  || 0;
+      const penjualanDebit = Number(data.shift.penjualan_debit) || 0;
+
+      const penjualanValueEl = document.getElementById('penjualanValue');
+      const tunaiEl          = document.getElementById('tunaiNominal');
+      const qrisEl           = document.getElementById('qrisNominal');
+      const debitEl          = document.getElementById('debitNominal');
+      const progressEl       = document.getElementById('penjualanProgress');
+      const percentEl        = document.getElementById('penjualanPercent');
+
+      if (penjualanValueEl) penjualanValueEl.innerText = `Rp ${totalPenjualan.toLocaleString('id-ID')}`;
+      if (tunaiEl)  tunaiEl.innerText  = penjualanTunai.toLocaleString('id-ID');
+      if (qrisEl)   qrisEl.innerText   = penjualanQris.toLocaleString('id-ID');
+      if (debitEl)  debitEl.innerText  = penjualanDebit.toLocaleString('id-ID');
+
+      const percent = Math.min(Math.round((totalPenjualan / 15000000) * 100), 100);
+      if (progressEl) progressEl.style.width = `${percent}%`;
+      if (percentEl)  percentEl.innerText    = `${percent}% dari target`;
+
+      await loadTransactionStats();
+
+    } else {
+      isShiftActive = false;
+
+      if (badgeDot)   badgeDot.className   = 'w-2 h-2 rounded-full bg-red-500';
+      if (badgeText)  badgeText.innerText  = 'Tidak Aktif';
+      if (shiftBadge) shiftBadge.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-red-300 bg-red-100';
+
+      if (shiftMulaiEl)    shiftMulaiEl.innerText    = '--:--';
+      if (shiftBerakhirEl) shiftBerakhirEl.innerText = '--:--';
+      if (shiftBtnLabel)   shiftBtnLabel.innerText   = 'Pilih Shift';
+
+      ['penjualanValue','tunaiNominal','qrisNominal','debitNominal','transaksiCount','itemCount'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = id === 'penjualanValue' ? 'Rp 0' : '0';
+      });
+      const progressEl = document.getElementById('penjualanProgress');
+      const percentEl  = document.getElementById('penjualanPercent');
+      if (progressEl) progressEl.style.width = '0%';
+      if (percentEl)  percentEl.innerText    = '0% dari target';
+    }
+  } catch (error) {
+    console.error('Gagal load shift status:', error);
+    showToast('Gagal memuat status shift');
+  }
 }
 
 async function loadTransactionStats() {
-    try {
-        const response = await fetch('{{ route("kasir.transaksi.recent") }}');
-        const transactions = await response.json();
-        document.getElementById('transaksiCount').innerText = transactions.length;
-        
-        // Hitung total item terjual
-        let totalItems = 0;
-        transactions.forEach(trx => {
-            totalItems += trx.total_items || 0;
-        });
-        document.getElementById('itemCount').innerText = totalItems;
-    } catch (error) {
-        console.error('Gagal load statistik:', error);
-    }
+  try {
+    const response     = await fetch('{{ route("kasir.transaksi.recent") }}');
+    const transactions = await response.json();
+    const countEl      = document.getElementById('transaksiCount');
+    const itemEl       = document.getElementById('itemCount');
+    if (countEl) countEl.innerText = transactions.length;
+    let totalItems = 0;
+    transactions.forEach(trx => { totalItems += trx.total_items || 0; });
+    if (itemEl) itemEl.innerText = totalItems;
+  } catch (error) {
+    console.error('Gagal load statistik:', error);
+  }
 }
 
 async function loadRecentTransactions() {
-    try {
-        const response = await fetch('{{ route("kasir.transaksi.recent") }}');
-        const transactions = await response.json();
-        const container = document.getElementById('recentTransactionsList');
-        
-        if (transactions.length === 0) {
-            container.innerHTML = '<li class="text-center text-muted text-xs py-4">Belum ada transaksi hari ini</li>';
-        } else {
-            container.innerHTML = transactions.map(trx => `
-                <li class="flex items-center justify-between p-2 rounded-xl hover:bg-terra-xs transition">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5">
-                                <path d="M20 6 9 17l-5-5"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-xs font-semibold">${trx.invoice_number}</p>
-                            <p class="text-[9px] text-muted">${trx.time} · ${trx.metode_pembayaran}</p>
-                        </div>
-                    </div>
-                    <span class="text-xs font-bold">Rp ${trx.grand_total.toLocaleString('id-ID')}</span>
-                </li>
-            `).join('');
-        }
-    } catch (error) {
-        console.error('Gagal load recent transactions:', error);
-        document.getElementById('recentTransactionsList').innerHTML = '<li class="text-center text-muted text-xs py-4">Gagal memuat transaksi</li>';
+  try {
+    const response     = await fetch('{{ route("kasir.transaksi.recent") }}');
+    const transactions = await response.json();
+    const container    = document.getElementById('recentTransactionsList');
+    if (!container) return;
+
+    if (transactions.length === 0) {
+      container.innerHTML = '<li class="text-center text-muted text-xs py-4">Belum ada transaksi hari ini</li>';
+    } else {
+      container.innerHTML = transactions.map(trx => `
+        <li class="flex items-center justify-between p-2 rounded-xl hover:bg-terra-xs transition">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5">
+                <path d="M20 6 9 17l-5-5"/>
+              </svg>
+            </div>
+            <div>
+              <p class="text-xs font-semibold">${trx.invoice_number}</p>
+              <p class="text-[9px] text-muted">${trx.time} · ${trx.metode_pembayaran}</p>
+            </div>
+          </div>
+          <span class="text-xs font-bold">Rp ${trx.grand_total.toLocaleString('id-ID')}</span>
+        </li>
+      `).join('');
     }
+  } catch (error) {
+    console.error('Gagal load recent transactions:', error);
+    const container = document.getElementById('recentTransactionsList');
+    if (container) container.innerHTML = '<li class="text-center text-muted text-xs py-4">Gagal memuat transaksi</li>';
+  }
 }
 
 function goTransaksi() {
-    if (isShiftActive) {
-        window.location.href = '{{ route("kasir.transaksi") }}';
-    } else {
-        showToast('⚠️ Silakan buka shift terlebih dahulu!');
-    }
+  if (isShiftActive) {
+    window.location.href = '{{ route("kasir.transaksi") }}';
+  } else {
+    showToast('Silakan buka shift terlebih dahulu!');
+  }
 }
 
 function goRiwayat() {
-    window.location.href = '{{ route("kasir.riwayattransaksi") }}';
+  window.location.href = '{{ route("kasir.riwayattransaksi") }}';
+}
+
+// Tombol "Pilih Shift" → buka modal | "Tutup Shift" → ke shiftkasir
+function goShift() {
+  if (isShiftActive) {
+    window.location.href = '{{ route("kasir.shiftkasir") }}';
+  } else {
+    openShiftModal();
+  }
 }
 
 function showToast(msg) {
-    const toast = document.getElementById('toast');
-    document.getElementById('toastMsg').innerText = msg;
-    toast.style.opacity = '1';
-    toast.style.transform = 'translateX(-50%) translateY(0)';
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateX(-50%) translateY(16px)';
-    }, 2600);
+  const toast = document.getElementById('toast');
+  if (!toast) return;
+  const toastMsg = document.getElementById('toastMsg');
+  if (toastMsg) toastMsg.innerText = msg;
+  toast.style.opacity   = '1';
+  toast.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(window._toastTimeout);
+  window._toastTimeout = setTimeout(() => {
+    toast.style.opacity   = '0';
+    toast.style.transform = 'translateX(-50%) translateY(16px)';
+  }, 2600);
 }
 
-window.addEventListener('storage', (event) => {
-    if (event.key === 'kasir_shift_updated') {
-        loadShiftStatus();
-        loadRecentTransactions();
-    }
-});
-
-setInterval(() => {
+// Inisialisasi
+document.addEventListener('DOMContentLoaded', function() {
+  loadShiftStatus();
+  loadRecentTransactions();
+  
+  // Update shift option state setiap menit
+  setInterval(updateShiftOptionState, 60000);
+  
+  // Refresh data setiap 30 detik
+  setInterval(() => {
     loadShiftStatus();
     loadRecentTransactions();
-}, 30000);
-
-loadShiftStatus();
-loadRecentTransactions();
+  }, 30000);
+  
+  // Listen untuk storage event (ketika shift diubah di tab lain)
+  window.addEventListener('storage', (event) => {
+    if (event.key === 'kasir_shift_updated') {
+      loadShiftStatus();
+      loadRecentTransactions();
+    }
+  });
+});
 </script>
 </body>
 </html>

@@ -36,12 +36,9 @@
     from { opacity: 0; transform: translateY(14px); }
     to   { opacity: 1; transform: translateY(0); }
   }
-  .cat-btn.active .cat-icon { border-color: #C8966C; background: #F0D7C7; transform: translateY(-3px); box-shadow: 0 6px 18px rgba(200,150,108,.28); }
-  .cat-btn.active .cat-icon svg { stroke: #C8966C; }
-  .cat-btn.active .cat-label { color: #C8966C; font-weight: 600; }
 
   /* Hamburger dropdown */
-    #hamburger-menu {
+  #hamburger-menu {
     display: none;
     position: absolute;
     top: calc(100% + 8px);
@@ -135,49 +132,6 @@
   </div>
 </div>
 
-<!-- ════ FILTER KATEGORI & SEARCH ════ -->
-<div class="flex items-center justify-between gap-3 px-4 mt-2 mb-4">
-  <!-- Search Bar -->
-  <div class="flex-1 relative">
-    <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <circle cx="11" cy="11" r="8"/>
-      <path d="m21 21-4.35-4.35"/>
-    </svg>
-    <input type="text" id="searchInput" placeholder="Cari produk..." 
-      class="w-full pl-9 pr-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-terra">
-  </div>
-
-  <!-- Filter Kategori Dropdown -->
-  <div class="relative">
-    <button id="filterBtn" onclick="toggleCategoryDropdown()" 
-      class="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:border-terra transition">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="4" y1="6" x2="20" y2="6"/>
-        <line x1="8" y1="12" x2="16" y2="12"/>
-        <line x1="10" y1="18" x2="14" y2="18"/>
-      </svg>
-      <span id="selectedCategoryText">Semua Kategori</span>
-      <svg class="transition-transform duration-200" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="6 9 12 15 18 9"/>
-      </svg>
-    </button>
-
-    <!-- Dropdown Kategori (data dari database) -->
-    <div id="categoryDropdown" class="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-30 hidden">
-      <div class="py-2">
-        <button onclick="filterByCategory('all', 'Semua Kategori')" class="dropdown-item w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-terra-xs transition" data-cat="all">
-          Semua Kategori
-        </button>
-        @foreach($categories as $category)
-        <button onclick="filterByCategory({{ $category->id }}, '{{ $category->nama_kategori }}')" class="dropdown-item w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-terra-xs transition" data-cat="{{ $category->id }}">
-          {{ $category->nama_kategori }}
-        </button>
-        @endforeach
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- ════ PRODUK TERBARU ════ -->
 <div class="flex items-center justify-between px-5 pt-1 pb-3">
   <span class="text-base font-bold text-gray-900">Produk Terbaru</span>
@@ -200,10 +154,8 @@
     <span class="font-sans text-3xl font-bold text-white tracking-normal">Hubungi Kami</span>
     <div class="w-8 h-0.5 bg-terra mt-1 mb-2"></div>
   </div>
-
   <div class="flex flex-col sm:flex-row gap-3 mb-5">
-    <a href="https://wa.me/6285261246660" target="_blank"
-       class="flex items-center gap-3 bg-white/5 hover:bg-terra/20 border border-white/10 hover:border-terra/40 rounded-xl p-4 transition-all duration-200 group flex-1">
+    <a href="https://wa.me/6285261246660" target="_blank" class="flex items-center gap-3 bg-white/5 hover:bg-terra/20 border border-white/10 hover:border-terra/40 rounded-xl p-4 transition-all duration-200 group flex-1">
       <div class="w-10 h-10 bg-terra rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
         <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
@@ -215,9 +167,7 @@
       </div>
       <svg class="w-4 h-4 text-gray-600 group-hover:text-terra transition-colors ml-auto flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
     </a>
-
-    <a href="https://www.instagram.com/snd_store___?igsh=cmloaGdna3ptbnp5" target="_blank"
-       class="flex items-center gap-3 bg-white/5 hover:bg-terra/20 border border-white/10 hover:border-terra/40 rounded-xl p-4 transition-all duration-200 group flex-1">
+    <a href="https://www.instagram.com/snd_store___?igsh=cmloaGdna3ptbnp5" target="_blank" class="flex items-center gap-3 bg-white/5 hover:bg-terra/20 border border-white/10 hover:border-terra/40 rounded-xl p-4 transition-all duration-200 group flex-1">
       <div class="w-10 h-10 bg-terra rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
         <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
           <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/>
@@ -230,7 +180,6 @@
       <svg class="w-4 h-4 text-gray-600 group-hover:text-terra transition-colors ml-auto flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
     </a>
   </div>
-
   <div class="bg-white/5 border border-white/10 rounded-xl overflow-hidden mb-5">
     <div class="px-4 py-3 flex items-center gap-3 border-b border-white/10">
       <div class="w-8 h-8 bg-terra/20 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -244,19 +193,12 @@
         <p class="text-white text-sm font-medium">Jl. Bromo No.171 C, Binjai, Kec. Medan Denai,</p>
         <p class="text-white text-sm font-medium">Kota Medan, Sumatera Utara 20227</p>
       </div>
-      <a href="https://maps.app.goo.gl/AwT71cgeBkxNmFse9" target="_blank"
-         class="ml-auto text-xs text-terra hover:text-terra-l transition-colors font-medium flex-shrink-0 whitespace-nowrap">
-        Buka Maps →
-      </a>
+      <a href="https://maps.app.goo.gl/AwT71cgeBkxNmFse9" target="_blank" class="ml-auto text-xs text-terra hover:text-terra-l transition-colors font-medium flex-shrink-0 whitespace-nowrap">Buka Maps →</a>
     </div>
     <div class="w-full h-52">
-      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3982.0!2d98.6892!3d3.5952!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMy41OTUyLDk4LjY4OTI!5e0!3m2!1sid!2sid!4v1620000000000!5m2!1sid!2sid"
-        width="100%" height="100%" style="border:0; filter: grayscale(30%) contrast(1.1);"
-        allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
-      </iframe>
+      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3982.0!2d98.6892!3d3.5952!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMy41OTUyLDk4LjY4OTI!5e0!3m2!1sid!2sid!4v1620000000000!5m2!1sid!2sid" width="100%" height="100%" style="border:0; filter: grayscale(30%) contrast(1.1);" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
     </div>
   </div>
-
   <div class="relative bg-gray-950 rounded-xl overflow-hidden px-6 py-8 mb-5">
     <div class="relative z-10 text-center">
       <div class="font-sans text-3xl font-bold text-white tracking-normal mb-3">SND STORE</div>
@@ -273,48 +215,33 @@
 // ── Hamburger toggle ──
 function toggleMenu() {
   const menu = document.getElementById('hamburger-menu');
-  if (menu) {
-    menu.classList.toggle('open');
-  }
+  if (menu) menu.classList.toggle('open');
 }
-
 document.addEventListener('click', function(e) {
   const btn = document.getElementById('hamburger-btn');
   const menu = document.getElementById('hamburger-menu');
-  if (btn && menu && !btn.contains(e.target) && !menu.contains(e.target)) {
-    menu.classList.remove('open');
-  }
+  if (btn && menu && !btn.contains(e.target) && !menu.contains(e.target)) menu.classList.remove('open');
 });
 
 // ── Filter Kategori Dropdown ──
 function toggleCategoryDropdown() {
   const dropdown = document.getElementById('categoryDropdown');
-  if (dropdown) {
-    dropdown.classList.toggle('show');
-  }
+  if (dropdown) dropdown.classList.toggle('show');
 }
-
 function closeCategoryDropdown() {
   const dropdown = document.getElementById('categoryDropdown');
-  if (dropdown) {
-    dropdown.classList.remove('show');
-  }
+  if (dropdown) dropdown.classList.remove('show');
 }
-
 document.addEventListener('click', function(e) {
   const filterBtn = document.getElementById('filterBtn');
   const dropdown = document.getElementById('categoryDropdown');
-  if (filterBtn && dropdown && !filterBtn.contains(e.target) && !dropdown.contains(e.target)) {
-    dropdown.classList.remove('show');
-  }
+  if (filterBtn && dropdown && !filterBtn.contains(e.target) && !dropdown.contains(e.target)) dropdown.classList.remove('show');
 });
 
 function filterByCategory(categoryId, categoryName) {
   currentCategory = categoryId;
   const selectedText = document.getElementById('selectedCategoryText');
-  if (selectedText) {
-    selectedText.textContent = categoryName;
-  }
+  if (selectedText) selectedText.textContent = categoryName;
   closeCategoryDropdown();
   render();
   renderDiskon();
@@ -332,7 +259,6 @@ function setupSearch() {
   }
 }
 
-// ── Escape HTML untuk keamanan ──
 function escapeHtml(str) {
   if (!str) return '';
   return str.replace(/[&<>]/g, function(m) {
@@ -347,19 +273,7 @@ function escapeHtml(str) {
 const productsFromDB = @json($products);
 const categoriesFromDB = @json($categories);
 
-// Mapping icon berdasarkan kategori
-const CAT_ICONS = {
-  'Pakaian': '<path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/>',
-  'Aksesoris': '<path d="M4 4h16v2H4V4zm2 4h12v2H6V8zm0 4h8v2H6v-2z"/>',
-  'Sepatu': '<path d="M6 2h12v4l-3 16H9L6 6V2z"/><path d="M6 6h12M12 6v4"/>',
-  'Tas': '<rect x="7" y="2" width="10" height="4" rx="1"/><path d="M7 6 4 20h16L17 6"/>',
-  'Jaket': '<path d="M3 7 7 3h2.5L12 6l2.5-3H17l4 4-2.5 2L17 7v13a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V7L4.5 9 3 7z"/><path d="M12 6v14"/>',
-  'Kemeja': '<path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/>',
-  'Cardigan': '<path d="M3 6.5 7.5 3h3L12 5l1.5-2h3L21 6.5l-3 2.5v11a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V9L3 6.5z"/><path d="M12 5v15"/>',
-  'Rok': '<rect x="7" y="2" width="10" height="4" rx="1"/><path d="M7 6 4 20h16L17 6"/>',
-  'Celana': '<path d="M6 2h12v4l-3 16H9L6 6V2z"/><path d="M6 6h12M12 6v4"/>',
-  'default': '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>'
-};
+console.log('Jumlah produk dari DB:', productsFromDB.length);
 
 // Warna background untuk card
 const BG_COLORS = [
@@ -373,7 +287,6 @@ const BG_COLORS = [
   'linear-gradient(135deg,#e0c9c9,#d0b9b9)'
 ];
 
-// ── Variabel filter ──
 let currentCategory = 'all';
 let currentSearch = '';
 
@@ -384,12 +297,10 @@ function render() {
   
   let filteredProducts = [...productsFromDB];
   
-  // Filter by category
   if (currentCategory !== 'all') {
     filteredProducts = filteredProducts.filter(p => p.category_id === currentCategory);
   }
   
-  // Filter by search
   if (currentSearch.trim() !== '') {
     const searchLower = currentSearch.toLowerCase();
     filteredProducts = filteredProducts.filter(p => 
@@ -404,9 +315,8 @@ function render() {
   }
   
   grid.innerHTML = filteredProducts.map((p, i) => {
-    const catName = p.category?.nama_kategori || 'default';
-    const icon = CAT_ICONS[catName] || CAT_ICONS['default'];
     const formattedPrice = 'Rp ' + new Intl.NumberFormat('id-ID').format(p.harga);
+    const imageUrl = p.gambar ? '/images/products/' + p.gambar.split('/').pop() : 'https://placehold.co/400x400?text=No+Image';
     const bgColor = BG_COLORS[i % BG_COLORS.length];
     
     let badge = '';
@@ -419,10 +329,8 @@ function render() {
     return `
     <div class="relative bg-white rounded-2xl overflow-hidden shadow-sm cursor-pointer border-2 border-transparent transition-all duration-200 hover:-translate-y-1 hover:shadow-md hover:border-terra-l" style="animation:fadeUp .35s ease ${i*0.05}s both" onclick="window.location.href='/detail-produk/${p.id}'">
       ${badge}
-      <div class="relative w-full" style="aspect-ratio:1/1; background:${bgColor}">
-        <div class="w-full h-full flex items-center justify-center">
-          <svg style="width:48%;height:48%" viewBox="0 0 24 24" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${icon}</svg>
-        </div>
+      <div class="relative w-full aspect-square" style="background:${bgColor}">
+        <img src="${imageUrl}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400x400?text=No+Image'">
       </div>
       <div class="p-2.5 pb-3">
         <div class="text-xs font-semibold text-gray-900 mb-1 leading-tight">${escapeHtml(p.nama_produk)}</div>
@@ -459,15 +367,14 @@ function renderDiskon() {
   }
   
   row.innerHTML = discountedProducts.map((p, idx) => {
-    const catName = p.category?.nama_kategori || 'default';
-    const icon = CAT_ICONS[catName] || CAT_ICONS['default'];
     const formattedPrice = 'Rp ' + new Intl.NumberFormat('id-ID').format(p.harga);
+    const imageUrl = p.gambar ? '/images/products/' + p.gambar.split('/').pop() : 'https://placehold.co/400x400?text=No+Image';
     const bgColor = BG_COLORS[idx % BG_COLORS.length];
     
     return `
     <div onclick="window.location.href='/detail-produk/${p.id}'" class="flex-shrink-0 w-36 bg-white rounded-2xl overflow-hidden shadow-sm cursor-pointer border-2 border-transparent hover:-translate-y-1 hover:shadow-md hover:border-terra-l transition-all duration-200">
-      <div class="w-full h-28 flex items-center justify-center relative" style="background:${bgColor}">
-        <svg class="w-12 h-12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.5" stroke-linecap="round">${icon}</svg>
+      <div class="w-full h-28 flex items-center justify-center relative overflow-hidden" style="background:${bgColor}">
+        <img src="${imageUrl}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400x400?text=No+Image'">
         <span class="absolute bottom-1.5 left-1.5 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded">Sale</span>
       </div>
       <div class="p-2.5 pb-3">
@@ -487,3 +394,5 @@ document.addEventListener('DOMContentLoaded', function() {
   renderDiskon();
 });
 </script>
+</body>
+</html>

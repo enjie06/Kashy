@@ -50,40 +50,15 @@
   @keyframes glowPulse { 0%,100% { box-shadow: 0 0 20px rgba(200,150,108,.4); } 50% { box-shadow: 0 0 50px rgba(229,177,138,.8); } }
   .scanning-glow { animation: glowPulse .7s ease-in-out infinite; }
 
-  .shift-option {
-    display: flex; align-items: center; gap: 12px;
-    padding: 14px 16px; border-radius: 14px;
-    border: 2px solid #EAE0D6; background: #fff;
-    cursor: pointer; transition: all .2s;
-    position: relative; overflow: hidden;
-    width: 100%; text-align: left;
-  }
-  .shift-option:hover:not(.disabled) { border-color: #C8966C; background: #FAF2EC; transform: translateY(-1px); }
-  .shift-option.selected { border-color: #C8966C; background: #FAF2EC; }
-  .shift-option.disabled { opacity: .45; cursor: not-allowed; background: #f9f9f9; pointer-events: none; }
-  .unavail-badge {
-    position: absolute; top: 8px; right: 10px;
-    font-size: 9px; font-weight: 700; letter-spacing: .04em;
-    padding: 2px 7px; border-radius: 20px;
-    background: #F3F4F6; color: #9CA3AF;
-  }
-
   /* Modal pulang */
   #pulangOverlay { opacity: 0; pointer-events: none; transition: opacity .25s ease; }
   #pulangOverlay.open { opacity: 1; pointer-events: all; }
   #pulangDialog { transform: scale(.92) translateY(12px); transition: transform .3s cubic-bezier(0.34,1.56,.64,1); }
   #pulangOverlay.open #pulangDialog { transform: scale(1) translateY(0); }
-
-  /* Modal butuh buka shift */
-  #needShiftOverlay { opacity: 0; pointer-events: none; transition: opacity .25s ease; }
-  #needShiftOverlay.open { opacity: 1; pointer-events: all; }
-  #needShiftDialog { transform: scale(.92) translateY(12px); transition: transform .3s cubic-bezier(0.34,1.56,.64,1); }
-  #needShiftOverlay.open #needShiftDialog { transform: scale(1) translateY(0); }
 </style>
 </head>
 <body class="bg-bg min-h-screen flex flex-col font-poppins">
 
-<!-- TOPBAR -->
 <nav class="sticky top-0 z-50 bg-gray-900 px-5 py-3.5 flex items-center justify-center shadow-md">
   <span class="font-bold text-white text-xl tracking-wide">Kashy</span>
 </nav>
@@ -99,52 +74,6 @@
           --<span class="animate-clock-sep">:</span>--<span class="animate-clock-sep">:</span>--
         </div>
         <p class="text-xs text-muted mt-1" id="liveDate">--</p>
-      </div>
-    </div>
-
-    <!-- Pilih Shift -->
-    <div class="bg-white rounded-2xl border border-border shadow-sm overflow-hidden animate-fade-up-2 card-hover" id="shiftPickerCard">
-      <div class="px-4 py-4">
-        <p class="text-[10px] font-bold tracking-[.14em] uppercase text-muted mb-3">Pilih Shift</p>
-        <div class="flex flex-col gap-2">
-
-          <button id="btnPagi" class="shift-option" onclick="selectShift('pagi')">
-            <div class="w-9 h-9 rounded-full bg-amber-50 flex items-center justify-center flex-shrink-0">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="4"/>
-                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
-              </svg>
-            </div>
-            <div class="flex-1 text-left">
-              <p class="text-sm font-semibold text-gray-900">Shift Pagi</p>
-              <p class="text-[10px] text-muted">05:00 – 17:00</p>
-            </div>
-            <svg id="arrowPagi" class="w-4 h-4 text-terra flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
-            <span class="unavail-badge hidden" id="unavailPagi">Tidak Tersedia</span>
-          </button>
-
-          <button id="btnMalam" class="shift-option" onclick="selectShift('malam')">
-            <div class="w-9 h-9 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-              </svg>
-            </div>
-            <div class="flex-1 text-left">
-              <p class="text-sm font-semibold text-gray-900">Shift Malam</p>
-              <p class="text-[10px] text-muted">16:00 – 23:00</p>
-            </div>
-            <svg id="arrowMalam" class="w-4 h-4 text-terra flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
-            <span class="unavail-badge hidden" id="unavailMalam">Tidak Tersedia</span>
-          </button>
-
-        </div>
-
-        <div class="flex items-center justify-center gap-1.5 mt-3 py-1.5 rounded-lg bg-bg">
-          <svg width="11" height="11" fill="none" stroke="#9C8B7E" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          <p class="text-[9px] text-muted">Waktu sekarang: <strong class="text-gray-800" id="currentTimeInfo">--:--</strong></p>
-        </div>
-
-        <p class="text-[10px] text-muted mt-2 text-center" id="shiftSelectedInfo">Pilih shift sebelum melakukan absensi</p>
       </div>
     </div>
 
@@ -196,8 +125,8 @@
           </div>
         </div>
         <div class="text-center space-y-1 mb-2">
-          <p class="text-sm font-semibold text-gray-700" id="statusTitle">Pilih shift terlebih dahulu</p>
-          <p class="text-xs text-muted" id="statusSub">Absensi akan aktif setelah shift dipilih</p>
+          <p class="text-sm font-semibold text-gray-700" id="statusTitle">Memuat data...</p>
+          <p class="text-xs text-muted" id="statusSub">Mohon tunggu sebentar</p>
         </div>
       </div>
     </div>
@@ -261,7 +190,6 @@
   </div>
 </main>
 
-
 <!-- Modal Konfirmasi Absen Pulang -->
 <div id="pulangOverlay" class="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
   <div id="pulangDialog" class="w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden">
@@ -290,12 +218,12 @@
 
 <script>
 const SHIFT_CONFIG = {
-  pagi:  { nama: 'Shift Pagi',  mulai: '05:00', selesai: '17:00', mulaiJam: 5,  selesaiJam: 17 },
-  malam: { nama: 'Shift Malam', mulai: '16:00', selesai: '23:00', mulaiJam: 16, selesaiJam: 23 },
+  pagi:  { nama: 'Shift Pagi',  mulai: '09:00', selesai: '17:00', mulaiJam: 9,  selesaiJam: 17 },
+  malam: { nama: 'Shift Malam', mulai: '15:00', selesai: '23:00', mulaiJam: 15, selesaiJam: 23 },
 };
 
-const LS_SHIFT_KEY      = 'kashy_selected_shift_kasir';
-const LS_SHIFT_DATE_KEY = 'kashy_shift_date_kasir';
+const LS_SHIFT_KEY      = 'kashy_kasir_selected_shift';
+const LS_SHIFT_DATE_KEY = 'kashy_kasir_shift_date';
 
 let checkInTime  = null;
 let checkOutTime = null;
@@ -304,10 +232,11 @@ let absenType    = null;
 let selectedShift = null;
 let scanInterval  = null;
 
-// ── Toast ──
 function showToast(msg) {
   const t = document.getElementById('toast');
-  document.getElementById('toastMsg').textContent = msg;
+  const toastMsg = document.getElementById('toastMsg');
+  if (!t || !toastMsg) return;
+  toastMsg.textContent = msg;
   t.style.opacity = '1';
   t.style.transform = 'translateX(-50%) translateY(0)';
   clearTimeout(t._t);
@@ -317,122 +246,102 @@ function showToast(msg) {
   }, 2600);
 }
 
-// ── Ring ──
 const CIRCUMFERENCE = 2 * Math.PI * 58;
 function setRingProgress(pct) {
   const fill = document.getElementById('fpRingFill');
-  fill.style.strokeDashoffset = CIRCUMFERENCE * (1 - pct);
-  fill.style.strokeDasharray  = CIRCUMFERENCE;
+  if (fill) fill.style.strokeDashoffset = CIRCUMFERENCE * (1 - pct);
 }
 function resetRing() { setRingProgress(0); }
 
 function setFpBtnDisabled(disabled) {
   const fpBtn = document.getElementById('fpBtn');
   const fpGlow = document.getElementById('fpGlow');
-  fpBtn.disabled = disabled;
-  fpBtn.style.opacity = disabled ? '0.45' : '1';
-  fpGlow.style.filter = disabled ? 'grayscale(1)' : '';
+  if (fpBtn) {
+    fpBtn.disabled = disabled;
+    fpBtn.style.opacity = disabled ? '0.45' : '1';
+  }
+  if (fpGlow) fpGlow.style.filter = disabled ? 'grayscale(1)' : '';
 }
 
-// ── localStorage helpers ──
-function saveShiftChoice(shift) {
-  const today = new Date().toISOString().split('T')[0];
-  localStorage.setItem(LS_SHIFT_KEY, shift);
-  localStorage.setItem(LS_SHIFT_DATE_KEY, today);
-}
 function getShiftFromStorage() {
   const today     = new Date().toISOString().split('T')[0];
   const savedDate = localStorage.getItem(LS_SHIFT_DATE_KEY);
-  if (savedDate !== today) { localStorage.removeItem(LS_SHIFT_KEY); return null; }
-  return localStorage.getItem(LS_SHIFT_KEY);
-}
-
-function isShiftAvailable(shiftType) {
-  const now     = new Date();
-  const nowMins = now.getHours() * 60 + now.getMinutes();
-  const cfg     = SHIFT_CONFIG[shiftType];
-  return nowMins >= cfg.mulaiJam * 60 && nowMins < cfg.selesaiJam * 60;
-}
-
-function updateShiftButtons() {
-  const now = new Date();
-  const h   = String(now.getHours()).padStart(2, '0');
-  const m   = String(now.getMinutes()).padStart(2, '0');
-  document.getElementById('currentTimeInfo').textContent = `${h}:${m} WIB`;
-
-  ['pagi', 'malam'].forEach(type => {
-    const btn     = document.getElementById(type === 'pagi' ? 'btnPagi' : 'btnMalam');
-    const arrow   = document.getElementById(type === 'pagi' ? 'arrowPagi' : 'arrowMalam');
-    const unavail = document.getElementById(type === 'pagi' ? 'unavailPagi' : 'unavailMalam');
-    const avail   = isShiftAvailable(type);
-
-    btn.classList.toggle('disabled', !avail);
-    arrow.classList.toggle('hidden', !avail);
-    unavail.classList.toggle('hidden', avail);
-    btn.classList.toggle('selected', selectedShift === type);
-  });
-}
-
-function selectShift(type) {
-  if (!isShiftAvailable(type)) {
-    showToast(`${SHIFT_CONFIG[type].nama} tidak tersedia saat ini`);
-    return;
+  if (savedDate !== today) { 
+    localStorage.removeItem(LS_SHIFT_KEY); 
+    return null; 
   }
-  selectedShift = type;
-  saveShiftChoice(type);
-  updateShiftButtons();
-  document.getElementById('shiftSelectedInfo').textContent = `${SHIFT_CONFIG[type].nama} dipilih`;
-  updateUIByStatus();
+  return localStorage.getItem(LS_SHIFT_KEY);
 }
 
 function updateUIByStatus() {
   const statusTitle = document.getElementById('statusTitle');
   const statusSub   = document.getElementById('statusSub');
-  const shift       = selectedShift || getShiftFromStorage();
+  
+  const storedShift = getShiftFromStorage();
+  if (storedShift && SHIFT_CONFIG[storedShift]) {
+    selectedShift = storedShift;
+  } else {
+    selectedShift = null;
+  }
 
+  // Jika sudah absen masuk dan pulang
   if (checkInTime && checkOutTime) {
-    statusTitle.textContent = 'Absensi selesai';
-    statusSub.textContent   = 'Anda sudah absen masuk dan pulang hari ini';
+    if (statusTitle) statusTitle.textContent = 'Absensi selesai';
+    if (statusSub) statusSub.textContent = 'Anda sudah absen masuk dan pulang hari ini';
     setFpBtnDisabled(true);
     absenType = null;
     return;
   }
-  if (!shift) {
-    statusTitle.textContent = 'Pilih shift terlebih dahulu';
-    statusSub.textContent   = 'Absensi akan aktif setelah shift dipilih';
+  
+  // Jika belum pilih shift
+  if (!selectedShift) {
+    if (statusTitle) statusTitle.textContent = 'Shift belum dipilih';
+    if (statusSub) statusSub.textContent = 'Kembali ke dashboard untuk memilih shift';
     setFpBtnDisabled(true);
     absenType = null;
+    showToast('Silakan pilih shift di dashboard terlebih dahulu');
+    setTimeout(() => { window.location.href = '{{ route("dashboard-kasir") }}'; }, 1800);
     return;
   }
+  
+  // Jika sudah absen masuk tapi belum pulang
   if (checkInTime && !checkOutTime) {
-    statusTitle.textContent = 'Siap absen pulang';
-    statusSub.textContent   = 'Tekan tombol untuk mengakhiri shift';
+    if (statusTitle) statusTitle.textContent = 'Siap absen pulang';
+    if (statusSub) statusSub.textContent = 'Tekan tombol untuk mengakhiri shift';
     setFpBtnDisabled(false);
     absenType = 'pulang';
     return;
   }
-  statusTitle.textContent = 'Siap absen masuk';
-  statusSub.textContent   = 'Tekan tombol untuk memulai shift';
+  
+  // Belum absen sama sekali
+  const cfg = SHIFT_CONFIG[selectedShift];
+  if (statusTitle) statusTitle.textContent = `Siap absen masuk · ${cfg ? cfg.nama : ''}`;
+  if (statusSub) statusSub.textContent = 'Tekan tombol untuk memulai shift';
   setFpBtnDisabled(false);
   absenType = 'masuk';
 }
 
-
-// ── Modal pulang ──
 function openPulangModal() {
-  document.getElementById('pulangOverlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
+  const overlay = document.getElementById('pulangOverlay');
+  if (overlay) {
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
 }
+
 function closePulangModal() {
-  document.getElementById('pulangOverlay').classList.remove('open');
-  document.body.style.overflow = '';
+  const overlay = document.getElementById('pulangOverlay');
+  if (overlay) {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
 }
+
 function confirmPulang() {
   closePulangModal();
   startFakeScan();
 }
 
-// ── Load riwayat ──
 async function loadHistory() {
   try {
     const response = await fetch('{{ route("shift.full-history") }}');
@@ -440,7 +349,9 @@ async function loadHistory() {
     const container  = document.getElementById('historyContent');
     const loadingEl  = document.getElementById('historyLoading');
     const data = Array.isArray(result) ? result : (result.histories || []);
-
+    
+    if (!container || !loadingEl) return;
+    
     if (data.length === 0) {
       container.innerHTML = '<p class="text-center text-muted text-xs py-4">Belum ada riwayat absensi</p>';
     } else {
@@ -470,95 +381,90 @@ async function loadHistory() {
     loadingEl.classList.add('hidden');
     container.classList.remove('hidden');
   } catch (err) {
-    document.getElementById('historyLoading').innerHTML =
-      '<p class="text-center text-muted text-xs py-4">Gagal memuat riwayat</p>';
+    console.error('Load history error:', err);
+    const loadingEl = document.getElementById('historyLoading');
+    if (loadingEl) {
+      loadingEl.innerHTML = '<p class="text-center text-muted text-xs py-4">Gagal memuat riwayat</p>';
+    }
   }
 }
 
-// ── Load data hari ini ──
 async function loadData() {
   try {
     const absenRes  = await fetch('{{ route("shift.status") }}');
     const absenData = await absenRes.json();
-
     checkInTime  = absenData.check_in  || null;
     checkOutTime = absenData.check_out || null;
-
-    if (checkInTime)  document.getElementById('todayMasuk').textContent  = checkInTime  + ' WIB';
-    if (checkOutTime) document.getElementById('todayPulang').textContent = checkOutTime + ' WIB';
-
-    if (absenData.terlambat && checkInTime) {
-      document.getElementById('lateWarning').classList.remove('hidden');
+    
+    const todayMasuk = document.getElementById('todayMasuk');
+    const todayPulang = document.getElementById('todayPulang');
+    if (todayMasuk && checkInTime) todayMasuk.textContent = checkInTime + ' WIB';
+    if (todayPulang && checkOutTime) todayPulang.textContent = checkOutTime + ' WIB';
+    
+    const lateWarning = document.getElementById('lateWarning');
+    const lateWarningText = document.getElementById('lateWarningText');
+    if (absenData.terlambat && checkInTime && lateWarning && lateWarningText) {
+      lateWarning.classList.remove('hidden');
       if (absenData.terlambat_menit) {
-        document.getElementById('lateWarningText').textContent = `⚠️ Terlambat ${absenData.terlambat_menit} menit`;
+        lateWarningText.textContent = `⚠️ Terlambat ${absenData.terlambat_menit} menit`;
       }
+    } else if (lateWarning) {
+      lateWarning.classList.add('hidden');
     }
 
-    const storedShift = getShiftFromStorage();
-    if (storedShift) {
-      selectedShift = storedShift;
-      document.getElementById('shiftSelectedInfo').textContent =
-        `${SHIFT_CONFIG[storedShift]?.nama || storedShift} dipilih`;
-    }
-
-    // Jika sudah check_in, sembunyikan picker shift
-    if (checkInTime) {
-      document.getElementById('shiftPickerCard').style.display = 'none';
-    }
-
-    updateShiftButtons();
+    selectedShift = getShiftFromStorage();
     updateUIByStatus();
     await loadHistory();
   } catch (err) {
+    console.error('Load data error:', err);
     showToast('Gagal memuat data absensi');
-    updateShiftButtons();
   }
 }
 
-// ── Kirim ke backend ──
 async function completeScan() {
   try {
-    const shift = selectedShift || getShiftFromStorage();
-    console.log('Sending data:', { action: absenType, shift_type: shift });
-    const response = await fetch('{{ route("shift.handle") }}', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-      },
-      body: JSON.stringify({ action: absenType, shift_type: shift })
-    });
-     console.log('Response status:', response.status);
-    const result = await response.json();
-    console.log('Response data:', result);
-
-    // Kasir belum buka shift
-    if (!result.success && result.need_open_shift) {
+    const shift = getShiftFromStorage();
+    if (!shift) {
+      showToast('Pilih shift terlebih dahulu di dashboard');
       resetScanner();
-      // openNeedShiftModal();
       return;
     }
+    const response = await fetch('{{ route("shift.handle") }}', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+      body: JSON.stringify({ action: absenType, shift_type: shift })
+    });
+    const result = await response.json();
 
-    document.getElementById('fpGlow').style.opacity = '0';
-    const sc = document.getElementById('successCircle');
-    sc.classList.remove('hidden');
-    sc.style.display = 'flex';
-    sc.classList.add('animate-success-pop');
+    const fpGlow = document.getElementById('fpGlow');
+    const successCircle = document.getElementById('successCircle');
+    if (fpGlow) fpGlow.style.opacity = '0';
+    if (successCircle) {
+      successCircle.classList.remove('hidden');
+      successCircle.style.display = 'flex';
+      successCircle.classList.add('animate-success-pop');
+    }
 
     if (result.success) {
       if (absenType === 'masuk') {
         const waktu = result.check_in;
-        document.getElementById('statusTitle').textContent = '✓ Absen masuk berhasil';
-        document.getElementById('statusSub').textContent   = `Tercatat pukul ${waktu} WIB`;
-        document.getElementById('todayMasuk').textContent  = waktu + ' WIB';
+        const statusTitle = document.getElementById('statusTitle');
+        const statusSub = document.getElementById('statusSub');
+        const todayMasuk = document.getElementById('todayMasuk');
+        if (statusTitle) statusTitle.textContent = '✓ Absen masuk berhasil';
+        if (statusSub) statusSub.textContent = `Tercatat pukul ${waktu} WIB`;
+        if (todayMasuk) todayMasuk.textContent = waktu + ' WIB';
         showToast(result.message);
         localStorage.setItem('kasir_shift_updated', Date.now());
         setTimeout(() => { window.location.href = '{{ route("kasir.shiftkasir") }}'; }, 1400);
       } else if (absenType === 'pulang') {
         const waktu = result.check_out;
-        document.getElementById('statusTitle').textContent = '✓ Absen pulang berhasil';
-        document.getElementById('statusSub').textContent   = `Tercatat pukul ${waktu} WIB`;
-        document.getElementById('todayPulang').textContent = waktu + ' WIB';
+        const statusTitle = document.getElementById('statusTitle');
+        const statusSub = document.getElementById('statusSub');
+        const todayPulang = document.getElementById('todayPulang');
+        if (statusTitle) statusTitle.textContent = '✓ Absen pulang berhasil';
+        if (statusSub) statusSub.textContent = `Tercatat pukul ${waktu} WIB`;
+        if (todayPulang) todayPulang.textContent = waktu + ' WIB';
         showToast(result.message);
         localStorage.setItem('kasir_shift_updated', Date.now());
         setTimeout(() => { window.location.href = '{{ route("dashboard-kasir") }}'; }, 1400);
@@ -568,40 +474,59 @@ async function completeScan() {
       resetScanner();
     }
   } catch (err) {
+    console.error('Complete scan error:', err);
     showToast('Gagal melakukan absensi');
     resetScanner();
   }
   scanState = 'done';
-  document.getElementById('fpBtn').style.pointerEvents = '';
+  const fpBtn = document.getElementById('fpBtn');
+  if (fpBtn) fpBtn.style.pointerEvents = '';
 }
 
 function resetScanner() {
   scanState = 'idle';
-  document.getElementById('fpGlow').style.opacity   = '1';
-  document.getElementById('fpGlow').style.filter    = '';
-  document.getElementById('fpGlow').style.boxShadow = '';
-  document.getElementById('successCircle').classList.add('hidden');
-  document.getElementById('fpIcon').style.display       = 'block';
-  document.getElementById('fpTextGroup').style.display  = 'flex';
-  document.getElementById('fpBtn').style.pointerEvents  = '';
-  document.getElementById('scanPercent').classList.add('hidden');
+  const fpGlow = document.getElementById('fpGlow');
+  const successCircle = document.getElementById('successCircle');
+  const fpIcon = document.getElementById('fpIcon');
+  const fpTextGroup = document.getElementById('fpTextGroup');
+  const scanPercent = document.getElementById('scanPercent');
+  const fpBtn = document.getElementById('fpBtn');
+  
+  if (fpGlow) {
+    fpGlow.style.opacity = '1';
+    fpGlow.style.filter = '';
+    fpGlow.style.boxShadow = '';
+  }
+  if (successCircle) successCircle.classList.add('hidden');
+  if (fpIcon) fpIcon.style.display = 'block';
+  if (fpTextGroup) fpTextGroup.style.display = 'flex';
+  if (fpBtn) fpBtn.style.pointerEvents = '';
+  if (scanPercent) scanPercent.classList.add('hidden');
   resetRing();
   updateUIByStatus();
 }
 
 function startFakeScan() {
   if (scanState !== 'idle') return;
-  if (document.getElementById('fpBtn').disabled) return;
-
+  const fpBtn = document.getElementById('fpBtn');
+  if (fpBtn && fpBtn.disabled) return;
+  
   scanState = 'scanning';
-  document.getElementById('scanPercent').classList.remove('hidden');
-  document.getElementById('fpIcon').style.display      = 'none';
-  document.getElementById('fpTextGroup').style.display = 'none';
-  document.getElementById('fpGlow').classList.add('scanning-glow');
-  document.getElementById('statusTitle').textContent   = 'Memindai sidik jari';
-  document.getElementById('statusSub').textContent     = 'Mohon tunggu...';
-  document.getElementById('fpBtn').style.pointerEvents = 'none';
-
+  const scanPercent = document.getElementById('scanPercent');
+  const fpIcon = document.getElementById('fpIcon');
+  const fpTextGroup = document.getElementById('fpTextGroup');
+  const fpGlow = document.getElementById('fpGlow');
+  const statusTitle = document.getElementById('statusTitle');
+  const statusSub = document.getElementById('statusSub');
+  
+  if (scanPercent) scanPercent.classList.remove('hidden');
+  if (fpIcon) fpIcon.style.display = 'none';
+  if (fpTextGroup) fpTextGroup.style.display = 'none';
+  if (fpGlow) fpGlow.classList.add('scanning-glow');
+  if (statusTitle) statusTitle.textContent = 'Memindai sidik jari';
+  if (statusSub) statusSub.textContent = 'Mohon tunggu...';
+  if (fpBtn) fpBtn.style.pointerEvents = 'none';
+  
   let progress = 0;
   setRingProgress(0);
   if (scanInterval) clearInterval(scanInterval);
@@ -609,58 +534,62 @@ function startFakeScan() {
     progress += 2;
     if (progress > 100) progress = 100;
     setRingProgress(progress / 100);
-    document.querySelector('#scanPercent span').textContent = progress + '%';
+    const scanPercentSpan = document.querySelector('#scanPercent span');
+    if (scanPercentSpan) scanPercentSpan.textContent = progress + '%';
     if (progress >= 100) {
       clearInterval(scanInterval);
       scanInterval = null;
-      document.getElementById('fpGlow').classList.remove('scanning-glow');
-      document.getElementById('fpIcon').style.display      = 'block';
-      document.getElementById('fpTextGroup').style.display = 'flex';
-      document.getElementById('scanPercent').classList.add('hidden');
+      if (fpGlow) fpGlow.classList.remove('scanning-glow');
+      if (fpIcon) fpIcon.style.display = 'block';
+      if (fpTextGroup) fpTextGroup.style.display = 'flex';
+      if (scanPercent) scanPercent.classList.add('hidden');
       completeScan();
     }
   }, 50);
 }
 
-// ── Clock ──
 function updateClock() {
   const now = new Date();
   const h = String(now.getHours()).padStart(2, '0');
   const m = String(now.getMinutes()).padStart(2, '0');
   const s = String(now.getSeconds()).padStart(2, '0');
-  document.getElementById('liveClock').innerHTML =
-    `${h}<span class="animate-clock-sep">:</span>${m}<span class="animate-clock-sep">:</span>${s}`;
-  document.getElementById('liveDate').textContent =
-    now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const liveClock = document.getElementById('liveClock');
+  if (liveClock) {
+    liveClock.innerHTML = `${h}<span class="animate-clock-sep">:</span>${m}<span class="animate-clock-sep">:</span>${s}`;
+  }
+  const liveDate = document.getElementById('liveDate');
+  if (liveDate) {
+    liveDate.textContent = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  }
 }
 updateClock();
 setInterval(updateClock, 1000);
-setInterval(updateShiftButtons, 60000);
 
+// ── INIT ──
 document.addEventListener('DOMContentLoaded', () => {
   resetRing();
   loadData();
 
-  document.getElementById('pulangOverlay').addEventListener('click', function(e) {
-    if (e.target === this) closePulangModal();
-  });
- 
-  document.getElementById('fpBtn').addEventListener('click', () => {
-    if (scanState !== 'idle') return;
+  const pulangOverlay = document.getElementById('pulangOverlay');
+  if (pulangOverlay) {
+    pulangOverlay.addEventListener('click', function(e) {
+      if (e.target === this) closePulangModal();
+    });
+  }
 
-    const shift = selectedShift || getShiftFromStorage();
-    if (!shift) {
-      showToast('Pilih shift pagi atau malam terlebih dahulu');
-      return;
-    }
-    if (document.getElementById('fpBtn').disabled) return;
+  const fpBtn = document.getElementById('fpBtn');
+  if (fpBtn) {
+    fpBtn.addEventListener('click', () => {
+      if (scanState !== 'idle') return;
+      if (fpBtn.disabled) return;
 
-    if (absenType === 'pulang') {
-      openPulangModal();
-    } else {
-      startFakeScan();
-    }
-  });
+      if (absenType === 'pulang') {
+        openPulangModal();
+      } else {
+        startFakeScan();
+      }
+    });
+  }
 });
 </script>
 </body>
