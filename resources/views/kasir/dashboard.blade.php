@@ -142,9 +142,9 @@
             <p class="text-xs text-muted" id="shiftHariTanggal"></p>
           </div>
         </div>
-        <div id="shiftBadge" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-red-300 bg-red-100">
-          <span id="badgeDot" class="w-2 h-2 rounded-full bg-red-500"></span>
-          <span id="badgeText" class="text-[11px] font-semibold text-red-700">Tidak Aktif</span>
+        <div id="shiftBadge" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full">
+          <span id="badgeDot" class="w-2 h-2 rounded-full"></span>
+          <span id="badgeText" class="text-[11px] font-semibold"></span>
         </div>
       </div>
 
@@ -337,6 +337,60 @@ const LS_SHIFT_KEY      = 'kashy_kasir_selected_shift';
 const LS_SHIFT_DATE_KEY = 'kashy_kasir_shift_date';
 
 let isShiftActive = false;
+let currentShiftData = null;
+
+function updateShiftBadge(status, shiftData = null) {
+  const shiftBadge = document.getElementById('shiftBadge');
+  const badgeDot = document.getElementById('badgeDot');
+  const badgeText = document.getElementById('badgeText');
+  const shiftMulaiEl = document.getElementById('shiftMulai');
+  const shiftBerakhirEl = document.getElementById('shiftBerakhir');
+  const shiftBtnLabel = document.getElementById('shiftBtnLabel');
+
+  if (status === 'active' && shiftData) {
+    // Tampilan AKTIF (HIJAU)
+    if (badgeDot) {
+      badgeDot.className = 'w-2 h-2 rounded-full bg-green-500 pulse-dot';
+    }
+    if (badgeText) {
+      badgeText.innerText = 'Aktif';
+      badgeText.className = 'text-[11px] font-semibold text-green-700';
+    }
+    if (shiftBadge) {
+      shiftBadge.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-green-300 bg-green-100';
+    }
+    if (shiftMulaiEl) {
+      shiftMulaiEl.innerText = shiftData.waktu_buka || '--:--';
+    }
+    if (shiftBerakhirEl) {
+      shiftBerakhirEl.innerText = shiftData.waktu_tutup || '23:59';
+    }
+    if (shiftBtnLabel) {
+      shiftBtnLabel.innerText = 'Tutup Shift';
+    }
+  } else {
+    // Tampilan TIDAK AKTIF (MERAH)
+    if (badgeDot) {
+      badgeDot.className = 'w-2 h-2 rounded-full bg-red-500';
+    }
+    if (badgeText) {
+      badgeText.innerText = 'Tidak Aktif';
+      badgeText.className = 'text-[11px] font-semibold text-red-700';
+    }
+    if (shiftBadge) {
+      shiftBadge.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-red-300 bg-red-100';
+    }
+    if (shiftMulaiEl) {
+      shiftMulaiEl.innerText = '--:--';
+    }
+    if (shiftBerakhirEl) {
+      shiftBerakhirEl.innerText = '--:--';
+    }
+    if (shiftBtnLabel) {
+      shiftBtnLabel.innerText = 'Pilih Shift';
+    }
+  }
+}
 
 function getTodayShift() {
   const today = new Date().toISOString().split('T')[0];
@@ -463,23 +517,10 @@ async function loadShiftStatus() {
     const response = await fetch('{{ route("kasir.shift.status") }}');
     const data     = await response.json();
 
-    const shiftBadge      = document.getElementById('shiftBadge');
-    const badgeDot        = document.getElementById('badgeDot');
-    const badgeText       = document.getElementById('badgeText');
-    const shiftMulaiEl    = document.getElementById('shiftMulai');
-    const shiftBerakhirEl = document.getElementById('shiftBerakhir');
-    const shiftBtnLabel   = document.getElementById('shiftBtnLabel');
-
     if (data.shift_active && data.shift) {
       isShiftActive = true;
-
-      if (badgeDot)   badgeDot.className   = 'w-2 h-2 rounded-full bg-green-500 pulse-dot';
-      if (badgeText)  badgeText.innerText  = 'Aktif';
-      if (shiftBadge) shiftBadge.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-green-300 bg-green-100';
-
-      if (shiftMulaiEl)    shiftMulaiEl.innerText    = data.shift.waktu_buka || '--:--';
-      if (shiftBerakhirEl) shiftBerakhirEl.innerText = '23:59';
-      if (shiftBtnLabel)   shiftBtnLabel.innerText   = 'Tutup Shift';
+      currentShiftData = data.shift;
+      updateShiftBadge('active', data.shift);
 
       const totalPenjualan = Number(data.shift.total_penjualan) || 0;
       const penjualanTunai = Number(data.shift.penjualan_tunai) || 0;
@@ -506,23 +547,27 @@ async function loadShiftStatus() {
 
     } else {
       isShiftActive = false;
+      currentShiftData = null;
+      updateShiftBadge('inactive');
 
-      if (badgeDot)   badgeDot.className   = 'w-2 h-2 rounded-full bg-red-500';
-      if (badgeText)  badgeText.innerText  = 'Tidak Aktif';
-      if (shiftBadge) shiftBadge.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-red-300 bg-red-100';
-
-      if (shiftMulaiEl)    shiftMulaiEl.innerText    = '--:--';
-      if (shiftBerakhirEl) shiftBerakhirEl.innerText = '--:--';
-      if (shiftBtnLabel)   shiftBtnLabel.innerText   = 'Pilih Shift';
-
-      ['penjualanValue','tunaiNominal','qrisNominal','debitNominal','transaksiCount','itemCount'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.innerText = id === 'penjualanValue' ? 'Rp 0' : '0';
-      });
+      // Reset statistik
+      const penjualanValueEl = document.getElementById('penjualanValue');
+      const tunaiEl = document.getElementById('tunaiNominal');
+      const qrisEl = document.getElementById('qrisNominal');
+      const debitEl = document.getElementById('debitNominal');
+      const transaksiCountEl = document.getElementById('transaksiCount');
+      const itemCountEl = document.getElementById('itemCount');
       const progressEl = document.getElementById('penjualanProgress');
-      const percentEl  = document.getElementById('penjualanPercent');
+      const percentEl = document.getElementById('penjualanPercent');
+
+      if (penjualanValueEl) penjualanValueEl.innerText = 'Rp 0';
+      if (tunaiEl) tunaiEl.innerText = '0';
+      if (qrisEl) qrisEl.innerText = '0';
+      if (debitEl) debitEl.innerText = '0';
+      if (transaksiCountEl) transaksiCountEl.innerText = '0';
+      if (itemCountEl) itemCountEl.innerText = '0';
       if (progressEl) progressEl.style.width = '0%';
-      if (percentEl)  percentEl.innerText    = '0% dari target';
+      if (percentEl) percentEl.innerText = '0% dari target';
     }
   } catch (error) {
     console.error('Gagal load shift status:', error);

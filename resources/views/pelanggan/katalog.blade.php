@@ -316,7 +316,12 @@ function render() {
   
   grid.innerHTML = filteredProducts.map((p, i) => {
     const formattedPrice = 'Rp ' + new Intl.NumberFormat('id-ID').format(p.harga);
-    const imageUrl = p.gambar ? '/images/products/' + p.gambar.split('/').pop() : 'https://placehold.co/400x400?text=No+Image';
+    // const imageUrl = p.gambar ? '/images/products/' + p.gambar.split('/').pop() : 'https://placehold.co/400x400?text=No+Image';
+    const imageUrl = p.gambar
+    ? (p.gambar.startsWith('products/')
+        ? '/storage/' + p.gambar
+        : '/images/products/' + p.gambar.split('/').pop())
+    : 'https://placehold.co/400x400?text=No+Image';
     const bgColor = BG_COLORS[i % BG_COLORS.length];
     
     let badge = '';
@@ -368,7 +373,12 @@ function renderDiskon() {
   
   row.innerHTML = discountedProducts.map((p, idx) => {
     const formattedPrice = 'Rp ' + new Intl.NumberFormat('id-ID').format(p.harga);
-    const imageUrl = p.gambar ? '/images/products/' + p.gambar.split('/').pop() : 'https://placehold.co/400x400?text=No+Image';
+    // const imageUrl = p.gambar ? '/images/products/' + p.gambar.split('/').pop() : 'https://placehold.co/400x400?text=No+Image';
+    const imageUrl = p.gambar
+    ? (p.gambar.startsWith('products/')
+        ? '/storage/' + p.gambar
+        : '/images/products/' + p.gambar.split('/').pop())
+    : 'https://placehold.co/400x400?text=No+Image';
     const bgColor = BG_COLORS[idx % BG_COLORS.length];
     
     return `

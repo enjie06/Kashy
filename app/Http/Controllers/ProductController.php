@@ -66,23 +66,28 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
+        
         $request->validate([
             'category_id' => 'required|exists:categories,id',
-            'nama_produk' => 'required|string|max:255',
-            'brand' => 'nullable|string|max:100',
-            'deskripsi' => 'nullable|string',
-            'harga' => 'required|numeric|min:0',
-            'stok' => 'required|integer|min:0',
-            'ukuran' => 'nullable|string',
-            'warna' => 'nullable|string',
-            'gender' => 'nullable|string',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'is_discount' => 'boolean',
+            'nama_produk'  => 'required|string|max:255',
+            'brand'        => 'nullable|string|max:100',
+            'deskripsi'    => 'nullable|string',
+            'harga'        => 'required|numeric|min:0',
+            'stok'         => 'required|integer|min:0',
+            'ukuran'       => 'nullable|string',
+            'warna'        => 'nullable|string',
+            'gender'       => 'nullable|string',
+            'gambar'       => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'is_discount'  => 'nullable',
         ]);
 
-        $data = $request->all();
-        $data['is_discount'] = $request->has('is_discount') ? 1 : 0;
+        // Kecualikan field gambar, _token, _method dari data agar tidak konflik
+        $data = $request->except(['gambar', '_token', '_method']);
 
+        // Pakai input() bukan has() karena field selalu ada di FormData
+        $data['is_discount'] = $request->input('is_discount') == '1' ? 1 : 0;
+
+        // Upload gambar jika ada
         if ($request->hasFile('gambar')) {
             $path = $request->file('gambar')->store('products', 'public');
             $data['gambar'] = $path;
@@ -110,21 +115,25 @@ class ProductController extends Controller
 
         $request->validate([
             'category_id' => 'required|exists:categories,id',
-            'nama_produk' => 'required|string|max:255',
-            'brand' => 'nullable|string|max:100',
-            'deskripsi' => 'nullable|string',
-            'harga' => 'required|numeric|min:0',
-            'stok' => 'required|integer|min:0',
-            'ukuran' => 'nullable|string',
-            'warna' => 'nullable|string',
-            'gender' => 'nullable|string',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'is_discount' => 'boolean',
+            'nama_produk'  => 'required|string|max:255',
+            'brand'        => 'nullable|string|max:100',
+            'deskripsi'    => 'nullable|string',
+            'harga'        => 'required|numeric|min:0',
+            'stok'         => 'required|integer|min:0',
+            'ukuran'       => 'nullable|string',
+            'warna'        => 'nullable|string',
+            'gender'       => 'nullable|string',
+            'gambar'       => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'is_discount'  => 'nullable',
         ]);
 
-        $data = $request->all();
-        $data['is_discount'] = $request->has('is_discount') ? 1 : 0;
+        // Kecualikan field gambar, _token, _method dari data agar tidak konflik
+        $data = $request->except(['gambar', '_token', '_method']);
 
+        // Pakai input() bukan has() karena field selalu ada di FormData
+        $data['is_discount'] = $request->input('is_discount') == '1' ? 1 : 0;
+
+        // Upload gambar baru jika ada, hapus gambar lama
         if ($request->hasFile('gambar')) {
             if ($product->gambar) {
                 Storage::disk('public')->delete($product->gambar);
@@ -145,11 +154,11 @@ class ProductController extends Controller
     public function destroy($id)
     {
         $product = Product::findOrFail($id);
-        
+
         if ($product->gambar) {
             Storage::disk('public')->delete($product->gambar);
         }
-        
+
         $product->delete();
 
         return response()->json([
