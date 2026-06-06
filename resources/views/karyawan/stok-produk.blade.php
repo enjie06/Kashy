@@ -100,111 +100,27 @@
 
 <script>
 @php
-  $stokProducts = isset($products)
-      ? $products->map(function ($product) {
-          $gambar = $product->gambar;
-
-          if ($gambar) {
-              $img = \Illuminate\Support\Str::startsWith($gambar, ['http://', 'https://'])
-                  ? $gambar
-                  : asset('storage/' . $gambar);
-          } else {
-              $img = 'https://via.placeholder.com/300x350?text=Kashy';
-          }
-
-          return [
-              'id' => $product->id,
-              'name' => $product->nama_produk,
-              'sku' => 'PRD-' . str_pad($product->id, 3, '0', STR_PAD_LEFT),
-              'cat' => $product->category->nama_kategori ?? 'Tanpa Kategori',
-              'stok' => (int) $product->stok,
-              'min' => 5,
-              'price' => (int) $product->harga,
-              'img' => $img,
-          ];
-      })->values()
-      : collect([
-          [
-              'id' => 1,
-              'name' => 'Kaos Lengan Panjang',
-              'sku' => 'SKU-001',
-              'cat' => 'Atasan',
-              'stok' => 24,
-              'min' => 10,
-              'price' => 15000,
-              'img' => 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=200&q=80',
-          ],
-          [
-              'id' => 2,
-              'name' => 'Celana Kulot',
-              'sku' => 'SKU-002',
-              'cat' => 'Bawahan',
-              'stok' => 8,
-              'min' => 10,
-              'price' => 15000,
-              'img' => 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=200&q=80',
-          ],
-          [
-              'id' => 3,
-              'name' => 'Totebag Krem',
-              'sku' => 'SKU-003',
-              'cat' => 'Aksesori',
-              'stok' => 3,
-              'min' => 5,
-              'price' => 15000,
-              'img' => 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=200&q=80',
-          ],
-          [
-              'id' => 4,
-              'name' => 'Kemeja Silk',
-              'sku' => 'SKU-004',
-              'cat' => 'Atasan',
-              'stok' => 0,
-              'min' => 5,
-              'price' => 15000,
-              'img' => 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=200&q=80',
-          ],
-          [
-              'id' => 5,
-              'name' => 'Rok Midi Floral',
-              'sku' => 'SKU-005',
-              'cat' => 'Bawahan',
-              'stok' => 15,
-              'min' => 8,
-              'price' => 15000,
-              'img' => 'https://images.unsplash.com/photo-1551163943-3f6a855d1153?w=200&q=80',
-          ],
-          [
-              'id' => 6,
-              'name' => 'Cardigan Rajut',
-              'sku' => 'SKU-006',
-              'cat' => 'Atasan',
-              'stok' => 2,
-              'min' => 5,
-              'price' => 15000,
-              'img' => 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=200&q=80',
-          ],
-          [
-              'id' => 7,
-              'name' => 'Celana Jeans Slim',
-              'sku' => 'SKU-007',
-              'cat' => 'Bawahan',
-              'stok' => 20,
-              'min' => 8,
-              'price' => 15000,
-              'img' => 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=200&q=80',
-          ],
-          [
-              'id' => 8,
-              'name' => 'Kemeja Flannel',
-              'sku' => 'SKU-008',
-              'cat' => 'Atasan',
-              'stok' => 0,
-              'min' => 5,
-              'price' => 15000,
-              'img' => 'https://images.unsplash.com/photo-1589310243389-96a5483213a8?w=200&q=80',
-          ],
-      ]);
+  $stokProducts = $products->map(function ($product) {
+      $gambar = $product->gambar;
+      
+      // PAKAI PATH YANG SAMA DENGAN KATALOG
+      if ($gambar) {
+          $img = '/images/products/' . basename($gambar);
+      } else {
+          $img = 'https://placehold.co/400x400?text=' . urlencode($product->nama_produk);
+      }
+      
+      return [
+          'id' => $product->id,
+          'name' => $product->nama_produk,
+          'sku' => 'PRD-' . str_pad($product->id, 3, '0', STR_PAD_LEFT),
+          'cat' => $product->category->nama_kategori ?? 'Tanpa Kategori',
+          'stok' => (int) $product->stok,
+          'min' => 5,
+          'price' => (int) $product->harga,
+          'img' => $img,
+      ];
+  });
 @endphp
 
 const PRODUCTS = @json($stokProducts);
