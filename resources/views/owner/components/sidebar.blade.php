@@ -134,14 +134,26 @@
      data-nav>
 
     <div class="flex items-center gap-3 w-full">
-      <div class="w-9 h-9 rounded-full bg-kashy-brown flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-        A
-      </div>
+      
+      @if(Auth::check() && Auth::user()->profile_photo)
+        <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}"
+             alt="Foto Profil"
+             class="w-9 h-9 rounded-full object-cover flex-shrink-0">
+      @else
+        <div class="w-9 h-9 rounded-full bg-kashy-brown flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+          {{ Auth::check() ? strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) : 'A' }}
+        </div>
+      @endif
 
       <div class="min-w-0">
-        <p class="text-xs font-semibold text-kashy-dark truncate">Admin</p>
-        <p class="text-[11px] text-kashy-muted truncate">admin@kashy.id</p>
+        <p class="text-xs font-semibold text-kashy-dark truncate">
+          {{ Auth::check() ? Auth::user()->name : 'Admin' }}
+        </p>
+        <p class="text-[11px] text-kashy-muted truncate">
+          {{ Auth::check() ? Auth::user()->email : 'admin@kashy.id' }}
+        </p>
       </div>
+
     </div>
 
   </a>

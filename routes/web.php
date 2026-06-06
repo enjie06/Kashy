@@ -11,6 +11,8 @@ use App\Http\Controllers\StoreController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\StockOpnameController;
 use App\Http\Controllers\OwnerSettingController;
+use App\Http\Controllers\DiscountController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OwnerLaporanController;
 use App\Http\Controllers\KasirRiwayatController;
 use App\Models\Transaction;
@@ -124,6 +126,17 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['auth'])->group(function () {
         Route::get('/owner/pengaturan-tambahan', [OwnerSettingController::class, 'index'])
             ->name('owner.pengaturan-tambahan');
+    });
+
+    Route::prefix('owner')->middleware(['auth'])->group(function () {
+    Route::post('/printer/scan', [OwnerSettingController::class, 'scanPrinter'])
+        ->name('owner.printer.scan');
+
+    Route::post('/printer/test-print', [OwnerSettingController::class, 'testPrint'])
+        ->name('owner.printer.testPrint');
+
+    Route::post('/printer/nonaktif', [OwnerSettingController::class, 'nonaktifPrinter'])
+        ->name('owner.printer.nonaktif');
     });
 
     /*

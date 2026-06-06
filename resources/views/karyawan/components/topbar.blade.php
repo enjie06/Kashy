@@ -7,8 +7,8 @@
         </span>
     </div>
 
-    @if (!request()->routeIs('kasir.profil'))
-        <a href="{{ route('kasir.profil') }}"
+    @if (!request()->routeIs('karyawan.profile'))
+        <a href="{{ route('karyawan.profile') }}"
            class="flex items-center gap-2 hover:opacity-80 transition">
 
             <span class="text-white text-xs font-medium max-w-[90px] truncate">

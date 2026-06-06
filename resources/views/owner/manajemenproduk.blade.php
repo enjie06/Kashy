@@ -115,6 +115,12 @@
     }
     .badge-sale { background: #ef4444; }
 
+    /* =====================================================
+       DROPZONE — input file SELALU ada di luar dropzone
+       supaya tidak hilang saat innerHTML diganti
+       ===================================================== */
+    .img-dropzone-wrapper { position: relative; }
+
     .img-dropzone {
       width:100%; border:2px dashed #E0D8CE; border-radius:14px;
       padding:28px 20px; text-align:center; cursor:pointer;
@@ -126,7 +132,7 @@
     .img-dropzone.has-image img {
       width:100%; height:100%; object-fit:cover; border-radius:12px; display:block;
     }
-    .img-dropzone.has-image .dropzone-overlay {
+    .dropzone-overlay {
       position:absolute; inset:0; background:rgba(0,0,0,.35);
       display:flex; align-items:center; justify-content:center;
       border-radius:12px; opacity:0; transition:opacity .2s;
@@ -263,14 +269,18 @@
 
     <div class="mb-4">
       <label class="form-label">Foto Produk</label>
-      <div class="img-dropzone" id="imgDropzone" onclick="document.getElementById('prodImage').click()">
+      <div class="img-dropzone-wrapper">
+        {{-- INPUT FILE DILETAKKAN DI LUAR DROPZONE — tidak akan hilang saat innerHTML dropzone diganti --}}
         <input type="file" id="prodImage" accept="image/*" class="hidden" onchange="previewImage(this)"/>
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#C49A6C" stroke-width="1.6" class="mx-auto mb-2">
-          <rect x="3" y="3" width="18" height="18" rx="2"/>
-          <circle cx="8.5" cy="8.5" r="1.5"/>
-          <polyline points="21 15 16 10 5 21"/>
-        </svg>
-        <p class="text-sm font-semibold text-kashy-muted">Pilih gambar</p>
+        {{-- Dropzone hanya berisi tampilan visual --}}
+        <div class="img-dropzone" id="imgDropzone" onclick="document.getElementById('prodImage').click()">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#C49A6C" stroke-width="1.6" class="mx-auto mb-2">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+          <p class="text-sm font-semibold text-kashy-muted" id="dropzoneText">Pilih gambar</p>
+        </div>
       </div>
     </div>
 
@@ -439,14 +449,18 @@
         let badgeHtml = '';
         if (p.is_discount) badgeHtml = `<span class="badge-produk badge-sale">SALE</span>`;
         const stockStatus = p.stok === 0 ? '<p class="text-[8px] font-bold text-red-600 mt-0.5">⚠ Habis</p>' : (p.stok <=5 ? '<p class="text-[8px] font-bold text-orange-500 mt-0.5">⚠ Menipis</p>' : '');
-        const imageUrl = p.gambar ? '/images/products/' + p.gambar.split('/').pop() : 'https://via.placeholder.com/400x400?text=No+Image';
+        const imageUrl = p.gambar
+          ? (p.gambar.startsWith('products/')
+              ? '/storage/' + p.gambar
+              : '/images/products/' + p.gambar.split('/').pop())
+          : 'https://placehold.co/400x400?text=No+Image';
         const categoryName = categories.find(c => c.id === p.category_id)?.nama_kategori || '-';
         const sizes = p.ukuran ? p.ukuran.split(',').map(v => `<span class="chip text-[9px] py-0 px-1.5">${v.trim()}</span>`).join('') : '';
         
         return `
           <div class="bg-white rounded-xl p-2 shadow-card fade-up">
             <div class="prod-img-wrap relative">
-              <img src="${imageUrl}" loading="lazy" onerror="this.src='https://via.placeholder.com/400x400?text=No+Image'">
+              <img src="${imageUrl}" loading="lazy" onerror="this.src='https://placehold.co/400x400?text=No+Image'">
               ${badgeHtml}
             </div>
             <p class="text-[9px] font-semibold text-kashy-muted uppercase mb-0.5">${categoryName}</p>
@@ -483,6 +497,11 @@
     if (!modal) return;
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
+
+    // Reset input file dulu setiap kali modal dibuka
+    const fileInput = document.getElementById('prodImage');
+    fileInput.value = '';
+
     if (id) {
       const p = products.find(x => x.id === id);
       if (p) {
@@ -497,10 +516,7 @@
         document.getElementById('prodColor').value = p.warna || '';
         document.getElementById('prodDesc').value = p.deskripsi || '';
         if (p.gambar) {
-          const dz = document.getElementById('imgDropzone');
-          dz.innerHTML = `<img src="/storage/${p.gambar}" alt="preview"/><div class="dropzone-overlay"><span class="text-white text-xs font-semibold bg-black/50 px-3 py-1.5 rounded-lg">Ganti Gambar</span></div><input type="file" id="prodImage" accept="image/*" class="hidden" onchange="previewImage(this)"/>`;
-          dz.classList.add('has-image');
-          dz.onclick = () => document.getElementById('prodImage').click();
+          setDropzoneImage('/storage/' + p.gambar);
         } else {
           resetDropzone();
         }
@@ -577,20 +593,18 @@
     formData.append('deskripsi', document.getElementById('prodDesc').value);
     formData.append('is_discount', document.getElementById('prodDiscount').value);
     
+    // Input file sekarang selalu ada di DOM — tidak akan hilang
     const fileInput = document.getElementById('prodImage');
-    if (fileInput.files[0]) {
+    if (fileInput && fileInput.files[0]) {
       formData.append('gambar', fileInput.files[0]);
     }
     
     const url = id ? `/owner/produk/${id}` : '/owner/produk';
-    
     if (id) formData.append('_method', 'PUT');
     
     fetch(url, {
       method: 'POST',
-      headers: {
-        'X-CSRF-TOKEN': csrfToken
-      },
+      headers: { 'X-CSRF-TOKEN': csrfToken },
       body: formData
     })
     .then(response => response.json())
@@ -644,29 +658,51 @@
     return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' })[m]); 
   }
 
+  // ============================================================
+  // PERBAIKAN UTAMA: previewImage hanya update tampilan dropzone,
+  // TIDAK menyentuh input file yang ada di luar dropzone
+  // ============================================================
   function previewImage(input) {
     if (!input.files[0]) return;
     const reader = new FileReader();
     reader.onload = e => {
-      const dz = document.getElementById('imgDropzone');
-      if (!dz) return;
-      dz.innerHTML = `<img src="${e.target.result}" alt="preview"/><div class="dropzone-overlay"><span class="text-white text-xs font-semibold bg-black/50 px-3 py-1.5 rounded-lg">Ganti Gambar</span></div><input type="file" id="prodImage" accept="image/*" class="hidden" onchange="previewImage(this)"/>`;
-      dz.classList.add('has-image');
-      dz.onclick = () => document.getElementById('prodImage').click();
+      setDropzoneImage(e.target.result);
     };
     reader.readAsDataURL(input.files[0]);
   }
-  
+
+  function setDropzoneImage(src) {
+    const dz = document.getElementById('imgDropzone');
+    if (!dz) return;
+    dz.classList.add('has-image');
+    // Hanya isi visual — tanpa input file di dalamnya
+    dz.innerHTML = `
+      <img src="${src}" alt="preview"/>
+      <div class="dropzone-overlay">
+        <span class="text-white text-xs font-semibold bg-black/50 px-3 py-1.5 rounded-lg">Ganti Gambar</span>
+      </div>
+    `;
+  }
+
   function resetDropzone() {
     const dz = document.getElementById('imgDropzone');
     if (!dz) return;
     dz.classList.remove('has-image');
-    dz.innerHTML = `<input type="file" id="prodImage" accept="image/*" class="hidden" onchange="previewImage(this)"/><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#C49A6C" stroke-width="1.6" class="mx-auto mb-2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><p class="text-sm font-semibold text-kashy-muted">Pilih atau seret gambar</p><p class="text-xs text-kashy-muted mt-1">JPG, PNG — maks 5MB</p>`;
-    dz.onclick = () => document.getElementById('prodImage').click();
+    // Hanya reset visual — input file tetap di luarnya
+    dz.innerHTML = `
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#C49A6C" stroke-width="1.6" class="mx-auto mb-2">
+        <rect x="3" y="3" width="18" height="18" rx="2"/>
+        <circle cx="8.5" cy="8.5" r="1.5"/>
+        <polyline points="21 15 16 10 5 21"/>
+      </svg>
+      <p class="text-sm font-semibold text-kashy-muted">Pilih atau seret gambar</p>
+      <p class="text-xs text-kashy-muted mt-1">JPG, PNG — maks 5MB</p>
+    `;
   }
 
   // Render awal
   renderProducts();
+
   // Sidebar / hamburger menu
   const sidebar = document.getElementById('sidebar');
   const overlay = document.getElementById('overlay');
@@ -703,14 +739,10 @@
   overlay?.addEventListener('click', closeSidebar);
 
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-      closeSidebar();
-    }
+    if (e.key === 'Escape') { closeSidebar(); }
   });
 
-  navLinks.forEach(link => {
-    link.addEventListener('click', closeSidebar);
-  });
+  navLinks.forEach(link => { link.addEventListener('click', closeSidebar); });
 
   sidebar?.classList.remove('sidebar-open');
   overlay?.classList.remove('show');

@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>Kashy – Pengaturan Tambahan</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -350,6 +351,8 @@
 <div id="toast" class="fixed bottom-8 left-1/2 z-[80] text-white text-sm font-medium px-5 py-3 rounded-full shadow-xl flex items-center gap-2 bg-black/90 backdrop-blur-sm"><span id="toastMsg">✓ Perubahan disimpan</span></div>
 
 <script>
+  const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
   // ========= SIDEBAR =========
   const sidebar = document.getElementById('sidebar');
   const overlay = document.getElementById('overlay');
@@ -378,30 +381,39 @@
   });
 
   if (overlay) overlay.addEventListener('click', closeSidebar);
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSidebar(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeSidebar();
+  });
 
   // ========= TAB SWITCH =========
   function switchTab(tab, btn) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
+
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('panel-' + tab).classList.add('active');
+
     if (tab === 'struk') updatePreviewStruk();
   }
 
   // ========= TOAST =========
-  function showToast(msg, success=true) {
+  function showToast(msg, success = true) {
     const t = document.getElementById('toast');
-    document.getElementById('toastMsg').innerText = msg;
+    const tm = document.getElementById('toastMsg');
+
+    if (!t || !tm) return;
+
+    tm.innerText = msg;
     t.style.background = success ? '#1c1c1c' : '#ef4444';
     t.classList.add('show');
+
     clearTimeout(t._t);
     t._t = setTimeout(() => t.classList.remove('show'), 2600);
   }
 
-  // Toggle payment
+  // ========= TOGGLE PAYMENT =========
   document.querySelectorAll('.toggle-input').forEach(toggle => {
-    toggle.addEventListener('change', () => showToast('Pengaturan pembayaran disimpan'));
+    toggle.addEventListener('change', () => showToast('Pengaturan pembayaran siap disimpan'));
   });
 
   // ========= STRUK PREVIEW =========
@@ -421,8 +433,12 @@
   }
 
   function buangPerubahanStruk() {
-    document.getElementById('inputNamaToko').value = "SND Store";
-    document.getElementById('inputAlamatToko').value = "Jl. Bromo No.171 C, Binjai, Kec. Medan Denai, Kota Medan, Sumatera Utara";
+    const inputNama = document.getElementById('inputNamaToko');
+    const inputAlamat = document.getElementById('inputAlamatToko');
+
+    if (inputNama) inputNama.value = "SND Store";
+    if (inputAlamat) inputAlamat.value = "Jl. Bromo No.171 C, Binjai, Kec. Medan Denai, Kota Medan, Sumatera Utara";
+
     updatePreviewStruk();
     showToast("Perubahan dibuang ke default");
   }
@@ -432,46 +448,146 @@
   }
 
   function cetakStrukPreview() {
-    const printContent = document.getElementById('receiptPreviewStruk').innerHTML;
+    const receipt = document.getElementById('receiptPreviewStruk');
+    if (!receipt) return;
+
+    const printContent = receipt.innerHTML;
     const win = window.open('', '_blank');
-    win.document.write(`<html><head><title>Cetak Struk</title><style>body{font-family:'Courier New',monospace;margin:0;padding:20px;}.receipt{max-width:320px;margin:auto;}${document.querySelector('style').innerHTML}</style></head><body><div class="receipt">${printContent}</div></body></html>`);
-    win.document.close(); win.print();
+
+    win.document.write(`
+      <html>
+        <head>
+          <title>Cetak Struk</title>
+          <style>
+            body {
+              font-family: 'Courier New', monospace;
+              margin: 0;
+              padding: 20px;
+            }
+            .receipt {
+              max-width: 320px;
+              margin: auto;
+            }
+            ${document.querySelector('style').innerHTML}
+          </style>
+        </head>
+        <body>
+          <div class="receipt">${printContent}</div>
+        </body>
+      </html>
+    `);
+
+    win.document.close();
+    win.print();
   }
 
   // ========= PRINTER =========
   function pilihPrinter(el, nama) {
     document.querySelectorAll('.printer-row').forEach(r => r.classList.remove('selected'));
     el.classList.add('selected');
+
     const inputPrinter = document.getElementById('inputPrinter');
     if (inputPrinter) inputPrinter.value = nama;
+
     showToast('Printer "' + nama + '" dipilih');
   }
+
   function filterPrinter(q) {
     document.querySelectorAll('.printer-row').forEach(row => {
-      row.style.display = row.querySelector('span').textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none';
+      const name = row.querySelector('span')?.textContent.toLowerCase() || '';
+      row.style.display = name.includes(q.toLowerCase()) ? '' : 'none';
     });
   }
+
   function refreshScan() {
     const btn = document.querySelector('.refresh-btn');
-    if (!btn) return;
-    btn.classList.add('spinning');
-    setTimeout(() => { btn.classList.remove('spinning'); showToast('Pemindaian selesai'); }, 700);
+    const printerList = document.getElementById('printerList');
+
+    if (btn) btn.classList.add('spinning');
+
+    fetch('{{ route("owner.printer.scan") }}', {
+      method: 'POST',
+      headers: {
+        'X-CSRF-TOKEN': csrfToken,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (!printerList) return;
+
+      printerList.innerHTML = '';
+
+      data.printers.forEach(printer => {
+        printerList.innerHTML += `
+          <div class="printer-row" onclick="pilihPrinter(this, '${printer.name}')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8A7968">
+              <polyline points="6 9 6 2 18 2 18 9"/>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+              <rect x="6" y="14" width="12" height="8"/>
+            </svg>
+            <span class="text-sm font-medium">${printer.name}</span>
+            <small class="text-xs text-kashy-muted ml-auto">${printer.type}</small>
+          </div>
+        `;
+      });
+
+      showToast(data.message);
+    })
+    .catch(() => {
+      showToast('Gagal memindai printer', false);
+    })
+    .finally(() => {
+      if (btn) btn.classList.remove('spinning');
+    });
   }
-  function pilihKertas(el, ukuran) {
-    document.querySelectorAll('.paper-chip').forEach(c => c.classList.remove('active'));
-    el.classList.add('active');
-    const inputUkuran = document.getElementById('inputUkuranKertas');
-    if (inputUkuran) inputUkuran.value = ukuran;
-    showToast('Ukuran kertas ' + ukuran + ' dipilih');
+
+  function jalankanTesPrint() {
+    const printer = document.getElementById('inputPrinter')?.value;
+
+    fetch('{{ route("owner.printer.testPrint") }}', {
+      method: 'POST',
+      headers: {
+        'X-CSRF-TOKEN': csrfToken,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ printer: printer })
+    })
+    .then(res => res.json())
+    .then(data => {
+      showToast(data.message, data.success);
+    })
+    .catch(() => {
+      showToast('Tes print gagal dijalankan', false);
+    });
   }
+
   function nonaktifkanPrinter() {
-    if (confirm('Nonaktifkan printer ini?')) {
+    if (!confirm('Nonaktifkan printer ini?')) return;
+
+    fetch('{{ route("owner.printer.nonaktif") }}', {
+      method: 'POST',
+      headers: {
+        'X-CSRF-TOKEN': csrfToken,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
       const inputPrinter = document.getElementById('inputPrinter');
       if (inputPrinter) inputPrinter.value = '';
-      showToast('Printer dinonaktifkan', false);
-    }
+
+      document.querySelectorAll('.printer-row').forEach(r => r.classList.remove('selected'));
+
+      showToast(data.message, data.success);
+    })
+    .catch(() => {
+      showToast('Gagal menonaktifkan printer', false);
+    });
   }
-  function jalankanTesPrint() { showToast('Mengirim tes print...'); }
 
   // Preview awal mengikuti data dari database
   updatePreviewStruk();
