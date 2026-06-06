@@ -256,7 +256,12 @@ function render() {
   }
 
   grid.innerHTML = paged.map((p, i) => {
-    const imageUrl = p.gambar ? '/images/products/' + p.gambar.split('/').pop() : 'https://placehold.co/400x400?text=No+Image';
+    // const imageUrl = p.gambar ? '/images/products/' + p.gambar.split('/').pop() : 'https://placehold.co/400x400?text=No+Image';
+    const imageUrl = p.gambar
+    ? (p.gambar.startsWith('products/')
+        ? '/storage/' + p.gambar
+        : '/images/products/' + p.gambar.split('/').pop())
+    : 'https://placehold.co/400x400?text=No+Image';
     const priceFormatted = `Rp ${parseInt(p.harga).toLocaleString('id-ID')}`;
     let badge = '';
     if (p.is_discount) badge = `<span class="absolute top-2 right-2 z-20 text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500 text-white">SALE</span>`;
@@ -266,8 +271,10 @@ function render() {
     <div class="card relative bg-white rounded-2xl overflow-hidden shadow-sm cursor-pointer border-2 border-transparent transition-all duration-200 hover:-translate-y-1 hover:shadow-md hover:border-terra-l" style="animation:fadeUp .3s ease ${i*0.04}s both" onclick="window.location.href='/detail-produk/${p.id}'">
       ${badge}
       <div class="relative w-full aspect-square bg-gray-100">
-        <img src="${imageUrl}" onerror="this.src='https://placehold.co/400x400?text=No+Image'">
-      </div>
+  <img src="${imageUrl}" 
+       class="absolute inset-0 w-full h-full object-cover"
+       onerror="this.src='https://placehold.co/400x400?text=No+Image'">
+</div>
       <div class="p-2.5 pb-3">
         <div class="text-xs font-semibold text-gray-900 mb-1 leading-tight line-clamp-2">${escapeHtml(p.nama_produk)}</div>
         <div class="flex items-baseline gap-1.5 flex-wrap">

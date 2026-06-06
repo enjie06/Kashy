@@ -94,7 +94,9 @@
       <div class="w-full lg:w-[45%] fade-up">
         <div class="relative w-full max-w-[380px] mx-auto rounded-3xl overflow-hidden shadow-md" style="aspect-ratio:1/1; background: linear-gradient(135deg,#e8ddd4,#d4c5b4)">
           @if($product->gambar)
-            <img src="{{ asset('images/products/' . basename($product->gambar)) }}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400x400?text=No+Image'">
+            <img src="{{ $product->gambar && str_starts_with($product->gambar, 'products/') 
+    ? asset('storage/' . $product->gambar) 
+    : asset('images/products/' . basename($product->gambar ?? '')) }}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400x400?text=No+Image'">
           @else
             <div class="w-full h-full flex items-center justify-center">
               <svg width="140" height="140" viewBox="0 0 24 24" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">

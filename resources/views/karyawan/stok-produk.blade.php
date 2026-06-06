@@ -105,8 +105,10 @@
       
       // PAKAI PATH YANG SAMA DENGAN KATALOG
       if ($gambar) {
-          $img = '/images/products/' . basename($gambar);
-      } else {
+    $img = str_starts_with($gambar, 'products/')
+        ? '/storage/' . $gambar
+        : '/images/products/' . basename($gambar);
+} else {
           $img = 'https://placehold.co/400x400?text=' . urlencode($product->nama_produk);
       }
       
