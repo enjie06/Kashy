@@ -37,4 +37,47 @@ class OwnerSettingController extends Controller
 
         return back()->with('success', 'Pengaturan berhasil disimpan');
     }
-}
+
+    public function scanPrinter()
+    {
+        $printers = [
+            [
+                'name' => 'Epson TM-T82X',
+                'type' => 'Bluetooth',
+                'status' => 'Tersedia'
+            ],
+            [
+                'name' => 'Rongta RP326',
+                'type' => 'USB',
+                'status' => 'Tersedia'
+            ],
+            [
+                'name' => 'POS-58 Printer',
+                'type' => 'Jaringan',
+                'status' => 'Tersedia'
+            ]
+        ];
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pemindaian printer berhasil',
+            'printers' => $printers
+        ]);
+    }
+
+    public function testPrint(Request $request)
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'Tes print berhasil dikirim ke '.$request->printer
+        ]);
+    }
+
+    public function nonaktifPrinter()
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'Printer berhasil dinonaktifkan'
+        ]);
+    }
+    }
