@@ -113,9 +113,9 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/owner/products/{product}', [ProductController::class, 'destroy'])
         ->name('owner.products.destroy');
 
-    Route::get('/owner/manajemenkategori', 'App\Http\Controllers\CategoryController@index')
-        ->middleware('auth')
-        ->name('manajemen.kategori');
+    // Route::get('/owner/manajemenkategori', [CategoryController::class, 'index'])
+    //     ->middleware('auth')
+    //     ->name('manajemen.kategori');
 
     Route::view('/owner/manajementoko', 'owner.manajementoko')
         ->middleware('auth')
@@ -170,8 +170,10 @@ Route::middleware(['auth'])->group(function () {
     // API untuk kategori
     Route::post('/owner/kategori', [CategoryController::class, 'store'])->name('kategori.store');
     Route::put('/owner/kategori/{id}', [CategoryController::class, 'update'])->name('kategori.update');
-    Route::delete('/owner/kategori/{id}', [CategoryController::class, 'destroy'])->name('kategori.destroy');
-
+    Route::delete('/owner/kategori/{id}', [\App\Http\Controllers\CategoryController::class, 'destroy'])->name('kategori.destroy');
+    Route::get('/owner/manajemenkategori', [\App\Http\Controllers\CategoryController::class, 'index'])
+        ->middleware('auth')
+        ->name('manajemen.kategori');
     // API untuk diskon
     Route::post('/owner/diskon', [DiscountController::class, 'store'])->name('diskon.store');
     Route::put('/owner/diskon/{id}', [DiscountController::class, 'update'])->name('diskon.update');

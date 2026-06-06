@@ -6,6 +6,7 @@
 <title>Manajemen Kategori | Kashy</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <script>
   tailwind.config = {
     theme: {
@@ -34,7 +35,6 @@
   * { box-sizing:border-box; margin:0; padding:0; }
   body { font-family:'Poppins',sans-serif; background:#F5F0EB; }
 
-  /* Sidebar */
   #sidebar {
     position:fixed; top:0; left:0; height:100vh; width:280px;
     background:#fff; box-shadow:2px 0 24px rgba(60,40,10,.12);
@@ -175,16 +175,13 @@
 <main id="main" class="min-h-screen bg-kashy-cream">
   @include('owner.components.topbar')
 
-  <!-- KONTEN UTAMA: konsisten dengan Laporan Keuangan (max-w-2xl, px-5 md:px-8, py-6) -->
   <div class="px-5 md:px-8 py-6 max-w-2xl mx-auto">
 
-    <!-- Header -->
     <div class="fade-up d1 mb-5">
       <h1 class="text-2xl md:text-3xl font-extrabold text-kashy-dark leading-tight">Manajemen Kategori</h1>
       <p class="text-xs text-kashy-muted mt-1">Susun dan tata katalog produk koleksi Anda dengan tepat dan elegan.</p>
     </div>
 
-    <!-- Tombol Tambah (sama dengan tombol Export di laporan keuangan) -->
     <div class="fade-up d2 mb-5">
       <button onclick="openModal()"
         class="w-full flex items-center justify-center gap-2 py-4 rounded-2xl font-bold text-sm tracking-widest text-white uppercase transition-all duration-200 hover:opacity-90 active:scale-[.98] shadow-btn"
@@ -196,10 +193,14 @@
       </button>
     </div>
 
-    <!-- Daftar Kategori (grid list) -->
+    @if(session('success'))
+    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+        {{ session('success') }}
+    </div>
+    @endif
+
     <div class="flex flex-col gap-4 fade-up d3" id="kategoriList"></div>
 
-    <!-- Log Aktivitas Terbaru (sama dengan tabel log di laporan keuangan) -->
     <div class="fade-up d5 mt-8 mb-6">
       <h2 class="text-base font-bold text-kashy-dark mb-3">Log Aktivitas Terbaru</h2>
       <div class="bg-white rounded-2xl overflow-hidden shadow-card">
@@ -208,8 +209,7 @@
             <tr><th>Aktivitas</th><th>Kategori</th><th>Waktu</th></tr>
           </thead>
           <tbody id="logTableBody">
-            <tr><td class="font-semibold">Kategori Diperbarui</td><td class="text-kashy-muted">Hoodie</td><td class="text-kashy-muted">April 24, 2026<br/>10:45 AM</td></tr>
-            <tr><td class="font-semibold">Kategori Baru Ditambahkan</td><td class="text-kashy-muted">Jeans Pria</td><td class="text-kashy-muted">Mei 11, 2026<br/>10:59 AM</td></tr>
+            <tr><td colspan="3" class="text-center text-gray-400 py-4">Belum ada aktivitas</td></tr>
           </tbody>
         </table>
       </div>
@@ -218,36 +218,45 @@
   </div>
 </main>
 
-<!-- MODAL TAMBAH/EDIT KATEGORI (dengan upload gambar) -->
+<!-- MODAL TAMBAH/EDIT KATEGORI -->
 <div id="modalKategori" class="modal-fixed">
   <div class="modal-card">
     <h2 id="modalTitle" class="text-xl font-bold text-kashy-dark mb-5">Tambah Kategori</h2>
-    <input type="hidden" id="editTarget">
-    <div class="mb-4">
-      <label class="form-label">Gambar Kategori <span class="normal-case font-normal">(opsional)</span></label>
-      <div class="img-dropzone" id="modalImgDropzone" onclick="document.getElementById('modalImgInput').click()">
-        <input type="file" id="modalImgInput" accept="image/*" class="hidden" onchange="previewModalImage(this)"/>
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#C49A6C" stroke-width="1.6" class="mx-auto mb-2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-        <p class="text-sm font-semibold text-kashy-muted">Pilih atau seret gambar</p>
-        <p class="text-xs text-kashy-muted mt-1">JPG, PNG — maks 5MB</p>
+    <form id="kategoriForm" method="POST" action="/owner/kategori" enctype="multipart/form-data">
+      @csrf
+      <input type="hidden" id="editId" name="id" value="">
+      <input type="hidden" id="methodField" name="_method" value="POST">
+      
+      <!-- UPLOAD GAMBAR -->
+      <div class="mb-4">
+        <label class="form-label">Gambar Kategori <span class="normal-case font-normal">(opsional)</span></label>
+        <div class="img-dropzone" id="modalImgDropzone" onclick="document.getElementById('modalImgInput').click()">
+          <input type="file" id="modalImgInput" name="gambar" accept="image/*" class="hidden" onchange="previewModalImage(this)"/>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#C49A6C" stroke-width="1.6" class="mx-auto mb-2">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+          <p class="text-sm font-semibold text-kashy-muted">Pilih atau seret gambar</p>
+          <p class="text-xs text-kashy-muted mt-1">JPG, PNG — maks 5MB</p>
+        </div>
       </div>
-    </div>
-    <div class="mb-4">
-      <label class="form-label">Nama Kategori</label>
-      <input type="text" id="inputNama" class="form-input" placeholder="cth: Kemeja Batik">
-    </div>
-    <div class="mb-6">
-      <label class="form-label">Deskripsi</label>
-      <input type="text" id="inputDesc" class="form-input" placeholder="cth: 12 Item Premium">
-    </div>
-    <div class="flex gap-3">
-      <button onclick="closeModal()" class="flex-1 py-4 rounded-2xl font-bold text-sm text-kashy-muted border-2 border-kashy-border bg-white hover:bg-kashy-cream transition-all active:scale-[.98]">Batal</button>
-      <button onclick="simpanKategori()" class="flex-1 py-4 rounded-2xl font-bold text-sm text-white transition-all hover:opacity-90 active:scale-[.98]" style="background:#C49A6C; box-shadow:0 4px 14px 0 rgba(196,154,108,.35);">Simpan</button>
-    </div>
+      
+      <!-- NAMA KATEGORI -->
+      <div class="mb-4">
+        <label class="form-label">Nama Kategori <span class="required-star">*</span></label>
+        <input type="text" id="inputNama" name="nama_kategori" class="form-input" placeholder="cth: Kemeja Batik" required>
+      </div>
+      
+      <div class="flex gap-3">
+        <button type="button" onclick="closeModal()" class="flex-1 py-4 rounded-2xl font-bold text-sm text-kashy-muted border-2 border-kashy-border bg-white hover:bg-kashy-cream transition-all">Batal</button>
+        <button type="submit" class="flex-1 py-4 rounded-2xl font-bold text-sm text-white transition-all hover:opacity-90" style="background:#C49A6C;">Simpan</button>
+      </div>
+    </form>
   </div>
 </div>
 
-<!-- MODAL KONFIRMASI HAPUS (DANGER) -->
+<!-- MODAL KONFIRMASI HAPUS -->
 <div id="confirmModal" class="modal-confirm">
   <div class="modal-card">
     <div class="modal-icon modal-icon-danger">
@@ -258,7 +267,7 @@
       </svg>
     </div>
     <div class="modal-title">Hapus Kategori</div>
-    <div class="modal-message" id="confirmMessage">Apakah Anda yakin ingin menghapus kategori ini?</div>
+    <div class="modal-message" id="confirmMessage"></div>
     <div class="modal-buttons">
       <button id="modalCancelBtn" class="modal-btn modal-btn-cancel">Batal</button>
       <button id="modalConfirmBtn" class="modal-btn modal-btn-confirm-danger">Ya, Hapus</button>
@@ -285,29 +294,40 @@
   if (overlay) overlay.addEventListener('click', closeSidebar);
   document.addEventListener('keydown', e => { if (e.key==='Escape') { closeSidebar(); closeModal(); closeConfirmModal(); } });
 
-  // Data kategori
-  let categories = [
-    { id: 1, name: "Hoodie", desc: "42 Item Premium", image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80" },
-    { id: 2, name: "Jeans Pria", desc: "128 Item Dikurasi", image: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=600&q=80" },
-    { id: 3, name: "Rok Wanita", desc: "24 Gaya Muslimah", image: "https://images.unsplash.com/photo-1583496661160-fb5218afa9a3?w=600&q=80" }
-  ];
-  let nextId = 4;
+  // Data dari DATABASE (bukan dummy!)
+  let categories = @json($categories);
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
 
   function renderCategories() {
     const container = document.getElementById('kategoriList');
     if (!container) return;
     container.innerHTML = '';
+    
+    if (!categories || categories.length === 0) {
+      container.innerHTML = '<div class="text-center py-8 text-gray-500">Belum ada kategori. Silakan tambah kategori baru.</div>';
+      return;
+    }
+    
     categories.forEach(cat => {
       const card = document.createElement('div');
       card.className = 'bg-white rounded-2xl overflow-hidden shadow-card';
       card.setAttribute('data-id', cat.id);
-      const imageHtml = cat.image ? `<img src="${cat.image}" class="cat-img" alt="${cat.name}"/>` : `<div class="cat-img-placeholder"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#E0D8CE" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/><path d="M3 14h18"/></svg></div>`;
+      
+      // Ambil gambar dari produk terbaru di kategori ini
+      const latestProduct = cat.products && cat.products.length > 0 ? cat.products[0] : null;
+      const imageUrl = latestProduct && latestProduct.gambar 
+    ? '/images/products/' + latestProduct.gambar.split('/').pop() 
+    : null;
+      const imageHtml = imageUrl 
+        ? `<img src="${imageUrl}" class="cat-img" alt="${escapeHtml(cat.nama_kategori)}"/>` 
+        : `<div class="cat-img-placeholder"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#E0D8CE" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/><path d="M3 14h18"/></svg></div>`;
+      
       card.innerHTML = `
         ${imageHtml}
         <div class="flex items-center justify-between px-4 py-3">
           <div>
-            <p class="text-sm font-bold text-kashy-dark">${escapeHtml(cat.name)}</p>
-            <p class="text-xs text-kashy-muted">${escapeHtml(cat.desc) || '0 Item'}</p>
+            <p class="text-sm font-bold text-kashy-dark">${escapeHtml(cat.nama_kategori)}</p>
+            <p class="text-xs text-kashy-muted">${cat.products_count || 0} produk</p>
           </div>
           <div class="flex items-center gap-3">
             <button onclick="editKategori(${cat.id})" class="text-kashy-muted hover:text-kashy-dark transition-colors">
@@ -323,7 +343,15 @@
     });
   }
 
-  function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+  function escapeHtml(str) { 
+    if (!str) return ''; 
+    return str.replace(/[&<>]/g, function(m){ 
+      if(m==='&') return '&amp;'; 
+      if(m==='<') return '&lt;'; 
+      if(m==='>') return '&gt;'; 
+      return m;
+    }); 
+  }
 
   let currentEditId = null;
   let currentImageData = null;
@@ -331,26 +359,33 @@
   function openModal(editId = null) {
     currentEditId = editId;
     const modal = document.getElementById('modalKategori');
+    const form = document.getElementById('kategoriForm');
+    
     if (editId) {
-      const cat = categories.find(c => c.id === editId);
-      if (cat) {
-        document.getElementById('modalTitle').innerText = 'Edit Kategori';
-        document.getElementById('inputNama').value = cat.name;
-        document.getElementById('inputDesc').value = cat.desc;
-        if (cat.image) setModalPreview(cat.image);
-        else resetModalDropzone();
-      }
+        const cat = categories.find(c => c.id === editId);
+        if (cat) {
+            document.getElementById('modalTitle').innerText = 'Edit Kategori';
+            document.getElementById('editId').value = cat.id;
+            document.getElementById('inputNama').value = cat.nama_kategori;
+            form.action = `/owner/kategori/${editId}`;
+            document.getElementById('methodField').value = 'PUT';
+        }
     } else {
-      document.getElementById('modalTitle').innerText = 'Tambah Kategori';
-      document.getElementById('inputNama').value = '';
-      document.getElementById('inputDesc').value = '';
-      resetModalDropzone();
+        document.getElementById('modalTitle').innerText = 'Tambah Kategori';
+        document.getElementById('editId').value = '';
+        document.getElementById('inputNama').value = '';
+        form.action = '/owner/kategori';
+        document.getElementById('methodField').value = 'POST';
     }
     modal.classList.add('show');
     document.body.style.overflow = 'hidden';
-  }
+}
+
+// Hapus fungsi simpanKategori() yang lama, ganti dengan submit form biasa
+// Form akan submit secara normal, bukan AJAX
 
   function editKategori(id) { openModal(id); }
+  
   function closeModal() {
     document.getElementById('modalKategori').classList.remove('show');
     document.body.style.overflow = '';
@@ -387,41 +422,55 @@
     currentImageData = null;
   }
 
-  function simpanKategori() {
-    const nama = document.getElementById('inputNama').value.trim();
-    if (!nama) {
-      showToast('Nama kategori wajib diisi', false);
-      document.getElementById('inputNama').focus();
-      return;
-    }
-    const desc = document.getElementById('inputDesc').value.trim();
-    let image = currentImageData || '';
+  // function simpanKategori() {
+  //   const nama = document.getElementById('inputNama').value.trim();
+  //   if (!nama) {
+  //     showToast('Nama kategori wajib diisi', false);
+  //     document.getElementById('inputNama').focus();
+  //     return;
+  //   }
 
-    if (currentEditId) {
-      const index = categories.findIndex(c => c.id === currentEditId);
-      if (index !== -1) {
-        categories[index].name = nama;
-        categories[index].desc = desc;
-        if (image) categories[index].image = image;
-        showToast(`Kategori "${nama}" berhasil diperbarui!`, true);
-        addLog(`Kategori Diperbarui`, nama);
-      }
-    } else {
-      const newId = nextId++;
-      categories.push({ id: newId, name: nama, desc: desc || '0 Item', image: image });
-      showToast(`Kategori "${nama}" berhasil ditambahkan!`, true);
-      addLog(`Kategori Baru Ditambahkan`, nama);
-    }
-    renderCategories();
-    closeModal();
-  }
+  //   const formData = new FormData();
+  //   formData.append('_token', csrfToken);
+  //   formData.append('nama_kategori', nama);
+    
+  //   const fileInput = document.getElementById('modalImgInput');
+  //   if (fileInput.files && fileInput.files[0]) {
+  //     formData.append('gambar', fileInput.files[0]);
+  //   }
+
+  //   const url = currentEditId ? `/owner/kategori/${currentEditId}` : '/owner/kategori';
+  //   if (currentEditId) formData.append('_method', 'PUT');
+
+  //   fetch(url, {
+  //     method: 'POST',
+  //     headers: {
+  //       'X-CSRF-TOKEN': csrfToken
+  //     },
+  //     body: formData
+  //   })
+  //   .then(response => response.json())
+  //   .then(data => {
+  //     if (data.success) {
+  //       showToast(data.message, true);
+  //       location.reload();
+  //     } else {
+  //       showToast(data.message || 'Gagal menyimpan kategori', false);
+  //     }
+  //   })
+  //   .catch(error => {
+  //     showToast('Terjadi kesalahan', false);
+  //   });
+
+  //   closeModal();
+  // }
 
   let pendingDeleteId = null;
+  
   function hapusKategori(id) {
-    const cat = categories.find(c => c.id === id);
-    if (!cat) return;
     pendingDeleteId = id;
-    document.getElementById('confirmMessage').innerHTML = `Apakah Anda yakin ingin menghapus kategori <strong>${escapeHtml(cat.name)}</strong>?<br>`;
+    const cat = categories.find(c => c.id === id);
+    document.getElementById('confirmMessage').innerHTML = `Apakah Anda yakin ingin menghapus kategori <strong>${escapeHtml(cat.nama_kategori)}</strong>?`;
     document.getElementById('confirmModal').classList.add('show');
   }
 
@@ -431,25 +480,29 @@
   }
 
   function confirmDelete() {
-    if (pendingDeleteId !== null) {
-      const cat = categories.find(c => c.id === pendingDeleteId);
-      const name = cat ? cat.name : '';
-      categories = categories.filter(c => c.id !== pendingDeleteId);
-      renderCategories();
-      showToast(`Kategori "${name}" dihapus.`, true);
-      addLog(`Kategori Dihapus`, name);
-      closeConfirmModal();
-    }
-  }
-
-  function addLog(activity, categoryName) {
-    const tbody = document.getElementById('logTableBody');
-    const now = new Date();
-    const waktu = `${now.toLocaleDateString('id-ID')}<br/>${now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'})}`;
-    const newRow = document.createElement('tr');
-    newRow.innerHTML = `<td class="font-semibold">${activity}</td><td class="text-kashy-muted">${escapeHtml(categoryName)}</td><td class="text-kashy-muted">${waktu}</td>`;
-    tbody.prepend(newRow);
-    while(tbody.children.length > 10) tbody.removeChild(tbody.lastChild);
+    if (!pendingDeleteId) return;
+    
+    fetch(`/owner/kategori/${pendingDeleteId}`, {
+      method: 'DELETE',
+      headers: {
+        'X-CSRF-TOKEN': csrfToken,
+        'Accept': 'application/json'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        showToast(data.message, true);
+        location.reload();
+      } else {
+        showToast(data.message || 'Gagal menghapus kategori', false);
+      }
+    })
+    .catch(error => {
+      showToast('Terjadi kesalahan', false);
+    });
+    
+    closeConfirmModal();
   }
 
   let toastTimer;
