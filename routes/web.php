@@ -168,9 +168,8 @@ Route::middleware(['auth'])->group(function () {
 
 
     // API untuk kategori
-    Route::post('/owner/kategori', [CategoryController::class, 'store'])->name('kategori.store');
-    Route::put('/owner/kategori/{id}', [CategoryController::class, 'update'])->name('kategori.update');
-    Route::delete('/owner/kategori/{id}', [\App\Http\Controllers\CategoryController::class, 'destroy'])->name('kategori.destroy');
+    Route::put('/owner/kategori/{id}', [\App\Http\Controllers\CategoryController::class, 'update'])->name('kategori.update');
+    Route::delete('/owner/kategori/{id}', [\App\Http\Controllers\CategoryController::class, 'destroy'])->name('kategori.destroy');    Route::delete('/owner/kategori/{id}', [\App\Http\Controllers\CategoryController::class, 'destroy'])->name('kategori.destroy');
     Route::get('/owner/manajemenkategori', [\App\Http\Controllers\CategoryController::class, 'index'])
         ->middleware('auth')
         ->name('manajemen.kategori');
