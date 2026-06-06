@@ -169,7 +169,7 @@
     </div>
 
     <button onclick="goToPayment()" class="w-full bg-black hover:bg-gray-900 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition shadow-lg">
-  Cetak Struk
+  Lanjut ke Pembayaran
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
     <line x1="5" y1="12" x2="19" y2="12"/>
     <polyline points="12 5 19 12 12 19"/>
@@ -468,7 +468,7 @@
     if (newName?.trim()) {
       document.getElementById('customerName').textContent = newName.trim();
       currentSelectedMember = null;
-      showToast('✅ Nama pelanggan diperbarui');
+      showToast('Nama pelanggan diperbarui');
     }
   }
 
@@ -550,7 +550,7 @@
     if (existing) existing.qty += 1;
     else cart.push({ ...product, qty: 1 });
     renderCart();
-    showToast(`✅ ${product.name} ditambahkan ke keranjang`);
+    showToast(`${product.name} ditambahkan ke keranjang`);
   }
 
   // ======================= PRODUK SEARCH =======================

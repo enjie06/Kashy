@@ -188,7 +188,6 @@
             <div class="stat-card">
               <p class="stat-label">Total Transaksi</p>
               <p class="stat-value">${data.total_transaksi}</p>
-              <p class="stat-sub">Transaksi sukses</p>
             </div>
           </div>
 

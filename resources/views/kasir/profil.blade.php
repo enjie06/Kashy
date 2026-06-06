@@ -163,8 +163,8 @@
     </a>
 </header>
 
-<main class="flex-1 overflow-y-auto hide-scroll pb-28">
-  <div class="max-w-md mx-auto px-4 pt-5 space-y-5">
+<main class="flex-1 overflow-y-auto pb-28">
+  <div class="max-w-2xl mx-auto w-full px-4 pt-6 space-y-5">
 
     @if(session('success'))
       <div class="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-3 rounded-xl">

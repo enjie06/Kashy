@@ -276,7 +276,7 @@
     </div>
     <h3 class="text-lg font-bold text-gray-900 mb-2">Pembayaran Berhasil!</h3>
     <p class="text-sm text-gray-600 mb-5">Terima Kasih, transaksi Anda telah berhasil diproses.</p>
-    <button onclick="closeSuccessModalAndReset()" class="w-full bg-terra hover:bg-terra-l text-white font-semibold py-2.5 rounded-lg transition">Selesai</button>
+    <button onclick="closeSuccessModalAndReset()" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 rounded-lg transition">Selesai</button>
   </div>
 </div>
 

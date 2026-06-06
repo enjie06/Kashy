@@ -45,12 +45,15 @@
     <svg width="16" height="16" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24">
       <path d="M19 12H5M12 5l-7 7 7 7"/>
     </svg>
+    <span class="font-bold text-white text-lg tracking-wider absolute left-1/2 -translate-x-1/2">
+        Kashy
+    </span>
   </button>
 </nav>
 
-<main class="flex-1 overflow-y-auto pb-10">
-  <div class="max-w-md mx-auto w-full px-3 pt-4 space-y-4">
-
+<main class="flex-1 overflow-y-auto pb-28">
+  <div class="max-w-2xl mx-auto w-full px-4 pt-6 space-y-5">
+    <h1 class="text-2xl font-bold text-gray-900 mb-3 fade-up delay-1">Riwayat Transaksi</h1>
     <!-- Summary Stats -->
     <div class="grid grid-cols-3 gap-1.5 fade-up delay-1">
       <div class="bg-white rounded-lg border border-border shadow-sm p-2 flex items-center gap-1.5 card-hover">

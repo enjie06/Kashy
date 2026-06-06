@@ -63,8 +63,8 @@
   <span class="font-bold text-white text-xl tracking-wide">Kashy</span>
 </nav>
 
-<main class="flex-1 overflow-y-auto pb-10">
-  <div class="max-w-md mx-auto px-4 pt-5 space-y-5">
+<main class="flex-1 overflow-y-auto pb-28">
+  <div class="max-w-2xl mx-auto w-full px-4 pt-6 space-y-5">
 
     <!-- Jam & Tanggal -->
     <div class="bg-white rounded-2xl border border-border shadow-sm overflow-hidden animate-fade-up-1 card-hover">

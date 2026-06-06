@@ -130,10 +130,10 @@
 </style>
 </head>
 
-@include('kasir.components.navbar')
+
 
 <body class="bg-bg min-h-screen flex flex-col">
-
+@include('kasir.components.navbar')
 <!-- TOPBAR — fixed, tidak ikut scroll -->
 <header class="sticky top-0 z-50 bg-gray-900 shadow-sm h-12 px-4 flex items-center justify-between">
     <div class="w-6"></div>
@@ -163,7 +163,7 @@
 
   <!-- ── Sticky subheader (search + filter) — tepat di bawah topbar ── -->
   <!-- mt-[52px] = tinggi topbar biar konten tidak tertutup -->
-  <div class="sticky top-[52px] z-30 bg-bg px-4 pt-3 pb-3 mt-[52px]">
+  <div class="px-4 pt-5 pb-4 fade-up delay-1">
 
     <h1 class="text-2xl font-bold text-gray-900 mb-3 fade-up delay-1">Riwayat Transaksi</h1>
 
