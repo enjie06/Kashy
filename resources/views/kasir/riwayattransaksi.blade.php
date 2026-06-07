@@ -233,13 +233,28 @@
                         <p class="detail-section-label">Detail Produk</p>
                         
                         @foreach($transaction->details as $detail)
-                        <div class="detail-row">
-                            <span class="item-name">{{ $detail->product_name }} × {{ $detail->qty }}</span>
-                            <span>Rp {{ number_format($detail->subtotal, 0, ',', '.') }}</span>
-                        </div>
-                        @endforeach
-                        
-                        <div class="detail-footer">
+<div class="detail-row">
+    <span class="item-name">{{ $detail->product_name }} × {{ $detail->qty }}</span>
+    <span>Rp {{ number_format($detail->subtotal, 0, ',', '.') }}</span>
+</div>
+@endforeach
+
+<div class="detail-row mt-2 pt-2 border-t border-dashed border-gray-200">
+    <span class="item-name">Subtotal</span>
+    <span>Rp {{ number_format($transaction->total, 0, ',', '.') }}</span>
+</div>
+@if($transaction->diskon > 0)
+<div class="detail-row">
+    <span class="item-name" style="color:#16a34a">Diskon</span>
+    <span style="color:#16a34a">-Rp {{ number_format($transaction->diskon, 0, ',', '.') }}</span>
+</div>
+@endif
+<div class="detail-row font-bold">
+    <span>Total</span>
+    <span>Rp {{ number_format($transaction->grand_total, 0, ',', '.') }}</span>
+</div>
+
+<div class="detail-footer">
                             <div class="metode-tag">
                                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9C8B7E" stroke-width="2">
                                     <rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>

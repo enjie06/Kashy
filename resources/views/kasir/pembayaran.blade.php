@@ -118,14 +118,14 @@
       </div>
 
       @php
-        $discountAmount = $transaction['subtotal'] * (($transaction['discount_percent'] ?? 0) / 100);
-      @endphp
-      <div class="flex justify-between text-sm mb-3">
-        <span class="text-muted">Diskon {{ ($transaction['discount_percent'] ?? 0) > 0 ? '(' . $transaction['discount_percent'] . '%)' : '' }}</span>
-        <span class="text-green-500 font-medium">
-          -Rp {{ number_format($discountAmount, 0, ',', '.') }}
-        </span>
-      </div>
+    $discountAmount = $transaction['discount_amount'] ?? 0;
+@endphp
+<div class="flex justify-between text-sm mb-3">
+    <span class="text-muted">Diskon</span>
+    <span class="text-green-500 font-medium">
+        -Rp {{ number_format($discountAmount, 0, ',', '.') }}
+    </span>
+</div>
 
       <div class="flex justify-between items-center pt-1 mt-1 border-t border-border">
         <span class="text-xs font-semibold tracking-wider text-gray-900 uppercase">Total Akhir</span>

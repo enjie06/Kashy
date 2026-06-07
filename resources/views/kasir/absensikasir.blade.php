@@ -218,7 +218,7 @@
 
 <script>
 const SHIFT_CONFIG = {
-  pagi:  { nama: 'Shift Pagi',  mulai: '09:00', selesai: '17:00', mulaiJam: 9,  selesaiJam: 17 },
+  pagi:  { nama: 'Shift Pagi',  mulai: '09:00', selesai: '15:00', mulaiJam: 9,  selesaiJam: 15 },
   malam: { nama: 'Shift Malam', mulai: '15:00', selesai: '23:00', mulaiJam: 15, selesaiJam: 23 },
 };
 

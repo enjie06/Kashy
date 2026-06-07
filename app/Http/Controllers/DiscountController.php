@@ -4,85 +4,189 @@ namespace App\Http\Controllers;
 
 use App\Models\Discount;
 use App\Models\Product;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class DiscountController extends Controller
 {
     public function index()
     {
-        $discounts = Discount::with('product')->latest()->get();
         $products = Product::all();
-        return view('owner.manajemendiskon', compact('discounts', 'products'));
+        $categories = Category::all();
+        $discounts = Discount::with('categories')->latest()->get();
+        
+        $discountsArray = $discounts->map(function($d) {
+            return [
+                'id'              => $d->id,
+                'nama_promosi'    => $d->nama_promosi ?? '',
+                'semua_produk'    => (bool) $d->semua_produk,
+                'category_ids'    => $d->categories->pluck('id')->toArray(),
+                'category_names'  => $d->categories->pluck('nama_kategori')->toArray(),
+                'tipe_diskon'     => $d->tipe_diskon,
+                'nilai_diskon'    => $d->nilai_diskon,
+                'tanggal_mulai'   => $d->tanggal_mulai ? $d->tanggal_mulai->format('Y-m-d') : '',
+                'tanggal_selesai' => $d->tanggal_selesai ? $d->tanggal_selesai->format('Y-m-d') : '',
+                'gambar'          => $d->gambar,
+                'active'          => $d->tanggal_selesai ? ($d->tanggal_selesai->gte(now()) ? true : false) : true,
+            ];
+        });
+        
+        return view('owner.manajemendiskon', compact('products', 'categories', 'discounts', 'discountsArray'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'tipe_diskon' => 'required|in:persen,fixed',
-            'nilai_diskon' => 'required|numeric|min:1',
-            'tanggal_mulai' => 'required|date',
-            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
-        ]);
+        try {
+            $request->validate([
+                'nama_promosi' => 'nullable|string|max:255',
+                'tipe_diskon' => 'required|in:persen,fixed',
+                'nilai_diskon' => 'required|numeric|min:1',
+                'tanggal_mulai' => 'required|date',
+                'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
+                'semua_produk' => 'required|in:0,1',
+                'gambar' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
+            ]);
 
-        $data = $request->all();
+            // Jika tidak semua produk, wajib pilih minimal 1 kategori
+            if ($request->semua_produk == '0' && empty($request->category_ids)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Pilih minimal 1 kategori atau aktifkan Semua Produk'
+                ], 422);
+            }
 
-        if ($request->hasFile('gambar')) {
-            $path = $request->file('gambar')->store('discounts', 'public');
-            $data['gambar'] = $path;
+            $data = $request->only([
+                'nama_promosi', 'tipe_diskon', 'nilai_diskon',
+                'tanggal_mulai', 'tanggal_selesai', 'semua_produk'
+            ]);
+
+            // Upload gambar
+            if ($request->hasFile('gambar')) {
+                $file = $request->file('gambar');
+                $filename = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+                $file->move(public_path('images/discounts'), $filename);
+                $data['gambar'] = 'images/discounts/' . $filename;
+            }
+
+            DB::beginTransaction();
+            
+            $discount = Discount::create($data);
+            
+            // Attach categories jika tidak semua produk
+            if ($request->semua_produk == '0' && !empty($request->category_ids)) {
+                $discount->categories()->attach($request->category_ids);
+            }
+            
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Diskon berhasil ditambahkan',
+                'discount' => $discount
+            ]);
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Store discount error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
         }
-
-        $discount = Discount::create($data);
-        Product::where('id', $request->product_id)->update(['is_discount' => 1]);
-
-        return redirect()->route('manajemen.diskon')->with('success', 'Diskon berhasil ditambahkan');
     }
 
     public function update(Request $request, $id)
     {
-        $discount = Discount::findOrFail($id);
+        try {
+            $discount = Discount::findOrFail($id);
 
-        $request->validate([
-            'tipe_diskon' => 'required|in:persen,fixed',
-            'nilai_diskon' => 'required|numeric|min:1',
-            'tanggal_mulai' => 'required|date',
-            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
-        ]);
+            $request->validate([
+                'nama_promosi' => 'nullable|string|max:255',
+                'tipe_diskon' => 'required|in:persen,fixed',
+                'nilai_diskon' => 'required|numeric|min:1',
+                'tanggal_mulai' => 'required|date',
+                'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
+                'semua_produk' => 'required|in:0,1',
+                'gambar' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
+            ]);
 
-        $data = $request->all();
-
-        if ($request->hasFile('gambar')) {
-            if ($discount->gambar) {
-                Storage::disk('public')->delete($discount->gambar);
+            if ($request->semua_produk == '0' && empty($request->category_ids)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Pilih minimal 1 kategori atau aktifkan Semua Produk'
+                ], 422);
             }
-            $path = $request->file('gambar')->store('discounts', 'public');
-            $data['gambar'] = $path;
+
+            $data = $request->only([
+                'nama_promosi', 'tipe_diskon', 'nilai_diskon',
+                'tanggal_mulai', 'tanggal_selesai', 'semua_produk'
+            ]);
+
+            if ($request->hasFile('gambar')) {
+                if ($discount->gambar && file_exists(public_path($discount->gambar))) {
+                    unlink(public_path($discount->gambar));
+                }
+                $file = $request->file('gambar');
+                $filename = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+                $file->move(public_path('images/discounts'), $filename);
+                $data['gambar'] = 'images/discounts/' . $filename;
+            }
+
+            DB::beginTransaction();
+            
+            $discount->update($data);
+            
+            // Sync categories
+            if ($request->semua_produk == '0' && !empty($request->category_ids)) {
+                $discount->categories()->sync($request->category_ids);
+            } else {
+                $discount->categories()->detach();
+            }
+            
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Diskon berhasil diupdate',
+                'discount' => $discount
+            ]);
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Update discount error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
         }
-
-        $discount->update($data);
-
-        return redirect()->route('manajemen.diskon')->with('success', 'Diskon berhasil diupdate');
     }
 
     public function destroy($id)
     {
-        $discount = Discount::findOrFail($id);
-        $productId = $discount->product_id;
-        
-        if ($discount->gambar) {
-            Storage::disk('public')->delete($discount->gambar);
-        }
-        
-        $discount->delete();
+        try {
+            $discount = Discount::findOrFail($id);
+            
+            // Hapus relasi many-to-many
+            $discount->categories()->detach();
+            
+            // Hapus file gambar
+            if ($discount->gambar && file_exists(public_path($discount->gambar))) {
+                unlink(public_path($discount->gambar));
+            }
+            
+            $discount->delete();
 
-        $remaining = Discount::where('product_id', $productId)->count();
-        if ($remaining == 0) {
-            Product::where('id', $productId)->update(['is_discount' => 0]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Diskon berhasil dihapus'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
         }
-
-        return redirect()->route('manajemen.diskon')->with('success', 'Diskon berhasil dihapus');
     }
 }

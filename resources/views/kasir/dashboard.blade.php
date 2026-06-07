@@ -363,8 +363,10 @@ function updateShiftBadge(status, shiftData = null) {
       shiftMulaiEl.innerText = shiftData.waktu_buka || '--:--';
     }
     if (shiftBerakhirEl) {
-      shiftBerakhirEl.innerText = shiftData.waktu_tutup || '23:59';
-    }
+    const savedShift = localStorage.getItem('kashy_kasir_selected_shift');
+    const cfg = savedShift ? SHIFT_CONFIG[savedShift] : null;
+    shiftBerakhirEl.innerText = cfg ? cfg.selesai : (shiftData.waktu_tutup || '--:--');
+}
     if (shiftBtnLabel) {
       shiftBtnLabel.innerText = 'Tutup Shift';
     }

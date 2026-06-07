@@ -19,9 +19,9 @@ class ShiftController extends Controller
     ];
 
     const SHIFTS_KASIR = [
-        'pagi'  => ['start' => '05:00', 'end' => '17:00', 'mulai_jam' => 5,  'selesai_jam' => 17],
-        'malam' => ['start' => '16:00', 'end' => '23:00', 'mulai_jam' => 16, 'selesai_jam' => 23],
-    ];
+    'pagi'  => ['start' => '09:00', 'end' => '17:00', 'mulai_jam' => 9,  'selesai_jam' => 17],
+    'malam' => ['start' => '15:00', 'end' => '23:00', 'mulai_jam' => 15, 'selesai_jam' => 23],
+];
 
     // ============================================================
     // KARYAWAN — handleAbsensi
@@ -657,7 +657,7 @@ class ShiftController extends Controller
     {
         $hour = (int) $checkInTime->format('H');
 
-        if ($hour >= 5 && $hour < 16) {
+        if ($hour >= 9 && $hour < 17) {
             $shiftType     = 'pagi';
             $shiftTypeNama = 'Pagi';
         } else {

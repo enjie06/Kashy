@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Member;
+use App\Models\Discount;  // ← TAMBAHKAN INI
 use Illuminate\Http\Request;
 use App\Models\Transaction;
 use App\Models\TransactionDetail;
@@ -12,13 +13,21 @@ use Illuminate\Support\Facades\Auth;
 class KasirTransactionController extends Controller
 {
     public function create()
-    {
-        $products = Product::select('id', 'nama_produk', 'harga', 'gambar', 'stok')->get();
-        $members = Member::select('id', 'nama', 'no_hp')->get();
-
-        return view('kasir.transaksi', compact('products', 'members'));
-    }
-
+{
+$products = Product::select('id', 'nama_produk', 'harga', 'gambar', 'stok', 'category_id')->get();
+    $members = Member::select('id', 'nama', 'no_hp')->get();
+    
+    // Ambil diskon aktif beserta relasi categories
+    $activeDiscounts = Discount::with('categories')  // ← pake 'categories', bukan 'product'
+        ->where('tanggal_mulai', '<=', now())
+        ->where(function($query) {
+            $query->where('tanggal_selesai', '>=', now())
+                  ->orWhereNull('tanggal_selesai');
+        })
+        ->get();
+    
+    return view('kasir.transaksi', compact('products', 'members', 'activeDiscounts'));
+}
     public function storeMember(Request $request)
     {
         $request->validate([
@@ -103,8 +112,7 @@ class KasirTransactionController extends Controller
                 'payment_method' => $request->payment_method,
                 'metode_pembayaran' => $request->payment_method,
                 'total' => $transactionData['subtotal'],
-                'diskon' => 0,
-                'discount_percent' => $transactionData['discount_percent'] ?? 0,
+'diskon' => $transactionData['discount_amount'] ?? 0,                'discount_percent' => $transactionData['discount_percent'] ?? 0,
                 'grand_total' => $transactionData['total'],
                 'bayar' => $bayar,
                 'kembalian' => $kembalian,

@@ -6,10 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Discount extends Model
 {
-    protected $table = 'discounts';
-    
     protected $fillable = [
-        'product_id',
+        'nama_promosi',
+        'semua_produk',
         'tipe_diskon',
         'nilai_diskon',
         'tanggal_mulai',
@@ -20,12 +19,19 @@ class Discount extends Model
     protected $casts = [
         'tanggal_mulai' => 'datetime',
         'tanggal_selesai' => 'datetime',
+        'semua_produk' => 'boolean',
     ];
 
-    // ========== RELASI KE PRODUCT ==========
-    public function product()
-    {
-        return $this->belongsTo(Product::class, 'product_id');
-    }
-    // ======================================
+    // Relasi many-to-many dengan Category
+    public function categories()
+{
+    return $this->belongsToMany(Category::class, 'discount_categories', 'discount_id', 'category_id');
+}
+
+
+    // Di file app/Models/Discount.php
+public function product()
+{
+    return $this->belongsTo(Product::class, 'product_id');
+}
 }
