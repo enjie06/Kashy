@@ -19,9 +19,9 @@ class ShiftController extends Controller
     ];
 
     const SHIFTS_KASIR = [
-    'pagi'  => ['start' => '09:00', 'end' => '17:00', 'mulai_jam' => 9,  'selesai_jam' => 17],
-    'malam' => ['start' => '15:00', 'end' => '23:00', 'mulai_jam' => 15, 'selesai_jam' => 23],
-];
+        'pagi'  => ['start' => '09:00', 'end' => '17:00', 'mulai_jam' => 9,  'selesai_jam' => 17],
+        'malam' => ['start' => '15:00', 'end' => '23:00', 'mulai_jam' => 15, 'selesai_jam' => 23],
+    ];
 
     // ============================================================
     // KARYAWAN — handleAbsensi
@@ -133,7 +133,7 @@ class ShiftController extends Controller
             ], 422);
         }
 
-        $shiftCfg  = self::SHIFTS_KASIR[$shiftType];
+        $shiftCfg   = self::SHIFTS_KASIR[$shiftType];
         $attendance = Attendance::where('user_id', $user->id)
                                 ->whereDate('created_at', $today)
                                 ->first();
@@ -163,15 +163,15 @@ class ShiftController extends Controller
                 : "✅ Shift {$shiftNama} dimulai! Tepat waktu.";
 
             return response()->json([
-                'success'          => true,
-                'action'           => 'masuk',
-                'message'          => $message,
-                'check_in'         => $now->format('H:i'),
-                'shift_type'       => $shiftType,
-                'shift_type_nama'  => $shiftNama,
-                'terlambat'        => $terlambatInfo['terlambat'],
-                'terlambat_menit'  => $terlambatInfo['menit'],
-                'redirect'         => route('kasir.shiftkasir'),
+                'success'         => true,
+                'action'          => 'masuk',
+                'message'         => $message,
+                'check_in'        => $now->format('H:i'),
+                'shift_type'      => $shiftType,
+                'shift_type_nama' => $shiftNama,
+                'terlambat'       => $terlambatInfo['terlambat'],
+                'terlambat_menit' => $terlambatInfo['menit'],
+                'redirect'        => route('kasir.shiftkasir'),
             ]);
         }
 
@@ -200,14 +200,12 @@ class ShiftController extends Controller
 
     // ============================================================
     // KASIR — bukaShift
-    // Validasi: kasir wajib sudah absen masuk hari ini
     // ============================================================
     public function bukaShift(Request $request)
     {
         $user  = Auth::user();
         $today = date('Y-m-d');
 
-        // ── Cek absensi masuk ──
         $attendance = Attendance::where('user_id', $user->id)
                                 ->whereDate('created_at', $today)
                                 ->whereNotNull('check_in')
@@ -215,16 +213,15 @@ class ShiftController extends Controller
 
         if (!$attendance) {
             return response()->json([
-                'success'  => false,
-                'message'  => 'Anda belum melakukan absensi masuk hari ini. Silakan absen terlebih dahulu.',
+                'success'    => false,
+                'message'    => 'Anda belum melakukan absensi masuk hari ini. Silakan absen terlebih dahulu.',
                 'need_absen' => true,
-                'redirect' => route('kasir.absensikasir'),
+                'redirect'   => route('kasir.absensikasir'),
             ], 403);
         }
 
         $saldoAwal = $request->input('saldo_awal', 0);
 
-        // Cek apakah shift kas sudah aktif
         $existingShift = Shift::where('user_id', $user->id)
                               ->whereDate('created_at', $today)
                               ->whereNull('waktu_tutup')
@@ -551,7 +548,6 @@ class ShiftController extends Controller
             }));
         }
 
-        // Stats
         $allAttendances = Attendance::where('user_id', $user->id)
             ->where('created_at', '>=', $joinDate)
             ->get()
@@ -653,7 +649,8 @@ class ShiftController extends Controller
         ];
     }
 
-    private function getShiftFromTimeKasir($checkInTime)
+    // ← diubah dari private ke public supaya bisa dipanggil KasirShiftController
+    public function getShiftFromTimeKasir($checkInTime)
     {
         $hour = (int) $checkInTime->format('H');
 
