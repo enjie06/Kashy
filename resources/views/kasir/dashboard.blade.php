@@ -126,7 +126,7 @@
     </button>
   </div>
 
-  <!-- Shift Saat Ini (status dari backend) -->
+  <!-- Shift Saat Ini -->
   <div class="bg-white rounded-2xl shadow-sm border border-border overflow-hidden mb-6 fade-up delay-3">
     <div class="shimmer-bar h-1 w-full"></div>
     <div class="p-5">
@@ -148,7 +148,7 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-4 mb-4">
+      <div class="grid grid-cols-2 gap-4 mb-3">
         <div>
           <p class="text-[10px] text-muted uppercase tracking-wide">Mulai</p>
           <p class="text-base font-semibold text-gray-900" id="shiftMulai">--:--</p>
@@ -157,6 +157,14 @@
           <p class="text-[10px] text-muted uppercase tracking-wide">Berakhir</p>
           <p class="text-base font-semibold text-gray-900" id="shiftBerakhir">--:--</p>
         </div>
+      </div>
+
+      <!-- LATE WARNING -->
+      <div id="lateWarning" class="hidden mb-3 text-[10px] text-red-600 bg-red-50 p-1.5 rounded-lg flex items-center gap-1.5">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span>⚠️ Terlambat</span>
       </div>
 
       <div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 text-xs text-muted border-t border-border pt-4">
@@ -340,57 +348,31 @@ let isShiftActive = false;
 let currentShiftData = null;
 
 function updateShiftBadge(status, shiftData = null) {
-  const shiftBadge = document.getElementById('shiftBadge');
-  const badgeDot = document.getElementById('badgeDot');
-  const badgeText = document.getElementById('badgeText');
-  const shiftMulaiEl = document.getElementById('shiftMulai');
-  const shiftBerakhirEl = document.getElementById('shiftBerakhir');
-  const shiftBtnLabel = document.getElementById('shiftBtnLabel');
+  const shiftBadge     = document.getElementById('shiftBadge');
+  const badgeDot       = document.getElementById('badgeDot');
+  const badgeText      = document.getElementById('badgeText');
+  const shiftMulaiEl   = document.getElementById('shiftMulai');
+  const shiftBerakhirEl= document.getElementById('shiftBerakhir');
+  const shiftBtnLabel  = document.getElementById('shiftBtnLabel');
 
   if (status === 'active' && shiftData) {
-    // Tampilan AKTIF (HIJAU)
-    if (badgeDot) {
-      badgeDot.className = 'w-2 h-2 rounded-full bg-green-500 pulse-dot';
-    }
-    if (badgeText) {
-      badgeText.innerText = 'Aktif';
-      badgeText.className = 'text-[11px] font-semibold text-green-700';
-    }
-    if (shiftBadge) {
-      shiftBadge.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-green-300 bg-green-100';
-    }
-    if (shiftMulaiEl) {
-      shiftMulaiEl.innerText = shiftData.waktu_buka || '--:--';
-    }
+    if (badgeDot)  badgeDot.className  = 'w-2 h-2 rounded-full bg-green-500 pulse-dot';
+    if (badgeText) { badgeText.innerText = 'Aktif'; badgeText.className = 'text-[11px] font-semibold text-green-700'; }
+    if (shiftBadge) shiftBadge.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-green-300 bg-green-100';
+    if (shiftMulaiEl) shiftMulaiEl.innerText = shiftData.waktu_buka || '--:--';
     if (shiftBerakhirEl) {
-    const savedShift = localStorage.getItem('kashy_kasir_selected_shift');
-    const cfg = savedShift ? SHIFT_CONFIG[savedShift] : null;
-    shiftBerakhirEl.innerText = cfg ? cfg.selesai : (shiftData.waktu_tutup || '--:--');
-}
-    if (shiftBtnLabel) {
-      shiftBtnLabel.innerText = 'Tutup Shift';
+      const savedShift = localStorage.getItem('kashy_kasir_selected_shift');
+      const cfg = savedShift ? SHIFT_CONFIG[savedShift] : null;
+      shiftBerakhirEl.innerText = cfg ? cfg.selesai : (shiftData.waktu_tutup || '--:--');
     }
+    if (shiftBtnLabel) shiftBtnLabel.innerText = 'Tutup Shift';
   } else {
-    // Tampilan TIDAK AKTIF (MERAH)
-    if (badgeDot) {
-      badgeDot.className = 'w-2 h-2 rounded-full bg-red-500';
-    }
-    if (badgeText) {
-      badgeText.innerText = 'Tidak Aktif';
-      badgeText.className = 'text-[11px] font-semibold text-red-700';
-    }
-    if (shiftBadge) {
-      shiftBadge.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-red-300 bg-red-100';
-    }
-    if (shiftMulaiEl) {
-      shiftMulaiEl.innerText = '--:--';
-    }
-    if (shiftBerakhirEl) {
-      shiftBerakhirEl.innerText = '--:--';
-    }
-    if (shiftBtnLabel) {
-      shiftBtnLabel.innerText = 'Pilih Shift';
-    }
+    if (badgeDot)  badgeDot.className  = 'w-2 h-2 rounded-full bg-red-500';
+    if (badgeText) { badgeText.innerText = 'Tidak Aktif'; badgeText.className = 'text-[11px] font-semibold text-red-700'; }
+    if (shiftBadge) shiftBadge.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-red-300 bg-red-100';
+    if (shiftMulaiEl)    shiftMulaiEl.innerText    = '--:--';
+    if (shiftBerakhirEl) shiftBerakhirEl.innerText = '--:--';
+    if (shiftBtnLabel)   shiftBtnLabel.innerText   = 'Pilih Shift';
   }
 }
 
@@ -423,21 +405,14 @@ function openShiftModal() {
   updateModalTime();
   updateShiftOptionState();
   const modal = document.getElementById('shiftModal');
-  if (modal) {
-    modal.classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
+  if (modal) { modal.classList.add('open'); document.body.style.overflow = 'hidden'; }
 }
 
 function closeShiftModal() {
   const modal = document.getElementById('shiftModal');
-  if (modal) {
-    modal.classList.remove('open');
-    document.body.style.overflow = '';
-  }
+  if (modal) { modal.classList.remove('open'); document.body.style.overflow = ''; }
 }
 
-// Event listener untuk modal (hanya sekali)
 const shiftModalElement = document.getElementById('shiftModal');
 if (shiftModalElement) {
   shiftModalElement.addEventListener('click', function(e) {
@@ -453,18 +428,17 @@ function updateShiftOptionState() {
   ['pagi', 'malam'].forEach(type => {
     const cfg   = SHIFT_CONFIG[type];
     const avail = (nowMins >= cfg.mulaiJam * 60 && nowMins <= cfg.endHour * 60);
-    const opt   = document.getElementById('opt' + type.charAt(0).toUpperCase() + type.slice(1));
-    const arrow = document.getElementById('arrow' + type.charAt(0).toUpperCase() + type.slice(1));
-    const badge = document.getElementById('unavail' + type.charAt(0).toUpperCase() + type.slice(1));
+    const key   = type.charAt(0).toUpperCase() + type.slice(1);
+    const opt   = document.getElementById('opt'    + key);
+    const arrow = document.getElementById('arrow'  + key);
+    const badge = document.getElementById('unavail'+ key);
     if (opt) {
       if (avail) {
-        opt.classList.remove('disabled');
-        opt.style.pointerEvents = '';
+        opt.classList.remove('disabled'); opt.style.pointerEvents = '';
         if (arrow) arrow.classList.remove('hidden');
         if (badge) badge.classList.add('hidden');
       } else {
-        opt.classList.add('disabled');
-        opt.style.pointerEvents = 'none';
+        opt.classList.add('disabled'); opt.style.pointerEvents = 'none';
         if (arrow) arrow.classList.add('hidden');
         if (badge) badge.classList.remove('hidden');
       }
@@ -478,13 +452,10 @@ function updateModalTime() {
   const m = String(now.getMinutes()).padStart(2,'0');
   const currentTimeEl = document.getElementById('modalCurrentTime');
   if (currentTimeEl) currentTimeEl.textContent = h + ':' + m + ' WIB';
-  
   const days   = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
   const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
   const dateLabelEl = document.getElementById('modalDateLabel');
-  if (dateLabelEl) {
-    dateLabelEl.textContent = days[now.getDay()] + ', ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
-  }
+  if (dateLabelEl) dateLabelEl.textContent = days[now.getDay()] + ', ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
 }
 
 function pilihShift(type) {
@@ -519,10 +490,22 @@ async function loadShiftStatus() {
     const response = await fetch('{{ route("kasir.shift.status") }}');
     const data     = await response.json();
 
+    const lateWarning = document.getElementById('lateWarning');
+
     if (data.shift_active && data.shift) {
-      isShiftActive = true;
+      isShiftActive    = true;
       currentShiftData = data.shift;
       updateShiftBadge('active', data.shift);
+
+      // Late warning
+      if (lateWarning) {
+        if (data.terlambat === true) {
+          lateWarning.classList.remove('hidden');
+          showToast('⚠️ Telat Absensi');
+        } else {
+          lateWarning.classList.add('hidden');
+        }
+      }
 
       const totalPenjualan = Number(data.shift.total_penjualan) || 0;
       const penjualanTunai = Number(data.shift.penjualan_tunai) || 0;
@@ -548,28 +531,30 @@ async function loadShiftStatus() {
       await loadTransactionStats();
 
     } else {
-      isShiftActive = false;
+      isShiftActive    = false;
       currentShiftData = null;
       updateShiftBadge('inactive');
 
-      // Reset statistik
-      const penjualanValueEl = document.getElementById('penjualanValue');
-      const tunaiEl = document.getElementById('tunaiNominal');
-      const qrisEl = document.getElementById('qrisNominal');
-      const debitEl = document.getElementById('debitNominal');
-      const transaksiCountEl = document.getElementById('transaksiCount');
-      const itemCountEl = document.getElementById('itemCount');
-      const progressEl = document.getElementById('penjualanProgress');
-      const percentEl = document.getElementById('penjualanPercent');
+      // Sembunyikan late warning kalau shift tidak aktif
+      if (lateWarning) lateWarning.classList.add('hidden');
+
+      const penjualanValueEl  = document.getElementById('penjualanValue');
+      const tunaiEl           = document.getElementById('tunaiNominal');
+      const qrisEl            = document.getElementById('qrisNominal');
+      const debitEl           = document.getElementById('debitNominal');
+      const transaksiCountEl  = document.getElementById('transaksiCount');
+      const itemCountEl       = document.getElementById('itemCount');
+      const progressEl        = document.getElementById('penjualanProgress');
+      const percentEl         = document.getElementById('penjualanPercent');
 
       if (penjualanValueEl) penjualanValueEl.innerText = 'Rp 0';
-      if (tunaiEl) tunaiEl.innerText = '0';
-      if (qrisEl) qrisEl.innerText = '0';
-      if (debitEl) debitEl.innerText = '0';
+      if (tunaiEl)  tunaiEl.innerText  = '0';
+      if (qrisEl)   qrisEl.innerText   = '0';
+      if (debitEl)  debitEl.innerText  = '0';
       if (transaksiCountEl) transaksiCountEl.innerText = '0';
-      if (itemCountEl) itemCountEl.innerText = '0';
+      if (itemCountEl)      itemCountEl.innerText      = '0';
       if (progressEl) progressEl.style.width = '0%';
-      if (percentEl) percentEl.innerText = '0% dari target';
+      if (percentEl)  percentEl.innerText    = '0% dari target';
     }
   } catch (error) {
     console.error('Gagal load shift status:', error);
@@ -638,7 +623,6 @@ function goRiwayat() {
   window.location.href = '{{ route("kasir.riwayattransaksi") }}';
 }
 
-// Tombol "Pilih Shift" → buka modal | "Tutup Shift" → ke shiftkasir
 function goShift() {
   if (isShiftActive) {
     window.location.href = '{{ route("kasir.shiftkasir") }}';
@@ -661,21 +645,14 @@ function showToast(msg) {
   }, 2600);
 }
 
-// Inisialisasi
 document.addEventListener('DOMContentLoaded', function() {
   loadShiftStatus();
   loadRecentTransactions();
-  
-  // Update shift option state setiap menit
   setInterval(updateShiftOptionState, 60000);
-  
-  // Refresh data setiap 30 detik
   setInterval(() => {
     loadShiftStatus();
     loadRecentTransactions();
   }, 30000);
-  
-  // Listen untuk storage event (ketika shift diubah di tab lain)
   window.addEventListener('storage', (event) => {
     if (event.key === 'kasir_shift_updated') {
       loadShiftStatus();
