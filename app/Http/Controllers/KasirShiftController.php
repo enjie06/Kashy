@@ -20,10 +20,28 @@ class KasirShiftController extends Controller
             ->where('status', 'open')
             ->first();
 
+        // ── Cek keterlambatan absensi (selalu dihitung) ──
+        $terlambat      = false;
+        $terlambatMenit = 0;
+
+        $attendance = Attendance::where('user_id', $user->id)
+            ->whereDate('created_at', today())
+            ->whereNotNull('check_in')
+            ->first();
+
+        if ($attendance) {
+            $shiftController = new ShiftController();
+            $shiftInfo       = $shiftController->getShiftFromTimeKasir($attendance->check_in);
+            $terlambat       = $shiftInfo['terlambat'];
+            $terlambatMenit  = $shiftInfo['terlambat_menit'];
+        }
+
         if (!$shiftAktif) {
             return response()->json([
-                'shift_active' => false,
-                'shift' => null
+                'shift_active'    => false,
+                'shift'           => null,
+                'terlambat'       => $terlambat,
+                'terlambat_menit' => $terlambatMenit,
             ]);
         }
 
@@ -46,8 +64,10 @@ class KasirShiftController extends Controller
             ->sum('grand_total');
 
         return response()->json([
-            'shift_active' => true,
-            'shift' => [
+            'shift_active'    => true,
+            'terlambat'       => $terlambat,
+            'terlambat_menit' => $terlambatMenit,
+            'shift'           => [
                 'id'              => $shiftAktif->id,
                 'saldo_awal'      => $shiftAktif->saldo_awal,
                 'saldo_akhir'     => $shiftAktif->saldo_akhir,
@@ -57,7 +77,7 @@ class KasirShiftController extends Controller
                 'penjualan_debit' => $penjualanDebit,
                 'waktu_buka'      => $shiftAktif->waktu_buka ? date('H:i', strtotime($shiftAktif->waktu_buka)) : '-',
                 'waktu_buka_full' => $shiftAktif->waktu_buka,
-            ]
+            ],
         ]);
     }
 
@@ -77,9 +97,9 @@ class KasirShiftController extends Controller
 
             if (!$sudahAbsen) {
                 return response()->json([
-                    'success' => false,
+                    'success'    => false,
                     'need_absen' => true,
-                    'message' => 'Anda belum absen masuk hari ini. Silakan absen terlebih dahulu sebelum membuka shift.'
+                    'message'    => 'Anda belum absen masuk hari ini. Silakan absen terlebih dahulu sebelum membuka shift.'
                 ], 400);
             }
 
@@ -106,19 +126,19 @@ class KasirShiftController extends Controller
             }
 
             $shift = Shift::create([
-                'kasir_id' => $user->id,
-                'saldo_awal' => $request->saldo_awal,
-                'saldo_akhir' => null,
+                'kasir_id'        => $user->id,
+                'saldo_awal'      => $request->saldo_awal,
+                'saldo_akhir'     => null,
                 'total_penjualan' => 0,
-                'status' => 'open',
-                'waktu_buka' => now(),
+                'status'          => 'open',
+                'waktu_buka'      => now(),
             ]);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Shift berhasil dibuka',
-                'shift' => [
-                    'id' => $shift->id,
+                'shift'   => [
+                    'id'         => $shift->id,
                     'saldo_awal' => $shift->saldo_awal,
                     'waktu_buka' => date('H:i', strtotime($shift->waktu_buka)),
                 ],
@@ -168,24 +188,24 @@ class KasirShiftController extends Controller
                 ->sum('grand_total');
 
             $ekspektasiTunai = $shift->saldo_awal + $penjualanTunai;
-            $selisih = $request->uang_tunai_aktual - $ekspektasiTunai;
+            $selisih         = $request->uang_tunai_aktual - $ekspektasiTunai;
 
             $shift->update([
-                'saldo_akhir' => $request->uang_tunai_aktual,
+                'saldo_akhir'     => $request->uang_tunai_aktual,
                 'total_penjualan' => $totalPenjualan,
-                'status' => 'closed',
-                'waktu_tutup' => now(),
+                'status'          => 'closed',
+                'waktu_tutup'     => now(),
             ]);
 
             return response()->json([
-                'success' => true,
-                'message' => 'Shift berhasil ditutup. Silakan lakukan absen pulang.',
-                'selisih' => $selisih,
-                'ekspektasi_tunai' => $ekspektasiTunai,
-                'penjualan_tunai' => $penjualanTunai,
+                'success'             => true,
+                'message'             => 'Shift berhasil ditutup. Silakan lakukan absen pulang.',
+                'selisih'             => $selisih,
+                'ekspektasi_tunai'    => $ekspektasiTunai,
+                'penjualan_tunai'     => $penjualanTunai,
                 'penjualan_non_tunai' => $penjualanNonTunai,
-                'total_penjualan' => $totalPenjualan,
-                'redirect' => route('kasir.absensikasir'),
+                'total_penjualan'     => $totalPenjualan,
+                'redirect'            => route('kasir.absensikasir'),
             ]);
 
         } catch (\Exception $e) {
