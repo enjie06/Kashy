@@ -433,6 +433,7 @@
     })
     .then(res => res.json())
     .then(data => {
+       console.log('Response finalizePayment:', data);
       if (data.success) {
         hideModal('confirmModal');
         showModal('successModal');

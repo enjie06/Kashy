@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Member;
-use App\Models\Discount;  // ← TAMBAHKAN INI
+use App\Models\Discount;
 use Illuminate\Http\Request;
 use App\Models\Transaction;
 use App\Models\TransactionDetail;
@@ -13,21 +13,21 @@ use Illuminate\Support\Facades\Auth;
 class KasirTransactionController extends Controller
 {
     public function create()
-{
-$products = Product::select('id', 'nama_produk', 'harga', 'gambar', 'stok', 'category_id')->get();
-    $members = Member::select('id', 'nama', 'no_hp')->get();
-    
-    // Ambil diskon aktif beserta relasi categories
-    $activeDiscounts = Discount::with('categories')  // ← pake 'categories', bukan 'product'
-        ->where('tanggal_mulai', '<=', now())
-        ->where(function($query) {
-            $query->where('tanggal_selesai', '>=', now())
-                  ->orWhereNull('tanggal_selesai');
-        })
-        ->get();
-    
-    return view('kasir.transaksi', compact('products', 'members', 'activeDiscounts'));
-}
+    {
+        $products = Product::select('id', 'nama_produk', 'harga', 'gambar', 'stok', 'category_id')->get();
+        $members = Member::select('id', 'nama', 'no_hp')->get();
+
+        $activeDiscounts = Discount::with('categories')
+            ->where('tanggal_mulai', '<=', now())
+            ->where(function ($query) {
+                $query->where('tanggal_selesai', '>=', now())
+                    ->orWhereNull('tanggal_selesai');
+            })
+            ->get();
+
+        return view('kasir.transaksi', compact('products', 'members', 'activeDiscounts'));
+    }
+
     public function storeMember(Request $request)
     {
         $request->validate([
@@ -82,16 +82,12 @@ $products = Product::select('id', 'nama_produk', 'harga', 'gambar', 'stok', 'cat
 
     public function finalizePayment(Request $request)
     {
-        
-    
-        // LOG 1: Cek request
         \Log::info('=== FINALIZE PAYMENT ===');
         \Log::info('Request data:', $request->all());
-        
+
         $transactionData = session('kasir_transaction');
 
-        // LOG 2: Cek session
-        \Log::info('Session data:', $transactionData ?? ['SESSION KOSONG']);    
+        \Log::info('Session data:', $transactionData ?? ['SESSION KOSONG']);
 
         if (!$transactionData) {
             return response()->json([
@@ -104,7 +100,28 @@ $products = Product::select('id', 'nama_produk', 'harga', 'gambar', 'stok', 'cat
         $bayar = $request->bayar ?? $transactionData['total'];
         $kembalian = $request->kembalian ?? 0;
 
+        foreach ($transactionData['cart'] as $item) {
+            $product = Product::find($item['id']);
+
+            if (!$product) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Produk '{$item['name']}' tidak ditemukan."
+                ]);
+            }
+
+            if ($product->stok < $item['qty']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Stok {$item['name']} tidak cukup. Stok tersisa: {$product->stok}"
+                ]);
+            }
+        }
+
         try {
+            $grandTotal = $transactionData['total'];
+            $loyaltyPoint = floor($grandTotal / 10000);
+
             $transaction = Transaction::create([
                 'invoice_number' => $invoice,
                 'kasir_id' => Auth::id(),
@@ -112,9 +129,11 @@ $products = Product::select('id', 'nama_produk', 'harga', 'gambar', 'stok', 'cat
                 'payment_method' => $request->payment_method,
                 'metode_pembayaran' => $request->payment_method,
                 'total' => $transactionData['subtotal'],
-'diskon' => $transactionData['discount_amount'] ?? 0,                'discount_percent' => $transactionData['discount_percent'] ?? 0,
-                'grand_total' => $transactionData['total'],
+                'diskon' => $transactionData['discount_amount'] ?? 0,
+                'discount_percent' => $transactionData['discount_percent'] ?? 0,
+                'grand_total' => $grandTotal,
                 'bayar' => $bayar,
+                'loyalty_point' => $loyaltyPoint,
                 'kembalian' => $kembalian,
             ]);
 
@@ -129,9 +148,14 @@ $products = Product::select('id', 'nama_produk', 'harga', 'gambar', 'stok', 'cat
                 ]);
 
                 $product = Product::find($item['id']);
+
                 if ($product) {
                     $product->stok -= $item['qty'];
-                    if ($product->stok < 0) $product->stok = 0;
+
+                    if ($product->stok < 0) {
+                        $product->stok = 0;
+                    }
+
                     $product->save();
                 }
             }
@@ -142,9 +166,8 @@ $products = Product::select('id', 'nama_produk', 'harga', 'gambar', 'stok', 'cat
                 'success' => true,
                 'invoice' => $invoice
             ]);
-            
+
         } catch (\Exception $e) {
-            // LOG 4: Error detail
             \Log::error('Payment Error: ' . $e->getMessage());
             \Log::error('Stack trace: ' . $e->getTraceAsString());
 

@@ -228,7 +228,7 @@
       <input type="hidden" id="methodField" name="_method" value="POST">
       
       <!-- UPLOAD GAMBAR -->
-      <div class="mb-4">
+      <!-- <div class="mb-4">
         <label class="form-label">Gambar Kategori <span class="normal-case font-normal">(opsional)</span></label>
         <div class="img-dropzone" id="modalImgDropzone" onclick="document.getElementById('modalImgInput').click()">
           <input type="file" id="modalImgInput" name="gambar" accept="image/*" class="hidden" onchange="previewModalImage(this)"/>
@@ -240,7 +240,7 @@
           <p class="text-sm font-semibold text-kashy-muted">Pilih atau seret gambar</p>
           <p class="text-xs text-kashy-muted mt-1">JPG, PNG — maks 5MB</p>
         </div>
-      </div>
+      </div> -->
       
       <!-- NAMA KATEGORI -->
       <div class="mb-4">

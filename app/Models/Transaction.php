@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Transaction extends Model
 {
     protected $table = 'transactions';
-    
+
     protected $fillable = [
         'invoice_number',
         'kasir_id',
@@ -18,25 +18,27 @@ class Transaction extends Model
         'diskon',
         'discount_percent',
         'grand_total',
+        'loyalty_point',
         'bayar',
         'kembalian',
         'metode_pembayaran'
     ];
-    
+
     protected $casts = [
         'total' => 'integer',
         'diskon' => 'integer',
         'discount_percent' => 'integer',
         'grand_total' => 'integer',
+        'loyalty_point' => 'integer',
         'bayar' => 'integer',
         'kembalian' => 'integer',
     ];
-    
+
     public function kasir(): BelongsTo
     {
         return $this->belongsTo(User::class, 'kasir_id');
     }
-    
+
     public function details()
     {
         return $this->hasMany(TransactionDetail::class, 'transaction_id');
