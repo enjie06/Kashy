@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -215,6 +216,9 @@
                         <div class="flex-1 min-w-0">
                             <p class="trx-id">{{ $transaction->invoice_number }}</p>
                             <p class="trx-name">{{ $transaction->customer_name ?? 'Guest' }}</p>
+                            <p class="text-xs font-semibold text-[#C8966C] mt-1">
+                                ⭐ Point: {{ $transaction->loyalty_point ?? 0 }} point
+                            </p>
                             <p class="trx-time">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#BFB4AC" stroke-width="2">
                                     <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
@@ -252,6 +256,12 @@
 <div class="detail-row font-bold">
     <span>Total</span>
     <span>Rp {{ number_format($transaction->grand_total, 0, ',', '.') }}</span>
+</div>
+<div class="detail-row">
+    <span class="item-name">Point Didapat</span>
+    <span style="color:#C8966C; font-weight:700;">
+        +{{ $transaction->loyalty_point ?? 0 }} point
+    </span>
 </div>
 
 <div class="detail-footer">

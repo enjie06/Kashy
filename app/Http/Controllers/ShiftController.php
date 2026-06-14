@@ -14,13 +14,13 @@ class ShiftController extends Controller
     // KONFIGURASI SHIFT
     // ============================================================
     const SHIFTS = [
-        'pagi'  => ['start' => '09:00', 'end' => '17:00', 'mulai_jam' => 9,  'selesai_jam' => 17],
-        'malam' => ['start' => '15:00', 'end' => '23:00', 'mulai_jam' => 15, 'selesai_jam' => 23],
+        'pagi'  => ['start' => '08:30', 'end' => '17:00', 'jam_kerja' => '09:00', 'mulai_jam' => 8,  'mulai_menit' => 30, 'selesai_jam' => 17],
+        'malam' => ['start' => '14:30', 'end' => '23:00', 'jam_kerja' => '15:00', 'mulai_jam' => 14, 'mulai_menit' => 30, 'selesai_jam' => 23],
     ];
 
     const SHIFTS_KASIR = [
-        'pagi'  => ['start' => '09:00', 'end' => '17:00', 'mulai_jam' => 9,  'selesai_jam' => 17],
-        'malam' => ['start' => '15:00', 'end' => '23:00', 'mulai_jam' => 15, 'selesai_jam' => 23],
+        'pagi'  => ['start' => '08:30', 'end' => '17:00', 'jam_kerja' => '09:00', 'mulai_jam' => 8,  'mulai_menit' => 30, 'selesai_jam' => 17],
+        'malam' => ['start' => '14:30', 'end' => '23:00', 'jam_kerja' => '15:00', 'mulai_jam' => 14, 'mulai_menit' => 30, 'selesai_jam' => 23],
     ];
 
     // ============================================================
@@ -46,8 +46,11 @@ class ShiftController extends Controller
 
         $shiftCfg = self::SHIFTS[$shiftType];
 
-        $nowHour = (int) $now->format('H');
-        if ($nowHour < $shiftCfg['mulai_jam'] || $nowHour >= $shiftCfg['selesai_jam']) {
+        $nowMinutes    = (int) $now->format('H') * 60 + (int) $now->format('i');
+        $mulaiMinutes  = $shiftCfg['mulai_jam'] * 60 + ($shiftCfg['mulai_menit'] ?? 0);
+        $selesaiMinutes = $shiftCfg['selesai_jam'] * 60;
+
+        if ($nowMinutes < $mulaiMinutes || $nowMinutes >= $selesaiMinutes) {
             return response()->json([
                 'success' => false,
                 'message' => "Absensi hanya bisa dilakukan pada jam {$shiftCfg['start']} – {$shiftCfg['end']}."
@@ -59,7 +62,7 @@ class ShiftController extends Controller
                                 ->first();
 
         if (!$attendance || !$attendance->check_in) {
-            $terlambatInfo = $this->hitungTerlambat($now, $shiftCfg['start']);
+            $terlambatInfo = $this->hitungTerlambat($now, $shiftCfg['jam_kerja']);
 
             if (!$attendance) {
                 $attendance = Attendance::create([
@@ -140,7 +143,7 @@ class ShiftController extends Controller
 
         // ── ABSEN MASUK ──
         if (!$attendance || !$attendance->check_in) {
-            $terlambatInfo = $this->hitungTerlambat($now, $shiftCfg['start']);
+            $terlambatInfo = $this->hitungTerlambat($now, $shiftCfg['jam_kerja']);
 
             if (!$attendance) {
                 $attendance = Attendance::create([
@@ -635,7 +638,7 @@ class ShiftController extends Controller
 
         $cfg            = self::SHIFTS[$shiftType];
         $checkInHourMin = $checkInTime->format('H:i:s');
-        $shiftStart     = $cfg['start'] . ':00';
+        $shiftStart     = $cfg['jam_kerja'] . ':00';
         $terlambatMenit = (strtotime($checkInHourMin) - strtotime($shiftStart)) / 60;
         $terlambat      = $terlambatMenit > 15;
 
@@ -654,7 +657,7 @@ class ShiftController extends Controller
     {
         $hour = (int) $checkInTime->format('H');
 
-        if ($hour >= 9 && $hour < 17) {
+        if ($hour >= 8 && $hour < 14) {
             $shiftType     = 'pagi';
             $shiftTypeNama = 'Pagi';
         } else {
@@ -664,7 +667,7 @@ class ShiftController extends Controller
 
         $cfg            = self::SHIFTS_KASIR[$shiftType];
         $checkInHourMin = $checkInTime->format('H:i:s');
-        $shiftStart     = $cfg['start'] . ':00';
+        $shiftStart     = $cfg['jam_kerja'] . ':00';
         $terlambatMenit = (strtotime($checkInHourMin) - strtotime($shiftStart)) / 60;
         $terlambat      = $terlambatMenit > 15;
 

@@ -267,18 +267,13 @@
     return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
   }
 
-  // ── FIX UTAMA: selalu pakai Number() untuk compare category_id ──
   function isDiscountRelevant(discount) {
     if (discount.semua_produk) return true;
     if (cart.length === 0) return false;
-    console.log('cart category_ids:', cart.map(i => i.category_id));
-    console.log('discount category_ids:', discount.category_ids);
     const result = cart.some(item =>
       discount.category_ids.map(Number).includes(Number(item.category_id))
     );
-    console.log('relevant:', result);
     return result;
-
   }
 
   // ── Member ──
@@ -400,6 +395,10 @@
     }
     let html = '';
     cart.forEach((item, index) => {
+      const product = productsDatabase.find(p => p.id === item.id);
+      const stokSisa = product ? product.stok : 0;
+      const maxReached = item.qty >= stokSisa;
+
       html += `
         <div class="flex items-start gap-3">
           <button onclick="removeCartItem(${index})" class="mt-2 text-gray-400 hover:text-red-500 transition" title="Hapus produk">
@@ -407,12 +406,13 @@
           </button>
           <img src="${item.img}" alt="${item.name}" class="w-16 h-16 rounded-xl object-cover border border-gray-100">
           <div class="flex-1">
-            <h4 class="font-medium text-sm text-gray-900 mb-2">${escapeHtml(item.name)}</h4>
+            <h4 class="font-medium text-sm text-gray-900 mb-1">${escapeHtml(item.name)}</h4>
+            ${maxReached ? `<p class="text-[10px] text-red-500 font-medium mb-1">⚠️ Maks stok: ${stokSisa}</p>` : ''}
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-3">
                 <button onclick="changeQty(${index}, -1)" class="w-7 h-7 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold transition">-</button>
                 <span class="w-8 text-center font-semibold text-sm">${item.qty}</span>
-                <button onclick="changeQty(${index}, 1)" class="w-7 h-7 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold transition">+</button>
+                <button onclick="changeQty(${index}, 1)" class="w-7 h-7 flex items-center justify-center rounded-lg ${maxReached ? 'bg-gray-50 text-gray-300 cursor-not-allowed' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'} font-bold transition">+</button>
               </div>
               <span class="font-bold text-sm text-gray-900">${formatRupiah(item.price * item.qty)}</span>
             </div>
@@ -433,14 +433,25 @@
     calculateTotal();
   }
 
+  // ── REVISI: changeQty dengan validasi stok ──
   function changeQty(index, delta) {
     if (cart[index]) {
       let newQty = cart[index].qty + delta;
       if (newQty < 1) newQty = 1;
+
+      if (delta > 0) {
+        const product = productsDatabase.find(p => p.id === cart[index].id);
+        if (product && newQty > product.stok) {
+          showToast(`⚠️ Stok ${cart[index].name} tidak cukup! Sisa: ${product.stok}`, true);
+          return;
+        }
+      }
+
       cart[index].qty = newQty;
       renderCart();
     }
   }
+
   function removeCartItem(index) {
     cart.splice(index, 1);
     renderCart();
@@ -463,7 +474,6 @@
           discountLabel  = `(Rp ${parseInt(disc.nilai_diskon).toLocaleString('id-ID')}/item)`;
         }
       } else {
-        // ── FIX: pakai Number() saat compare ──
         cart.forEach(item => {
           if (disc.category_ids.map(Number).includes(Number(item.category_id))) {
             if (disc.tipe_diskon === 'persen') {
@@ -492,8 +502,22 @@
     }
   }
 
+  // ── REVISI: addProductToCart dengan validasi stok ──
   function addProductToCart(product) {
+    // Cek stok habis
+    if (product.stok === 0) {
+      showToast(`⚠️ Stok ${product.name} habis!`, true);
+      return;
+    }
+
     const existing = cart.find(item => item.id === product.id);
+
+    // Cek stok tidak cukup untuk tambah lagi
+    if (existing && existing.qty >= product.stok) {
+      showToast(`⚠️ Stok ${product.name} tidak cukup! Sisa: ${product.stok}`, true);
+      return;
+    }
+
     if (existing) existing.qty += 1;
     else cart.push({ ...product, qty: 1 });
     renderCart();
@@ -509,15 +533,20 @@
     if (!filtered.length) { container.innerHTML = `<div class="text-center text-gray-400 py-4 text-sm">Produk Tidak Ditemukan</div>`; return; }
     let html = '';
     filtered.forEach(prod => {
-      html += `<div class="product-item flex justify-between items-center p-3 border border-gray-100 rounded-xl hover:bg-terra/5">
+      const stokHabis = prod.stok === 0;
+      html += `<div class="product-item flex justify-between items-center p-3 border border-gray-100 rounded-xl ${stokHabis ? 'opacity-50' : 'hover:bg-terra/5'}">
         <div class="flex items-center gap-3">
           <img src="${prod.img}" class="w-10 h-10 rounded-lg object-cover">
           <div>
             <p class="font-semibold text-gray-900">${escapeHtml(prod.name)}</p>
             <p class="text-xs text-gray-500">${formatRupiah(prod.price)}</p>
+            <p class="text-[10px] ${stokHabis ? 'text-red-500 font-semibold' : 'text-gray-400'}">Stok: ${prod.stok}${stokHabis ? ' (Habis)' : ''}</p>
           </div>
         </div>
-        <button onclick="addProductFromModal(${prod.id})" class="px-3 py-1 bg-terra text-white text-sm rounded-lg">Tambah</button>
+        ${stokHabis
+          ? `<span class="px-3 py-1 bg-gray-100 text-gray-400 text-sm rounded-lg font-medium">Habis</span>`
+          : `<button onclick="addProductFromModal(${prod.id})" class="px-3 py-1 bg-terra text-white text-sm rounded-lg">Tambah</button>`
+        }
       </div>`;
     });
     container.innerHTML = html;
@@ -583,7 +612,6 @@
       } else {
         catTags = (d.category_names || []).map((name, i) => {
           const catId  = d.category_ids[i];
-          // ── FIX: pakai Number() saat compare ──
           const inCart = cart.some(item => Number(item.category_id) === Number(catId));
           return `<span class="prod-tag ${inCart ? 'aktif-untuk' : 'tidak-relevan'}">${escapeHtml(name)}</span>`;
         }).join('');
@@ -681,7 +709,6 @@
           ? subtotal * (disc.nilai_diskon / 100)
           : disc.nilai_diskon * cart.reduce((s, i) => s + i.qty, 0);
       } else {
-        // ── FIX: pakai Number() saat compare ──
         cart.forEach(item => {
           if (disc.category_ids.map(Number).includes(Number(item.category_id))) {
             discountAmount += disc.tipe_diskon === 'persen'
