@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\ProductActivityLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
@@ -66,7 +68,6 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        
         $request->validate([
             'category_id' => 'required|exists:categories,id',
             'nama_produk'  => 'required|string|max:255',
@@ -81,19 +82,24 @@ class ProductController extends Controller
             'is_discount'  => 'nullable',
         ]);
 
-        // Kecualikan field gambar, _token, _method dari data agar tidak konflik
         $data = $request->except(['gambar', '_token', '_method']);
-
-        // Pakai input() bukan has() karena field selalu ada di FormData
         $data['is_discount'] = $request->input('is_discount') == '1' ? 1 : 0;
 
-        // Upload gambar jika ada
         if ($request->hasFile('gambar')) {
             $path = $request->file('gambar')->store('products', 'public');
             $data['gambar'] = $path;
         }
 
         $product = Product::create($data);
+
+        // ===== CATAT LOG =====
+        ProductActivityLog::create([
+            'user_id'     => Auth::id(),
+            'product_id'  => $product->id,
+            'aksi'        => 'Tambah Produk',
+            'nama_produk' => $product->nama_produk,
+            'stok'        => $product->stok,
+        ]);
 
         return response()->json([
             'success' => true,
@@ -127,13 +133,9 @@ class ProductController extends Controller
             'is_discount'  => 'nullable',
         ]);
 
-        // Kecualikan field gambar, _token, _method dari data agar tidak konflik
         $data = $request->except(['gambar', '_token', '_method']);
-
-        // Pakai input() bukan has() karena field selalu ada di FormData
         $data['is_discount'] = $request->input('is_discount') == '1' ? 1 : 0;
 
-        // Upload gambar baru jika ada, hapus gambar lama
         if ($request->hasFile('gambar')) {
             if ($product->gambar) {
                 Storage::disk('public')->delete($product->gambar);
@@ -143,6 +145,15 @@ class ProductController extends Controller
         }
 
         $product->update($data);
+
+        // ===== CATAT LOG =====
+        ProductActivityLog::create([
+            'user_id'     => Auth::id(),
+            'product_id'  => $product->id,
+            'aksi'        => 'Edit Produk',
+            'nama_produk' => $product->nama_produk,
+            'stok'        => $product->stok,
+        ]);
 
         return response()->json([
             'success' => true,
@@ -159,11 +170,41 @@ class ProductController extends Controller
             Storage::disk('public')->delete($product->gambar);
         }
 
+        // ===== CATAT LOG SEBELUM DIHAPUS =====
+        ProductActivityLog::create([
+            'user_id'     => Auth::id(),
+            'product_id'  => null, // produk akan dihapus
+            'aksi'        => 'Hapus Produk',
+            'nama_produk' => $product->nama_produk,
+            'stok'        => $product->stok,
+        ]);
+
         $product->delete();
 
         return response()->json([
             'success' => true,
             'message' => 'Produk berhasil dihapus'
         ]);
+    }
+
+    // ========== API LOG AKTIVITAS PRODUK ==========
+    public function activityLogs()
+    {
+        $logs = ProductActivityLog::with('user')
+            ->latest()
+            ->take(20)
+            ->get()
+            ->map(function ($log) {
+                return [
+                    'aksi'        => $log->aksi,
+                    'nama_produk' => $log->nama_produk,
+                    'stok'        => $log->stok,
+                    'oleh'        => $log->user?->name ?? 'Owner',
+                    'waktu'       => $log->created_at->format('H:i'),
+                    'tanggal'     => $log->created_at->format('d M Y'),
+                ];
+            });
+
+        return response()->json($logs);
     }
 }
