@@ -77,7 +77,8 @@
     }
     .form-input:focus { border-color:#C49A6C; }
     .form-select {
-      appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238A7968' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      appearance:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238A7968' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
       background-repeat:no-repeat; background-position:right 12px center;
       padding-right:36px;
     }
@@ -104,23 +105,18 @@
       font-size:10px; font-weight:600;
       background:#F5F0EB; color:#8A7968; border:1px solid #E0D8CE;
     }
-    .line-clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
-    .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .line-clamp-1 { display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; }
+    .line-clamp-2 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
 
     .badge-produk {
-      position: absolute; top: 8px; right: 8px;
-      padding: 2px 8px; border-radius: 20px;
-      font-size: 9px; font-weight: bold;
-      background: #1a1a1a; color: white;
+      position:absolute; top:8px; right:8px;
+      padding:2px 8px; border-radius:20px;
+      font-size:9px; font-weight:bold;
+      background:#1a1a1a; color:white;
     }
-    .badge-sale { background: #ef4444; }
+    .badge-sale { background:#ef4444; }
 
-    /* =====================================================
-       DROPZONE — input file SELALU ada di luar dropzone
-       supaya tidak hilang saat innerHTML diganti
-       ===================================================== */
-    .img-dropzone-wrapper { position: relative; }
-
+    .img-dropzone-wrapper { position:relative; }
     .img-dropzone {
       width:100%; border:2px dashed #E0D8CE; border-radius:14px;
       padding:28px 20px; text-align:center; cursor:pointer;
@@ -140,55 +136,70 @@
     .img-dropzone.has-image:hover .dropzone-overlay { opacity:1; }
 
     #toast {
-      position: fixed; bottom: 2rem; left: 50%;
-      transform: translateX(-50%) translateY(12px);
-      background: #1c1c1c; color: white; font-size: 0.875rem; font-weight: 500;
-      padding: 0.75rem 1.25rem; border-radius: 9999px;
-      display: flex; align-items: center; gap: 0.5rem;
-      z-index: 9999; opacity: 0;
-      transition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
-      pointer-events: none;
+      position:fixed; bottom:2rem; left:50%;
+      transform:translateX(-50%) translateY(12px);
+      background:#1c1c1c; color:white; font-size:0.875rem; font-weight:500;
+      padding:0.75rem 1.25rem; border-radius:9999px;
+      display:flex; align-items:center; gap:0.5rem;
+      z-index:9999; opacity:0;
+      transition:opacity 0.25s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      pointer-events:none;
     }
-    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
     .modal-confirm {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 10000;
-      display: flex; align-items: center; justify-content: center;
-      visibility: hidden; opacity: 0; transition: visibility 0.2s, opacity 0.2s;
+      position:fixed; top:0; left:0; width:100%; height:100%;
+      background:rgba(0,0,0,0.5); backdrop-filter:blur(4px); z-index:10000;
+      display:flex; align-items:center; justify-content:center;
+      visibility:hidden; opacity:0; transition:visibility 0.2s, opacity 0.2s;
     }
-    .modal-confirm.show { visibility: visible; opacity: 1; }
+    .modal-confirm.show { visibility:visible; opacity:1; }
     .modal-confirm .modal-card {
-      background: white; max-width: 380px; width: 90%; border-radius: 28px;
-      padding: 24px; text-align: center; transform: scale(0.95);
-      transition: transform 0.2s;
+      background:white; max-width:380px; width:90%; border-radius:28px;
+      padding:24px; text-align:center; transform:scale(0.95);
+      transition:transform 0.2s;
     }
-    .modal-confirm.show .modal-card { transform: scale(1); }
-    .modal-icon { background: #FEF2F2; width: 64px; height: 64px; border-radius: 60px;
-      display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
-    .modal-icon svg { width: 32px; height: 32px; stroke: #D94F4F; stroke-width: 1.8; }
-    .modal-title { font-size: 20px; font-weight: 800; color: #1a1a1a; margin-bottom: 12px; }
-    .modal-message { font-size: 14px; color: #6B5E52; margin-bottom: 24px; line-height: 1.5; }
-    .modal-buttons { display: flex; gap: 12px; }
-    .modal-btn { flex: 1; padding: 12px; border-radius: 40px; font-weight: 700; font-size: 14px;
-      cursor: pointer; transition: all 0.2s; border: none; }
-    .modal-btn-cancel { background: #F5F0EB; color: #1a1a1a; }
-    .modal-btn-confirm { background: #D94F4F; color: white; }
+    .modal-confirm.show .modal-card { transform:scale(1); }
+    .modal-icon { background:#FEF2F2; width:64px; height:64px; border-radius:60px;
+      display:flex; align-items:center; justify-content:center; margin:0 auto 16px; }
+    .modal-icon svg { width:32px; height:32px; stroke:#D94F4F; stroke-width:1.8; }
+    .modal-title { font-size:20px; font-weight:800; color:#1a1a1a; margin-bottom:12px; }
+    .modal-message { font-size:14px; color:#6B5E52; margin-bottom:24px; line-height:1.5; }
+    .modal-buttons { display:flex; gap:12px; }
+    .modal-btn { flex:1; padding:12px; border-radius:40px; font-weight:700; font-size:14px;
+      cursor:pointer; transition:all 0.2s; border:none; }
+    .modal-btn-cancel { background:#F5F0EB; color:#1a1a1a; }
+    .modal-btn-confirm { background:#D94F4F; color:white; }
 
     .pg-btn {
-      width: 36px; height: 36px; border-radius: 12px;
-      border: 1.5px solid #E0D8CE; background: white;
-      color: #8A7968; font-size: 13px; font-weight: 500;
-      display: inline-flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: all 0.2s;
+      width:36px; height:36px; border-radius:12px;
+      border:1.5px solid #E0D8CE; background:white;
+      color:#8A7968; font-size:13px; font-weight:500;
+      display:inline-flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all 0.2s;
     }
-    .pg-btn:hover { border-color: #C49A6C; color: #C49A6C; background: #FDF9F5; }
-    .pg-btn.active { background: #1a1a1a; border-color: #1a1a1a; color: white; font-weight: 600; }
-    .pg-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .no-arrow-select {
-      appearance: none;
-      background-image: none;
+    .pg-btn:hover { border-color:#C49A6C; color:#C49A6C; background:#FDF9F5; }
+    .pg-btn.active { background:#1a1a1a; border-color:#1a1a1a; color:white; font-weight:600; }
+    .pg-btn:disabled { opacity:0.4; cursor:not-allowed; }
+    .no-arrow-select { appearance:none; background-image:none; }
+
+    /* Log Aktivitas Produk */
+    .log-produk-table { width:100%; border-collapse:collapse; }
+    .log-produk-table thead th {
+      font-size:11px; font-weight:700; color:#8A7968;
+      padding:10px 14px; text-align:left; border-bottom:1.5px solid #E0D8CE;
     }
+    .log-produk-table tbody tr { border-bottom:1px solid #E0D8CE; }
+    .log-produk-table tbody tr:last-child { border-bottom:none; }
+    .log-produk-table tbody td { padding:10px 14px; font-size:12px; color:#1a1a1a; }
+    .log-badge {
+      display:inline-flex; align-items:center;
+      padding:3px 10px; border-radius:20px;
+      font-size:10px; font-weight:700;
+    }
+    .log-badge-tambah { background:#E8F5EA; color:#3A9E6F; }
+    .log-badge-edit   { background:#FFF8E6; color:#B8860B; }
+    .log-badge-hapus  { background:#FEF2F2; color:#D94F4F; }
   </style>
 </head>
 @include('owner.components.sidebar')
@@ -199,11 +210,13 @@
 
   <div class="px-4 md:px-6 py-5 max-w-2xl mx-auto">
 
+    {{-- HEADER --}}
     <div class="fade-up d1 mb-4">
       <h1 class="text-2xl md:text-3xl font-extrabold text-kashy-dark">Manajemen Produk & Stok</h1>
       <p class="text-xs text-kashy-muted mt-1">Kelola dan pantau inventaris produk Anda.</p>
     </div>
 
+    {{-- TOMBOL TAMBAH --}}
     <div class="fade-up d2 mb-4">
       <button onclick="openProductModal()" class="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm tracking-widest text-white uppercase transition-all duration-200 hover:opacity-90 active:scale-[.98]" style="background:#C49A6C; box-shadow:0 4px 14px 0 rgba(196,154,108,.35);">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -211,7 +224,7 @@
       </button>
     </div>
 
-    <!-- Filter: Search + Dropdown Kategori -->
+    {{-- FILTER: Search + Kategori --}}
     <div class="fade-up d2 mb-4">
       <div class="flex gap-3">
         <div class="relative flex-1">
@@ -231,14 +244,17 @@
         </div>
       </div>
     </div>
-    
+
+    {{-- RINGKASAN STOK --}}
     <div class="fade-up d2 mb-4" id="categoryStatsContainer">
       <p class="text-[10px] font-bold tracking-widest text-kashy-muted uppercase mb-2">Ringkasan Stok</p>
       <div id="categoryStatsGrid" class="grid grid-cols-1 gap-2"></div>
     </div>
 
+    {{-- GRID PRODUK --}}
     <div id="productContainer" class="product-grid"></div>
 
+    {{-- PAGINATION --}}
     <div class="fade-up d5 mt-6 mb-4">
       <div class="flex flex-col items-center gap-3">
         <div class="flex items-center justify-center gap-2 text-xs text-kashy-muted">
@@ -258,10 +274,36 @@
       </div>
     </div>
 
+    {{-- LOG AKTIVITAS PRODUK --}}
+    <div class="fade-up d5 mt-6 mb-6">
+      <h2 class="text-base font-bold text-kashy-dark mb-3">Log Aktivitas Produk</h2>
+      <div class="bg-white rounded-2xl overflow-hidden shadow-card border border-kashy-border">
+        <div class="overflow-x-auto">
+          <table class="log-produk-table">
+            <thead>
+              <tr>
+                <th>Aktivitas</th>
+                <th>Nama Produk</th>
+                <th>Stok</th>
+                <th>Oleh</th>
+                <th>Waktu</th>
+                <th>Tanggal</th>
+              </tr>
+            </thead>
+            <tbody id="logProdukBody">
+              <tr>
+                <td colspan="6" style="text-align:center; padding:20px; color:#8A7968;">Memuat log...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
   </div>
 </main>
 
-<!-- MODAL TAMBAH/EDIT PRODUK -->
+{{-- MODAL TAMBAH/EDIT PRODUK --}}
 <div id="productModal" class="hidden fixed inset-0 z-[999] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
   <div class="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-5 relative">
     <h2 id="modalTitle" class="text-xl font-bold text-kashy-dark mb-4">Tambah Produk</h2>
@@ -270,9 +312,7 @@
     <div class="mb-4">
       <label class="form-label">Foto Produk</label>
       <div class="img-dropzone-wrapper">
-        {{-- INPUT FILE DILETAKKAN DI LUAR DROPZONE — tidak akan hilang saat innerHTML dropzone diganti --}}
         <input type="file" id="prodImage" accept="image/*" class="hidden" onchange="previewImage(this)"/>
-        {{-- Dropzone hanya berisi tampilan visual --}}
         <div class="img-dropzone" id="imgDropzone" onclick="document.getElementById('prodImage').click()">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#C49A6C" stroke-width="1.6" class="mx-auto mb-2">
             <rect x="3" y="3" width="18" height="18" rx="2"/>
@@ -288,7 +328,7 @@
       <label class="form-label">Nama Produk <span class="required-star">*</span></label>
       <input type="text" id="prodName" class="form-input py-2.5" placeholder="Nama produk..."/>
     </div>
-    
+
     <div class="grid grid-cols-2 gap-3 mb-3">
       <div>
         <label class="form-label">Kategori <span class="required-star">*</span></label>
@@ -329,7 +369,7 @@
   </div>
 </div>
 
-<!-- MODAL KONFIRMASI HAPUS -->
+{{-- MODAL KONFIRMASI HAPUS --}}
 <div id="confirmDeleteModal" class="modal-confirm">
   <div class="modal-card">
     <div class="modal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></div>
@@ -345,16 +385,19 @@
 <div id="toast"><span id="toastMsg"></span></div>
 
 <script>
-  let products = @json($products);
+  let products   = @json($products);
   let categories = @json($categories);
-  
+
   let currentFilter = "semua";
   let searchKeyword = "";
-  let currentPage = 1;
-  let perPage = 12;
+  let currentPage   = 1;
+  let perPage       = 12;
 
   const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
+  // ============================================================
+  // FILTER & RENDER PRODUK
+  // ============================================================
   function getFiltered() {
     let f = [...products];
     if (currentFilter !== "semua") {
@@ -370,8 +413,8 @@
 
   function renderCategoryStats() {
     const filtered = getFiltered();
-    const habis = filtered.filter(p => p.stok === 0).length;
-    const menipis = filtered.filter(p => p.stok > 0 && p.stok <= 5).length;
+    const habis    = filtered.filter(p => p.stok === 0).length;
+    const menipis  = filtered.filter(p => p.stok > 0 && p.stok <= 5).length;
     const statsGrid = document.getElementById('categoryStatsGrid');
     if (statsGrid) {
       statsGrid.innerHTML = `
@@ -400,25 +443,25 @@
     if (!pgDiv) return;
     if (totalPages <= 1) { pgDiv.innerHTML = ''; return; }
     let pages = [];
-    if (totalPages <= 7) for (let i=1; i<=totalPages; i++) pages.push(i);
+    if (totalPages <= 7) for (let i = 1; i <= totalPages; i++) pages.push(i);
     else {
       pages.push(1);
-      if (currentPage-1 > 2) pages.push('…');
-      for (let i=Math.max(2, currentPage-1); i<=Math.min(totalPages-1, currentPage+1); i++) pages.push(i);
-      if (currentPage+1 < totalPages-1) pages.push('…');
+      if (currentPage - 1 > 2) pages.push('…');
+      for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) pages.push(i);
+      if (currentPage + 1 < totalPages - 1) pages.push('…');
       pages.push(totalPages);
     }
-    let html = `<button class="pg-btn" onclick="goPage(${currentPage-1})" ${currentPage===1 ? 'disabled' : ''}>‹</button>`;
+    let html = `<button class="pg-btn" onclick="goPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>‹</button>`;
     pages.forEach(p => {
       if (p === '…') html += `<span class="w-9 h-9 flex items-center justify-center text-sm text-muted">…</span>`;
-      else html += `<button class="pg-btn ${p===currentPage ? 'active' : ''}" onclick="goPage(${p})">${p}</button>`;
+      else html += `<button class="pg-btn ${p === currentPage ? 'active' : ''}" onclick="goPage(${p})">${p}</button>`;
     });
-    html += `<button class="pg-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages ? 'disabled' : ''}>›</button>`;
+    html += `<button class="pg-btn" onclick="goPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>›</button>`;
     pgDiv.innerHTML = html;
   }
 
   function goPage(page) {
-    const total = getFiltered().length;
+    const total      = getFiltered().length;
     const totalPages = Math.max(1, Math.ceil(total / perPage));
     if (page < 1 || page > totalPages) return;
     currentPage = page;
@@ -426,21 +469,21 @@
   }
 
   function changePerPage() {
-    perPage = parseInt(document.getElementById('perPageSelect').value);
+    perPage     = parseInt(document.getElementById('perPageSelect').value);
     currentPage = 1;
     renderProducts();
   }
 
   function renderProducts() {
-    let filtered = getFiltered();
-    const total = filtered.length;
+    let filtered   = getFiltered();
+    const total    = filtered.length;
     const totalPages = Math.max(1, Math.ceil(total / perPage));
     if (currentPage > totalPages) currentPage = totalPages;
-    const start = (currentPage-1)*perPage;
-    const paged = filtered.slice(start, start+perPage);
+    const start  = (currentPage - 1) * perPage;
+    const paged  = filtered.slice(start, start + perPage);
     const container = document.getElementById('productContainer');
     if (!container) return;
-    
+
     if (paged.length === 0) {
       container.innerHTML = `<div class="col-span-2 bg-white rounded-2xl p-6 text-center shadow-card"><p class="text-kashy-muted text-sm">Tidak ada produk ditemukan.</p></div>`;
     } else {
@@ -448,15 +491,19 @@
         const priceFormatted = `Rp ${parseInt(p.harga).toLocaleString('id-ID')}`;
         let badgeHtml = '';
         if (p.is_discount) badgeHtml = `<span class="badge-produk badge-sale">SALE</span>`;
-        const stockStatus = p.stok === 0 ? '<p class="text-[8px] font-bold text-red-600 mt-0.5">⚠ Habis</p>' : (p.stok <=5 ? '<p class="text-[8px] font-bold text-orange-500 mt-0.5">⚠ Menipis</p>' : '');
+        const stockStatus = p.stok === 0
+          ? '<p class="text-[8px] font-bold text-red-600 mt-0.5">⚠ Habis</p>'
+          : (p.stok <= 5 ? '<p class="text-[8px] font-bold text-orange-500 mt-0.5">⚠ Menipis</p>' : '');
         const imageUrl = p.gambar
           ? (p.gambar.startsWith('products/')
               ? '/storage/' + p.gambar
               : '/images/products/' + p.gambar.split('/').pop())
           : 'https://placehold.co/400x400?text=No+Image';
         const categoryName = categories.find(c => c.id === p.category_id)?.nama_kategori || '-';
-        const sizes = p.ukuran ? p.ukuran.split(',').map(v => `<span class="chip text-[9px] py-0 px-1.5">${v.trim()}</span>`).join('') : '';
-        
+        const sizes = p.ukuran
+          ? p.ukuran.split(',').map(v => `<span class="chip text-[9px] py-0 px-1.5">${v.trim()}</span>`).join('')
+          : '';
+
         return `
           <div class="bg-white rounded-xl p-2 shadow-card fade-up">
             <div class="prod-img-wrap relative">
@@ -488,9 +535,10 @@
     renderPagination(total);
   }
 
-  function editProduct(id) {
-    openProductModal(id);
-  }
+  // ============================================================
+  // MODAL PRODUK
+  // ============================================================
+  function editProduct(id) { openProductModal(id); }
 
   function openProductModal(id = null) {
     const modal = document.getElementById('productModal');
@@ -498,23 +546,22 @@
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 
-    // Reset input file dulu setiap kali modal dibuka
     const fileInput = document.getElementById('prodImage');
     fileInput.value = '';
 
     if (id) {
       const p = products.find(x => x.id === id);
       if (p) {
-        document.getElementById('modalTitle').innerText = 'Edit Produk';
-        document.getElementById('editId').value = p.id;
-        document.getElementById('prodName').value = p.nama_produk;
-        document.getElementById('prodCategory').value = p.category_id;
-        document.getElementById('prodPrice').value = parseInt(p.harga).toLocaleString('id-ID');
-        document.getElementById('prodStock').value = p.stok;
-        document.getElementById('prodDiscount').value = p.is_discount ? '1' : '0';
-        document.getElementById('prodSize').value = p.ukuran || '';
-        document.getElementById('prodColor').value = p.warna || '';
-        document.getElementById('prodDesc').value = p.deskripsi || '';
+        document.getElementById('modalTitle').innerText    = 'Edit Produk';
+        document.getElementById('editId').value            = p.id;
+        document.getElementById('prodName').value          = p.nama_produk;
+        document.getElementById('prodCategory').value      = p.category_id;
+        document.getElementById('prodPrice').value         = parseInt(p.harga).toLocaleString('id-ID');
+        document.getElementById('prodStock').value         = p.stok;
+        document.getElementById('prodDiscount').value      = p.is_discount ? '1' : '0';
+        document.getElementById('prodSize').value          = p.ukuran || '';
+        document.getElementById('prodColor').value         = p.warna || '';
+        document.getElementById('prodDesc').value          = p.deskripsi || '';
         if (p.gambar) {
           setDropzoneImage('/storage/' + p.gambar);
         } else {
@@ -522,16 +569,16 @@
         }
       }
     } else {
-      document.getElementById('modalTitle').innerText = 'Tambah Produk';
-      document.getElementById('editId').value = '';
-      document.getElementById('prodName').value = '';
-      document.getElementById('prodCategory').value = categories[0]?.id || '';
-      document.getElementById('prodPrice').value = '';
-      document.getElementById('prodStock').value = '';
-      document.getElementById('prodDiscount').value = '0';
-      document.getElementById('prodSize').value = '';
-      document.getElementById('prodColor').value = '';
-      document.getElementById('prodDesc').value = '';
+      document.getElementById('modalTitle').innerText    = 'Tambah Produk';
+      document.getElementById('editId').value            = '';
+      document.getElementById('prodName').value          = '';
+      document.getElementById('prodCategory').value      = categories[0]?.id || '';
+      document.getElementById('prodPrice').value         = '';
+      document.getElementById('prodStock').value         = '';
+      document.getElementById('prodDiscount').value      = '0';
+      document.getElementById('prodSize').value          = '';
+      document.getElementById('prodColor').value         = '';
+      document.getElementById('prodDesc').value          = '';
       resetDropzone();
     }
   }
@@ -542,6 +589,9 @@
     document.body.style.overflow = '';
   }
 
+  // ============================================================
+  // HAPUS PRODUK
+  // ============================================================
   let deleteId = null;
   function deleteProduct(id) {
     deleteId = id;
@@ -549,94 +599,96 @@
     if (modal) modal.classList.add('show');
   }
 
-  document.getElementById('deleteConfirmBtn')?.addEventListener('click', function() {
+  document.getElementById('deleteConfirmBtn')?.addEventListener('click', function () {
     if (!deleteId) return;
     fetch(`/owner/produk/${deleteId}`, {
       method: 'DELETE',
-      headers: {
-        'X-CSRF-TOKEN': csrfToken,
-        'Accept': 'application/json'
-      }
+      headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
     })
-    .then(response => response.json())
+    .then(r => r.json())
     .then(data => {
       if (data.success) {
         showToast(data.message);
+        loadProdukLogs(); // refresh log
         location.reload();
       } else {
         showToast(data.message, false);
       }
     })
-    .catch(error => {
-      showToast('Terjadi kesalahan', false);
-    })
+    .catch(() => showToast('Terjadi kesalahan', false))
     .finally(() => {
       document.getElementById('confirmDeleteModal')?.classList.remove('show');
       deleteId = null;
     });
   });
 
-  document.getElementById('deleteCancelBtn')?.addEventListener('click', function() {
+  document.getElementById('deleteCancelBtn')?.addEventListener('click', function () {
     document.getElementById('confirmDeleteModal')?.classList.remove('show');
     deleteId = null;
   });
 
-  document.getElementById('saveProductBtn')?.addEventListener('click', function() {
+  // ============================================================
+  // SIMPAN PRODUK (TAMBAH / EDIT)
+  // ============================================================
+  document.getElementById('saveProductBtn')?.addEventListener('click', function () {
     const id = document.getElementById('editId').value;
     const formData = new FormData();
-    formData.append('nama_produk', document.getElementById('prodName').value);
-    formData.append('category_id', document.getElementById('prodCategory').value);
-    formData.append('harga', parseRupiahToNumber(document.getElementById('prodPrice').value));
-    formData.append('stok', document.getElementById('prodStock').value);
-    formData.append('ukuran', document.getElementById('prodSize').value);
-    formData.append('warna', document.getElementById('prodColor').value);
-    formData.append('deskripsi', document.getElementById('prodDesc').value);
-    formData.append('is_discount', document.getElementById('prodDiscount').value);
-    
-    // Input file sekarang selalu ada di DOM — tidak akan hilang
+    formData.append('nama_produk',  document.getElementById('prodName').value);
+    formData.append('category_id',  document.getElementById('prodCategory').value);
+    formData.append('harga',        parseRupiahToNumber(document.getElementById('prodPrice').value));
+    formData.append('stok',         document.getElementById('prodStock').value);
+    formData.append('ukuran',       document.getElementById('prodSize').value);
+    formData.append('warna',        document.getElementById('prodColor').value);
+    formData.append('deskripsi',    document.getElementById('prodDesc').value);
+    formData.append('is_discount',  document.getElementById('prodDiscount').value);
+
     const fileInput = document.getElementById('prodImage');
     if (fileInput && fileInput.files[0]) {
       formData.append('gambar', fileInput.files[0]);
     }
-    
+
     const url = id ? `/owner/produk/${id}` : '/owner/produk';
     if (id) formData.append('_method', 'PUT');
-    
+
     fetch(url, {
       method: 'POST',
       headers: { 'X-CSRF-TOKEN': csrfToken },
       body: formData
     })
-    .then(response => response.json())
+    .then(r => r.json())
     .then(data => {
       if (data.success) {
         showToast(data.message);
+        loadProdukLogs(); // refresh log otomatis
         location.reload();
       } else {
         showToast(data.message, false);
       }
     })
-    .catch(error => {
-      showToast('Terjadi kesalahan', false);
-    });
+    .catch(() => showToast('Terjadi kesalahan', false));
   });
 
-  // Event listeners
-  document.getElementById('searchProduct')?.addEventListener('input', e => { 
-    searchKeyword = e.target.value; 
-    currentPage = 1; 
-    renderProducts(); 
-  });
-  
-  document.getElementById('perPageSelect')?.addEventListener('change', changePerPage);
-  
-  document.getElementById('categoryFilter')?.addEventListener('change', function(e) {
-    currentFilter = e.target.value;
-    currentPage = 1;
+  // ============================================================
+  // EVENT LISTENERS FILTER
+  // ============================================================
+  document.getElementById('searchProduct')?.addEventListener('input', e => {
+    searchKeyword = e.target.value;
+    currentPage   = 1;
     renderProducts();
   });
 
-  function showToast(msg, success=true) {
+  document.getElementById('perPageSelect')?.addEventListener('change', changePerPage);
+
+  document.getElementById('categoryFilter')?.addEventListener('change', function (e) {
+    currentFilter = e.target.value;
+    currentPage   = 1;
+    renderProducts();
+  });
+
+  // ============================================================
+  // HELPER FUNCTIONS
+  // ============================================================
+  function showToast(msg, success = true) {
     const toast = document.getElementById('toast');
     if (!toast) return;
     document.getElementById('toastMsg').innerText = msg;
@@ -650,24 +702,20 @@
     if (val === '') { input.value = ''; return; }
     input.value = new Intl.NumberFormat('id-ID').format(parseInt(val));
   }
-  
-  function parseRupiahToNumber(str) { return parseInt(str.replace(/[^0-9]/g, '')) || 0; }
-  
-  function escapeHtml(str) { 
-    if (!str) return ''; 
-    return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' })[m]); 
+
+  function parseRupiahToNumber(str) {
+    return parseInt(str.replace(/[^0-9]/g, '')) || 0;
   }
 
-  // ============================================================
-  // PERBAIKAN UTAMA: previewImage hanya update tampilan dropzone,
-  // TIDAK menyentuh input file yang ada di luar dropzone
-  // ============================================================
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[m]);
+  }
+
   function previewImage(input) {
     if (!input.files[0]) return;
     const reader = new FileReader();
-    reader.onload = e => {
-      setDropzoneImage(e.target.result);
-    };
+    reader.onload = e => setDropzoneImage(e.target.result);
     reader.readAsDataURL(input.files[0]);
   }
 
@@ -675,7 +723,6 @@
     const dz = document.getElementById('imgDropzone');
     if (!dz) return;
     dz.classList.add('has-image');
-    // Hanya isi visual — tanpa input file di dalamnya
     dz.innerHTML = `
       <img src="${src}" alt="preview"/>
       <div class="dropzone-overlay">
@@ -688,7 +735,6 @@
     const dz = document.getElementById('imgDropzone');
     if (!dz) return;
     dz.classList.remove('has-image');
-    // Hanya reset visual — input file tetap di luarnya
     dz.innerHTML = `
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#C49A6C" stroke-width="1.6" class="mx-auto mb-2">
         <rect x="3" y="3" width="18" height="18" rx="2"/>
@@ -696,56 +742,82 @@
         <polyline points="21 15 16 10 5 21"/>
       </svg>
       <p class="text-sm font-semibold text-kashy-muted">Pilih atau seret gambar</p>
-      <p class="text-xs text-kashy-muted mt-1">JPG, PNG — maks 5MB</p>
+      <p class="text-xs text-kashy-muted mt-1">JPG, PNG — maks 2MB</p>
     `;
   }
 
-  // Render awal
-  renderProducts();
-
-  // Sidebar / hamburger menu
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('overlay');
-  const menuBtn = document.getElementById('global-menu-toggle');
-  const navLinks = document.querySelectorAll('[data-nav]');
-
-  function openSidebar() {
-    sidebar?.classList.add('sidebar-open');
-    overlay?.classList.add('show');
-    document.body.style.overflow = 'hidden';
+  // ============================================================
+  // LOG AKTIVITAS PRODUK
+  // ============================================================
+  function aksiLogClass(aksi) {
+    if (aksi === 'Tambah Produk') return 'log-badge log-badge-tambah';
+    if (aksi === 'Edit Produk')   return 'log-badge log-badge-edit';
+    if (aksi === 'Hapus Produk')  return 'log-badge log-badge-hapus';
+    return 'log-badge';
   }
 
-  function closeSidebar() {
-    sidebar?.classList.remove('sidebar-open');
-    overlay?.classList.remove('show');
-    document.body.style.overflow = '';
-  }
+  async function loadProdukLogs() {
+    try {
+      const res  = await fetch('{{ route("owner.produk.logs") }}');
+      const logs = await res.json();
+      const tbody = document.getElementById('logProdukBody');
+      if (!tbody) return;
 
-  function toggleSidebar() {
-    if (sidebar?.classList.contains('sidebar-open')) {
-      closeSidebar();
-    } else {
-      openSidebar();
+      if (!logs.length) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align:center; padding:20px; font-size:12px; color:#8A7968;">
+              Belum ada aktivitas produk.
+            </td>
+          </tr>`;
+        return;
+      }
+
+      tbody.innerHTML = logs.map(log => `
+        <tr>
+          <td><span class="${aksiLogClass(log.aksi)}">${log.aksi}</span></td>
+          <td style="font-weight:600; max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(log.nama_produk)}</td>
+          <td>${log.stok}</td>
+          <td style="color:#8A7968;">${escapeHtml(log.oleh)}</td>
+          <td style="color:#8A7968;">${log.waktu}</td>
+          <td style="color:#8A7968;">${log.tanggal}</td>
+        </tr>
+      `).join('');
+    } catch (err) {
+      const tbody = document.getElementById('logProdukBody');
+      if (tbody) tbody.innerHTML = `
+        <tr>
+          <td colspan="6" style="text-align:center; padding:20px; font-size:12px; color:#ef4444;">
+            Gagal memuat log aktivitas.
+          </td>
+        </tr>`;
     }
   }
 
-  if (menuBtn) {
-    menuBtn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      toggleSidebar();
-    });
-  }
+  // ============================================================
+  // SIDEBAR
+  // ============================================================
+  const sidebar  = document.getElementById('sidebar');
+  const overlay  = document.getElementById('overlay');
+  const menuBtn  = document.getElementById('global-menu-toggle');
+  const navLinks = document.querySelectorAll('[data-nav]');
 
+  function openSidebar()  { sidebar?.classList.add('sidebar-open'); overlay?.classList.add('show'); document.body.style.overflow = 'hidden'; }
+  function closeSidebar() { sidebar?.classList.remove('sidebar-open'); overlay?.classList.remove('show'); document.body.style.overflow = ''; }
+  function toggleSidebar() { sidebar?.classList.contains('sidebar-open') ? closeSidebar() : openSidebar(); }
+
+  if (menuBtn) menuBtn.addEventListener('click', e => { e.stopPropagation(); toggleSidebar(); });
   overlay?.addEventListener('click', closeSidebar);
-
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') { closeSidebar(); }
-  });
-
-  navLinks.forEach(link => { link.addEventListener('click', closeSidebar); });
-
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSidebar(); });
+  navLinks.forEach(link => link.addEventListener('click', closeSidebar));
   sidebar?.classList.remove('sidebar-open');
   overlay?.classList.remove('show');
+
+  // ============================================================
+  // INIT
+  // ============================================================
+  renderProducts();
+  loadProdukLogs();
 </script>
 </body>
 </html>
