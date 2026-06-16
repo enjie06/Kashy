@@ -114,7 +114,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::delete('/owner/products/{product}', [ProductController::class, 'destroy'])
         ->name('owner.products.destroy');
-
+Route::get('/produk-logs', [ProductController::class, 'activityLogs'])->name('owner.produk.logs');
     // Route::get('/owner/manajemenkategori', [CategoryController::class, 'index'])
     //     ->middleware('auth')
     //     ->name('manajemen.kategori');
@@ -201,6 +201,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/owner/diskon/{id}', [DiscountController::class, 'update'])->name('diskon.update');
     Route::delete('/owner/diskon/{id}', [DiscountController::class, 'destroy'])->name('diskon.destroy');
 });
+
 
 
 /*
