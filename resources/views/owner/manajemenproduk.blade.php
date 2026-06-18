@@ -631,42 +631,64 @@
   // SIMPAN PRODUK (TAMBAH / EDIT)
   // ============================================================
   document.getElementById('saveProductBtn')?.addEventListener('click', function () {
-    const id = document.getElementById('editId').value;
-    const formData = new FormData();
-    formData.append('nama_produk',  document.getElementById('prodName').value);
-    formData.append('category_id',  document.getElementById('prodCategory').value);
-    formData.append('harga',        parseRupiahToNumber(document.getElementById('prodPrice').value));
-    formData.append('stok',         document.getElementById('prodStock').value);
-    formData.append('ukuran',       document.getElementById('prodSize').value);
-    formData.append('warna',        document.getElementById('prodColor').value);
-    formData.append('deskripsi',    document.getElementById('prodDesc').value);
-    formData.append('is_discount',  document.getElementById('prodDiscount').value);
+  const id = document.getElementById('editId').value;
 
-    const fileInput = document.getElementById('prodImage');
-    if (fileInput && fileInput.files[0]) {
-      formData.append('gambar', fileInput.files[0]);
+  const errorMessage = validateProductForm(!!id);
+  if (errorMessage) {
+    showToast(errorMessage, false);
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('nama_produk',  document.getElementById('prodName').value.trim());
+  formData.append('category_id',  document.getElementById('prodCategory').value);
+  formData.append('harga',        parseRupiahToNumber(document.getElementById('prodPrice').value));
+  formData.append('stok',         document.getElementById('prodStock').value);
+  formData.append('ukuran',       document.getElementById('prodSize').value);
+  formData.append('warna',        document.getElementById('prodColor').value);
+  formData.append('deskripsi',    document.getElementById('prodDesc').value);
+  formData.append('is_discount',  document.getElementById('prodDiscount').value);
+
+  const fileInput = document.getElementById('prodImage');
+  if (fileInput && fileInput.files[0]) {
+    formData.append('gambar', fileInput.files[0]);
+  }
+
+  const url = id ? `/owner/produk/${id}` : '/owner/produk';
+  if (id) formData.append('_method', 'PUT');
+
+  fetch(url, {
+    method: 'POST',
+    headers: { 
+      'X-CSRF-TOKEN': csrfToken,
+      'Accept': 'application/json'
+    },
+    body: formData
+  })
+  .then(async r => {
+    const data = await r.json();
+
+    if (!r.ok) {
+      if (data.errors) {
+        const firstError = Object.values(data.errors)[0][0];
+        throw new Error(firstError);
+      }
+      throw new Error(data.message || 'Data produk tidak valid.');
     }
 
-    const url = id ? `/owner/produk/${id}` : '/owner/produk';
-    if (id) formData.append('_method', 'PUT');
-
-    fetch(url, {
-      method: 'POST',
-      headers: { 'X-CSRF-TOKEN': csrfToken },
-      body: formData
-    })
-    .then(r => r.json())
-    .then(data => {
-      if (data.success) {
-        showToast(data.message);
-        loadProdukLogs(); // refresh log otomatis
-        location.reload();
-      } else {
-        showToast(data.message, false);
-      }
-    })
-    .catch(() => showToast('Terjadi kesalahan', false));
-  });
+    return data;
+  })
+  .then(data => {
+    if (data.success) {
+      showToast(data.message);
+      loadProdukLogs();
+      location.reload();
+    } else {
+      showToast(data.message || 'Gagal menyimpan produk.', false);
+    }
+  })
+  .catch(err => showToast(err.message || 'Terjadi kesalahan saat menyimpan produk.', false));
+  }); 
 
   // ============================================================
   // EVENT LISTENERS FILTER
@@ -688,6 +710,49 @@
   // ============================================================
   // HELPER FUNCTIONS
   // ============================================================
+  function validateProductForm(isEdit = false) {
+  const nama = document.getElementById('prodName').value.trim();
+  const kategori = document.getElementById('prodCategory').value;
+  const harga = parseRupiahToNumber(document.getElementById('prodPrice').value);
+  const stok = document.getElementById('prodStock').value;
+  const ukuran = document.getElementById('prodSize').value.trim();
+  const warna = document.getElementById('prodColor').value.trim();
+  const deskripsi = document.getElementById('prodDesc').value.trim();
+  const gambar = document.getElementById('prodImage').files[0];
+
+  if (!nama) return 'Nama produk wajib diisi.';
+  if (!kategori) return 'Kategori produk wajib dipilih.';
+
+  if (!harga) return 'Harga produk wajib diisi.';
+  if (harga < 5000) return 'Harga produk minimal Rp5.000.';
+
+  if (stok === '') return 'Stok produk wajib diisi.';
+  if (parseInt(stok) < 0) return 'Stok tidak boleh kurang dari 0.';
+  if (!Number.isInteger(Number(stok))) return 'Stok harus berupa angka bulat.';
+
+  if (!ukuran) return 'Ukuran produk wajib diisi.';
+  if (!warna) return 'Warna produk wajib diisi.';
+  if (!deskripsi) return 'Deskripsi produk wajib diisi.';
+
+  if (!isEdit && !gambar) {
+    return 'Foto produk wajib diunggah saat tambah produk.';
+  }
+
+  if (gambar) {
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+
+    if (!allowedTypes.includes(gambar.type)) {
+      return 'Format foto harus JPG, JPEG, atau PNG.';
+    }
+
+    if (gambar.size > 2 * 1024 * 1024) {
+      return 'Ukuran foto maksimal 2MB.';
+    }
+  }
+
+  return null;
+}
+
   function showToast(msg, success = true) {
     const toast = document.getElementById('toast');
     if (!toast) return;
