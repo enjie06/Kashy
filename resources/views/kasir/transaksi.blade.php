@@ -398,6 +398,7 @@
       const product = productsDatabase.find(p => p.id === item.id);
       const stokSisa = product ? product.stok : 0;
       const maxReached = item.qty >= stokSisa;
+      const minReached = item.qty <= 1; // Tambahkan kondisi ini
 
       html += `
         <div class="flex items-start gap-3">
@@ -410,9 +411,23 @@
             ${maxReached ? `<p class="text-[10px] text-red-500 font-medium mb-1">⚠️ Maks stok: ${stokSisa}</p>` : ''}
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-3">
-                <button onclick="changeQty(${index}, -1)" class="w-7 h-7 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold transition">-</button>
+                <!-- TOMBOL MINUS - DIUBAH -->
+                <button onclick="changeQty(${index}, -1)" 
+                  class="w-7 h-7 flex items-center justify-center rounded-lg font-bold transition
+                  ${minReached || stokSisa === 0 
+                    ? 'bg-gray-50 text-gray-300 cursor-not-allowed' 
+                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}">
+                  -
+                </button>
                 <span class="w-8 text-center font-semibold text-sm">${item.qty}</span>
-                <button onclick="changeQty(${index}, 1)" class="w-7 h-7 flex items-center justify-center rounded-lg ${maxReached ? 'bg-gray-50 text-gray-300 cursor-not-allowed' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'} font-bold transition">+</button>
+                <!-- TOMBOL PLUS - TETAP SAMA -->
+                <button onclick="changeQty(${index}, 1)" 
+                  class="w-7 h-7 flex items-center justify-center rounded-lg font-bold transition
+                  ${maxReached || stokSisa === 0 
+                    ? 'bg-gray-50 text-gray-300 cursor-not-allowed' 
+                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}">
+                  +
+                </button>
               </div>
               <span class="font-bold text-sm text-gray-900">${formatRupiah(item.price * item.qty)}</span>
             </div>
